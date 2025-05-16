@@ -5,5 +5,8 @@ endif
 vim9script
 
 import autoload 'rookie_clangd.vim'
+import autoload 'rookie_gitgraph.vim'
 
-command! -nargs=0 RkMc rookie_clangd.CreateCompileCommandsJson()
+command! -nargs=0 RookieClangdGenerate rookie_clangd.CreateCompileCommandsJson()
+command! -nargs=0 RookieGitGraph rookie_gitgraph.OpenGitGraph(1)
+command! -nargs=0 RookieGitGraphLocal rookie_gitgraph.OpenGitGraph(0)
