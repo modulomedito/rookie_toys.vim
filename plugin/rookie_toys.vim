@@ -4,6 +4,8 @@ if !has('vim9script') ||  v:version < 900
 endif
 vim9script
 
+g:rookie_toys = 1
+
 import autoload 'rookie_clangd.vim'
 import autoload 'rookie_gitgraph.vim'
 
