@@ -9,6 +9,6 @@ g:rookie_toys = 1
 import autoload 'rookie_clangd.vim'
 import autoload 'rookie_gitgraph.vim'
 
-command! -nargs=0 RookieClangdGenerate rookie_clangd.CreateCompileCommandsJson()
-command! -nargs=0 RookieGitGraph rookie_gitgraph.OpenGitGraph(1)
-command! -nargs=0 RookieGitGraphLocal rookie_gitgraph.OpenGitGraph(0)
+command! -nargs=0 -bar RookieClangdGenerate rookie_clangd.CreateCompileCommandsJson()
+command! -nargs=0 -bar RookieGitGraph rookie_gitgraph.OpenGitGraph(1)
+command! -nargs=0 -bar RookieGitGraphLocal rookie_gitgraph.OpenGitGraph(0)
