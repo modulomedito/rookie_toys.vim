@@ -15,4 +15,4 @@ command! -nargs=0 -bar RookieClangdGenerate rookie_clangd.CreateCompileCommandsJ
 command! -nargs=0 -bar RookieGitGraph rookie_gitgraph.OpenGitGraph(1)
 command! -nargs=0 -bar RookieGitGraphLocal rookie_gitgraph.OpenGitGraph(0)
 command! -nargs=0 -bar RookieMarkdownTitleToAnchor rookie_markdown.ConvertMarkdownTitleToAnchorLink()
-command! -nargs=1 -bar RookieRetab rookie_retab.Retab(<q-args>)
+command! -nargs=1 -bar RookieRetab rookie_retab.Retab(str2nr(<q-args>))
