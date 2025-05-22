@@ -2,9 +2,18 @@ vim9script
 
 g:rookie_gitdiff_reg1 = ""
 g:rookie_gitdiff_reg2 = ""
+g:rookie_gitdiff_file = ""
 
 export def Diff()
     var word = expand('<cword>')
+
+    if len(word) == 7
+        if word =~# '\v^[0-9a-fA-F]{7}$'
+        else
+            g:rookie_gitdiff_file = word
+            return
+        endif
+    endif
 
     if g:rookie_gitdiff_reg1 == ""
         g:rookie_gitdiff_reg1 = word
@@ -15,6 +24,7 @@ export def Diff()
         else
             g:rookie_gitdiff_reg1 = ""
             g:rookie_gitdiff_reg2 = ""
+            g:rookie_gitdiff_file = ""
             return
         endif
     endif
