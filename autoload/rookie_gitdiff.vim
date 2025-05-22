@@ -25,6 +25,7 @@ export def Diff()
             g:rookie_gitdiff_reg1 = ""
             g:rookie_gitdiff_reg2 = ""
             g:rookie_gitdiff_file = ""
+            echo "RookieGitDiff: All saved variables cleaned"
             return
         endif
     endif
