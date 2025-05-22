@@ -10,7 +10,7 @@ export def Diff()
     if len(word) == 7
         if word =~# '\v^[0-9a-fA-F]{7}$'
         else
-            g:rookie_gitdiff_file = word
+            g:rookie_gitdiff_file = expand('%')
             return
         endif
     endif
@@ -31,8 +31,8 @@ export def Diff()
 
     var reg1 = g:rookie_gitdiff_reg1
     var reg2 = g:rookie_gitdiff_reg2
-    var cmd1 = 'Gedit ' .. reg1 .. ':' .. expand('%')
-    var cmd2 = 'vertical ' .. reg2 .. ':' .. expand('%')
+    var cmd1 = 'Gedit ' .. reg1 .. ':' .. g:rookie_gitdiff_file
+    var cmd2 = 'vertical ' .. reg2 .. ':' .. g:rookie_gitdiff_file
     call execute(cmd1 .. ' | ' .. cmd2)
     g:rookie_gitdiff_reg1 = ""
     g:rookie_gitdiff_reg2 = ""
