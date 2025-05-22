@@ -34,7 +34,9 @@ export def Diff()
     var commit2 = word
     var cmd1 = 'Gedit ' .. commit1 .. ':' .. g:rookie_gitdiff_file
     var cmd2 = 'vertical ' .. commit2 .. ':' .. g:rookie_gitdiff_file
-    call execute(cmd1 .. ' | ' .. cmd2)
+    var cmd_final = cmd1 .. ' | ' .. cmd2
+    echo cmd_final
+    # call execute(cmd1 .. ' | ' .. cmd2)
 
     g:rookie_gitdiff_sha1 = ""
     g:rookie_gitdiff_reg2 = ""
