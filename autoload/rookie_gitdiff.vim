@@ -37,10 +37,6 @@ export def Diff()
     var cmd_final = cmd1 .. ' | ' .. cmd2
 
     call execute(cmd_final)
-    # echo cmd_final
-
     g:rookie_gitdiff_sha1 = ""
-    g:rookie_gitdiff_reg2 = ""
-    g:rookie_gitdiff_file = ""
 enddef
 
