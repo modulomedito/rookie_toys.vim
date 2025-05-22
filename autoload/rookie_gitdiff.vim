@@ -3,12 +3,12 @@ vim9script
 g:rookie_gitdiff_reg1 = ""
 g:rookie_gitdiff_reg2 = ""
 g:rookie_gitdiff_file = ""
-
+f82fa2d
 export def Diff()
     var word = expand('<cword>')
 
     if len(word) == 7
-        if word =~# '\v^[0-9a-fA-F]{7}$'
+        if word =~#'\v[0-9a-f]{7}'
         else
             g:rookie_gitdiff_file = expand('%')
             return
