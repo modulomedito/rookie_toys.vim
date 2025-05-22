@@ -4,6 +4,10 @@ g:rookie_gitdiff_sha1 = ""
 g:rookie_gitdiff_file = ""
 
 export def Diff()
+    if !exists(':Git')
+        echo "RookieGitDiff: vim-fugitive is NOT installed, diff depents on it!"
+    endif
+
     var word = expand('<cword>')
     var is_short_sha = ((len(word) == 7) && (word != "") && (word =~# '\v[0-9a-f]{7}'))
 
