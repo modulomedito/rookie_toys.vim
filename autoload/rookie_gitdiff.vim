@@ -7,7 +7,7 @@ g:rookie_gitdiff_file = ""
 export def Diff()
     var word = expand('<cword>')
 
-    if len(word) == 7
+    if (len(word) == 7) && (word != "")
         if word =~#'\v[0-9a-f]{7}'
         else
             g:rookie_gitdiff_file = expand('%')
