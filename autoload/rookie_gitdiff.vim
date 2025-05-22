@@ -32,8 +32,8 @@ export def Diff()
 
     var commit1 = g:rookie_gitdiff_sha1
     var commit2 = word
-    var cmd1 = 'Gedit ' .. commit1 .. ':' .. g:rookie_gitdiff_file
-    var cmd2 = 'vertical ' .. commit2 .. ':' .. g:rookie_gitdiff_file
+    var cmd1 = 'Gedit ' .. commit1 .. ':' .. substitute(g:rookie_gitdiff_file, '\\', '/', 'g')
+    var cmd2 = 'vertical Gdiffsplit ' .. commit2 .. ':' .. substitute(g:rookie_gitdiff_file, '\\', '/', 'g')
     var cmd_final = cmd1 .. ' | ' .. cmd2
     echo cmd_final
     # call execute(cmd1 .. ' | ' .. cmd2)
