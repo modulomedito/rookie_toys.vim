@@ -7,11 +7,12 @@ g:rookie_gitdiff_file = ""
 export def Diff()
     var word = expand('<cword>')
 
-    if (len(word) == 7) && (word != "")
-        if word =~# '\v[0-9a-f]{7}'
+    if g:rookie_gitdiff_file == ""
+        if (len(word) == 7) && (word != "") && (word =~# '\v[0-9a-f]{7}')
+            echo "RookieGitDiff: You should run command on your file first"
+            return
         else
             g:rookie_gitdiff_file = expand('%')
-            return
         endif
     endif
 
