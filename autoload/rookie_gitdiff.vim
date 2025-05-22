@@ -35,8 +35,9 @@ export def Diff()
     var cmd1 = 'Gedit ' .. commit1 .. ':' .. substitute(g:rookie_gitdiff_file, '\\', '/', 'g')
     var cmd2 = 'vertical Gdiffsplit ' .. commit2 .. ':' .. substitute(g:rookie_gitdiff_file, '\\', '/', 'g')
     var cmd_final = cmd1 .. ' | ' .. cmd2
-    echo cmd_final
-    # call execute(cmd1 .. ' | ' .. cmd2)
+
+    call execute(cmd_final)
+    # echo cmd_final
 
     g:rookie_gitdiff_sha1 = ""
     g:rookie_gitdiff_reg2 = ""
