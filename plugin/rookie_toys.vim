@@ -11,6 +11,7 @@ import autoload 'rookie_gitdiff.vim'
 import autoload 'rookie_gitgraph.vim'
 import autoload 'rookie_markdown.vim'
 import autoload 'rookie_retab.vim'
+import autoload 'rookie_setup.vim'
 
 command! -nargs=0 -bar RookieClangdGenerate rookie_clangd.CreateCompileCommandsJson()
 command! -nargs=0 -bar RookieGitGraph rookie_gitgraph.OpenGitGraph(1)
