@@ -104,6 +104,9 @@ export def Setup()
     xnoremap <Left>  <Plug>(textmanip-move-left-r)
     xnoremap <Right> <Plug>(textmanip-move-right-r)
 
+    nnoremap <C-y>   :NERDTreeToggle<CR>
+    nnoremap <F10>   :copen <bar> AsyncRun cargo<Space>
+
     # Set rg keymaps
     call rookie_rg.Setup()
 
