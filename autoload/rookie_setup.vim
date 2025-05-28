@@ -1,6 +1,6 @@
 vim9script
 
-export def setup()
+export def Setup()
     # Misc
     source $VIMRUNTIME/defaults.vim
     colorscheme habamax
@@ -84,4 +84,4 @@ export def setup()
     set viminfofile=$HOME/.vim/.viminfo
     set wildignorecase
     set wildoptions=pum
-end
+enddef
