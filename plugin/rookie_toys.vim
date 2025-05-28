@@ -20,4 +20,4 @@ command! -nargs=0 -bar RookieMarkdownTitleToAnchor rookie_markdown.ConvertMarkdo
 command! -nargs=1 -bar RookieRetab rookie_retab.Retab(<q-args>)
 command! -nargs=0 -bar RookieGitDiff rookie_gitdiff.Diff()
 
-source rookie_setup.vim
+call rookie_setup.setup()
