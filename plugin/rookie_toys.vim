@@ -19,3 +19,5 @@ command! -nargs=0 -bar RookieGitGraphLocal rookie_gitgraph.OpenGitGraph(0)
 command! -nargs=0 -bar RookieMarkdownTitleToAnchor rookie_markdown.ConvertMarkdownTitleToAnchorLink()
 command! -nargs=1 -bar RookieRetab rookie_retab.Retab(<q-args>)
 command! -nargs=0 -bar RookieGitDiff rookie_gitdiff.Diff()
+
+source rookie_setup.vim
