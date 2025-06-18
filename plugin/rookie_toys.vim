@@ -24,5 +24,3 @@ command! GC RookieClangdGenerate
 command! GG RookieGitGraph
 command! GGL RookieGitGraphLocal
 command! GD RookieGitDiff
-
-call rookie_setup.Setup()
