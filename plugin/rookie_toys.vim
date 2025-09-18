@@ -18,6 +18,7 @@ command! -nargs=0 -bar RookieClangdGenerate rookie_clangd.CreateCompileCommandsJ
 command! -nargs=0 -bar RookieGitGraph rookie_gitgraph.OpenGitGraph(1)
 command! -nargs=0 -bar RookieGitGraphLocal rookie_gitgraph.OpenGitGraph(0)
 command! -nargs=0 -bar RookieMarkdownTitleToAnchor rookie_markdown.ConvertMarkdownTitleToAnchorLink()
+command! -nargs=0 -bar RookieMarkdownLinter rookie_markdown.MarkdownLinter()
 command! -nargs=0 -bar RookieRetab rookie_retab.Retab()
 command! -nargs=0 -bar RookieGitDiff rookie_gitdiff.Diff()
 command! -nargs=0 -bar RookieTagUpdate rookie_tag.UpdateTags()
