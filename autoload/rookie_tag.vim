@@ -39,7 +39,7 @@ export def SearchTags()
     var taglist = split(tags, ' ')
     call sort(taglist)
     var sorted_tags = join(taglist, ' ')
-    echomsg 'Sorted tags: ' .. sorted_tags
+    # echomsg 'Sorted tags: ' .. sorted_tags
     var qf = []
     for lnum in range(1, line('$'))
         var line = getline(lnum)
