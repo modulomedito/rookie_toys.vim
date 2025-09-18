@@ -27,8 +27,3 @@ command! -nargs=0 -bar RookieTagSearchGlobal rookie_tag.SearchGlobalTags()
 command! -nargs=0 -bar RookieTagAddFileName rookie_tag.AddFileNameTags()
 command! -nargs=0 -bar RookieTagSearchFileName rookie_tag.SearchFileNameTags()
 command! -nargs=0 -bar RookieToggleHeaderSource rookie_tag.ToggleHeaderSource()
-
-command! GC RookieClangdGenerate
-command! GG RookieGitGraph
-command! GGL RookieGitGraphLocal
-command! GD RookieGitDiff

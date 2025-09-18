@@ -47,13 +47,11 @@ g:rookie_toys_clangd_args = ['-ferror-limit=3000']  # Arguments for clangd
 
 #### Commands
 
-- **`:RookieClangdGenerate`** or **`:GC`** - Recursively searches your project directory and generates a `compile_commands.json` file for clangd indexing
+- **`:RookieClangdGenerate`** - Recursively searches your project directory and generates a `compile_commands.json` file for clangd indexing
 
 **Usage Example:**
 ```vim
 :RookieClangdGenerate
-" or use the short alias
-:GC
 ```
 
 ---
@@ -64,8 +62,8 @@ Provides beautiful git graph visualization directly in Vim using vim-fugitive.
 
 #### Commands
 
-- **`:RookieGitGraph`** or **`:GG`** - Opens git graph showing all branches with decorations
-- **`:RookieGitGraphLocal`** or **`:GGL`** - Opens git graph for current branch only
+- **`:RookieGitGraph`** - Opens git graph showing all branches with decorations
+- **`:RookieGitGraphLocal`** - Opens git graph for current branch only
 
 **Features:**
 - Displays commit hashes, dates, authors, and commit messages
@@ -86,7 +84,7 @@ Advanced git diff utility for comparing specific commits of files.
 
 #### Commands
 
-- **`:RookieGitDiff`** or **`:GD`** - Interactive git diff between two commits
+- **`:RookieGitDiff`** - Interactive git diff between two commits
 
 **Workflow:**
 1. Run `:RookieGitDiff` on any file to save the file path
@@ -284,23 +282,25 @@ Ripgrep integration for blazing fast text searching across projects.
 
 ## Command Reference
 
-### Full Commands
+### Available Commands
 
-| Command | Alias | Description |
-|---------|-------|-------------|
-| `:RookieClangdGenerate` | `:GC` | Generate compile_commands.json |
-| `:RookieGitGraph` | `:GG` | Show git graph (all branches) |
-| `:RookieGitGraphLocal` | `:GGL` | Show git graph (current branch) |
-| `:RookieGitDiff` | `:GD` | Interactive git diff |
-| `:RookieMarkdownTitleToAnchor` | - | Convert header to anchor |
-| `:RookieMarkdownLinter` | - | Format markdown file |
-| `:RookieRetab` | - | Smart tab conversion |
-| `:RookieTagUpdate` | - | Update line tags |
-| `:RookieTagSearch` | - | Search by tags |
-| `:RookieTagSearchGlobal` | - | Global tag search |
-| `:RookieTagAddFileName` | - | Add tags to filename |
-| `:RookieTagSearchFileName` | - | Search files by tags |
-| `:RookieToggleHeaderSource` | - | Toggle header/source |
+| Command | Description |
+|---------|-------------|
+| `:RookieClangdGenerate` | Generate compile_commands.json |
+| `:RookieGitGraph` | Show git graph (all branches) |
+| `:RookieGitGraphLocal` | Show git graph (current branch) |
+| `:RookieGitDiff` | Interactive git diff |
+| `:RookieMarkdownTitleToAnchor` | Convert header to anchor |
+| `:RookieMarkdownLinter` | Format markdown file |
+| `:RookieRetab` | Smart tab conversion |
+| `:RookieTagUpdate` | Update line tags |
+| `:RookieTagSearch` | Search by tags |
+| `:RookieTagSearchGlobal` | Global tag search |
+| `:RookieTagAddFileName` | Add tags to filename |
+| `:RookieTagSearchFileName` | Search files by tags |
+| `:RookieToggleHeaderSource` | Toggle header/source |
+
+**Note:** All commands must be used with their full names. No short aliases are available.
 
 ### Setup
 
