@@ -1,115 +1,112 @@
-vim9script
+scriptencoding utf-8
 
-g:rookie_toys_clangd_source_patterns = ['c', 'cpp']
-g:rookie_toys_clangd_header_patterns = ['h', 'hpp']
-g:rookie_toys_clangd_compiler = 'gcc'
-g:rookie_toys_clangd_args = ['-ferror-limit=3000']
+let g:rookie_toys_clangd_source_patterns = ['c', 'cpp']
+let g:rookie_toys_clangd_header_patterns = ['h', 'hpp']
+let g:rookie_toys_clangd_compiler = 'gcc'
+let g:rookie_toys_clangd_args = ['-ferror-limit=3000']
 
-def SearchAndCollect(dir: string, patterns: list<string>): list<string>
-    var result = []
+function! s:SearchAndCollect(dir, patterns) abort
+    let result = []
 
-    # Ensure the directory path ends with a slash
-    var dir_with_slash = dir
-    dir_with_slash = substitute(dir_with_slash, '\\', '/', 'g')
-    if dir_with_slash[-1] != '/'
-        dir_with_slash = dir_with_slash .. '/'
+    " Ensure the directory path ends with a slash
+    let dir_with_slash = substitute(a:dir, '\\', '/', 'g')
+    if dir_with_slash !~ '/$'
+        let dir_with_slash = dir_with_slash . '/'
     endif
 
-    # Get all files recursively using globpath with the '**' wildcard
-    var files = globpath(dir, '**', 0, 1)
+    " Get all files recursively using globpath with the '**' wildcard
+    let files = globpath(a:dir, '**', 0, 1)
     for file in files
-        # Skip directories – process only files
+        " Skip directories – process only files
         if !isdirectory(file)
-            for pattern in patterns
+            for pattern in a:patterns
                 if file =~ pattern
-                    var file_with_slash = substitute(file, '\\', '/', 'g')
-                    result += [file_with_slash]
+                    let file_with_slash = substitute(file, '\\', '/', 'g')
+                    let result += [file_with_slash]
                 endif
             endfor
         endif
     endfor
 
     return result
-enddef
+endfunction
 
-def RemoveDuplicates(items: list<string>): list<string>
-    var seen = {}
-    var result: list<string> = []
-        for item in items
-            if !has_key(seen, item)
-                seen[item] = v:true
-                result += [item]
-            endif
-        endfor
+function! s:RemoveDuplicates(items) abort
+    let seen = {}
+    let result = []
+    for item in a:items
+        if !has_key(seen, item)
+            let seen[item] = v:true
+            let result += [item]
+        endif
+    endfor
     return result
-enddef
+endfunction
 
-def SearchAndCollectParent(dir: string, patterns: list<string>): list<string>
-    var result = []
-    var raw_result = []
-    var match_files = SearchAndCollect(dir, patterns)
+function! s:SearchAndCollectParent(dir, patterns) abort
+    let raw_result = []
+    let match_files = s:SearchAndCollect(a:dir, a:patterns)
 
     for match_file in match_files
-        var parent = fnamemodify(match_file, ':h')
-        parent = substitute(parent, '\\', '/', 'g')
-        raw_result += [parent]
+        let parent = fnamemodify(match_file, ':h')
+        let parent = substitute(parent, '\\', '/', 'g')
+        let raw_result += [parent]
     endfor
 
-    result = RemoveDuplicates(raw_result)
-    return result
-enddef
+    return s:RemoveDuplicates(raw_result)
+endfunction
 
-export def CreateCompileCommandsJson()
-    var current_dir = substitute(getcwd(), '\\', '/', 'g')
+function! rookie_clangd#CreateCompileCommandsJson() abort
+    let current_dir = substitute(getcwd(), '\\', '/', 'g')
 
-    # Search header parent folders
-    var header_patterns = []
+    " Search header parent folders
+    let header_patterns = []
     for pattern in g:rookie_toys_clangd_header_patterns
-        header_patterns += ['^.*\.' .. pattern .. '$']
+        let header_patterns += ['^.*\.' . pattern . '$']
     endfor
-    var header_dirs = SearchAndCollectParent(current_dir, header_patterns)
+    let header_dirs = s:SearchAndCollectParent(current_dir, header_patterns)
 
-    # Search source files
-    var source_patterns = []
+    " Search source files
+    let source_patterns = []
     for pattern in g:rookie_toys_clangd_source_patterns
-        source_patterns += ['^.*\.' .. pattern .. '$']
+        let source_patterns += ['^.*\.' . pattern . '$']
     endfor
-    var sources = SearchAndCollect(current_dir, source_patterns)
+    let sources = s:SearchAndCollect(current_dir, source_patterns)
 
-    # First line output content
-    var output_content: list<string> = []
-    output_content += ["["]
+    " First line output content
+    let output_content = []
+    call add(output_content, '[')
 
-    # Setup compile command
-    var compile_cmd = '    "command": "\"' .. g:rookie_toys_clangd_compiler .. '\" '
+    " Setup compile command
+    let compile_cmd = '    "command": "\"' . g:rookie_toys_clangd_compiler . '\" '
 
-    # Append arguments
+    " Append arguments
     for arg in g:rookie_toys_clangd_args
-        compile_cmd = compile_cmd .. '\"' .. arg .. '\" '
+        let compile_cmd = compile_cmd . '\"' . arg . '\" '
     endfor
 
-    # Append includes
+    " Append includes
     for header_dir in header_dirs
-        compile_cmd = compile_cmd .. '\"-I' .. header_dir .. '\" '
+        let compile_cmd = compile_cmd . '\"-I' . header_dir . '\" '
     endfor
 
-    # Body of the output content
+    " Body of the output content
     for src_file in sources
-        output_content += ["  {"]
-        output_content += ['    "directory": "' .. current_dir .. '",']
-        output_content += [compile_cmd .. src_file .. '",']
-        output_content += ['    "file": "' .. src_file .. '",']
-        output_content += ['    "output": "' .. src_file .. '.o"']
-        if src_file == sources[-1]
-            output_content += ["  }"]
+        call add(output_content, '  {')
+        call add(output_content, '    "directory": "' . current_dir . '",')
+        call add(output_content, compile_cmd . src_file . '",')
+        call add(output_content, '    "file": "' . src_file . '",')
+        call add(output_content, '    "output": "' . src_file . '.o"')
+        if src_file == sources[len(sources)-1]
+            call add(output_content, '  }')
         else
-            output_content += ["  },"]
+            call add(output_content, '  },')
         endif
     endfor
 
-    # Last line output content
-    output_content += ["]"]
+    " Last line output content
+    call add(output_content, ']')
 
-    call writefile(output_content, "compile_commands.json")
-    echo "Created compile_commands.json"
-enddef
+    call writefile(output_content, 'compile_commands.json')
+    echo 'Created compile_commands.json'
+endfunction

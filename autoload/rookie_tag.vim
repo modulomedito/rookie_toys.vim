@@ -1,65 +1,65 @@
-vim9script
+scriptencoding utf-8
 
-export def UpdateTags()
-    var line = getline('.')
-    var current_tags = []
+function! rookie_tag#UpdateTags() abort
+    let line = getline('.')
+    let current_tags = []
     for word in split(line)
         if word =~ '#\w\+'
-            var tag = substitute(word, '#', '', '')
+            let tag = substitute(word, '#', '', '')
             if tag != ''
                 call add(current_tags, tag)
             endif
         endif
     endfor
-    var user_input = input("Enter tags (space separated): ")
-    var input_tags = []
+    let user_input = input('Enter tags (space separated): ')
+    let input_tags = []
     if user_input != ''
-        input_tags = split(user_input, ' \s*')
+        let input_tags = split(user_input, ' \s*')
     else
         return
     endif
-    var all_tags = current_tags + input_tags
-    var uniq_tags = []
+    let all_tags = current_tags + input_tags
+    let uniq_tags = []
     for t in all_tags
         if index(uniq_tags, t) < 0
             call add(uniq_tags, t)
         endif
     endfor
     call sort(uniq_tags)
-    var result = join(map(uniq_tags, '"#" .. v:val'), ' ')
+    let result = join(map(copy(uniq_tags), '"#" . v:val'), ' ')
     call setline('.', result)
-enddef
+endfunction
 
-export def SearchTags()
-    var tags = input('Enter tags (space separated): ')
+function! rookie_tag#SearchTags() abort
+    let tags = input('Enter tags (space separated): ')
     if empty(tags)
         echomsg 'No tags entered.'
         return
     endif
-    var taglist = split(tags, ' ')
+    let taglist = split(tags, ' ')
     call sort(taglist)
-    var sorted_tags = join(taglist, ' ')
-    # echomsg 'Sorted tags: ' .. sorted_tags
-    var qf = []
+    let sorted_tags = join(taglist, ' ')
+    " echomsg 'Sorted tags: ' . sorted_tags
+    let qf = []
     for lnum in range(1, line('$'))
-        var line = getline(lnum)
+        let line = getline(lnum)
         if line !~ ' #\w\+'
             continue
         endif
-        var found = 1
+        let found = 1
         for tag in taglist
-            if line !~ '\(#' .. tag .. '\)'
-                found = 0
+            if line !~ '\(#' . tag . '\)'
+                let found = 0
                 break
             endif
         endfor
         if found
-            add(qf, {'filename': expand('%'), 'lnum': lnum, 'col': 1, 'text': line})
+            call add(qf, {'filename': expand('%'), 'lnum': lnum, 'col': 1, 'text': line})
         endif
     endfor
     if !empty(qf)
         if len(qf) == 1
-            var single = qf[0]
+            let single = qf[0]
             call cursor(single.lnum, 1)
         else
             call setqflist(qf, 'r')
@@ -69,78 +69,75 @@ export def SearchTags()
     else
         echomsg 'No matching lines found.'
     endif
-enddef
+endfunction
 
-export def SearchGlobalTags()
-    var tags = input('Enter global search tags (space separated): ')
+function! rookie_tag#SearchGlobalTags() abort
+    let tags = input('Enter global search tags (space separated): ')
     if empty(tags)
         echomsg 'No tags entered.'
         return
     endif
-    var taglist = split(tags, ' ')
+    let taglist = split(tags, ' ')
     call sort(taglist)
-    var sorted_tags = '\#' .. join(taglist, '.*\#')
-    echomsg 'Sorted tags: ' .. sorted_tags
+    let sorted_tags = '\#' . join(taglist, '.*\#')
+    echomsg 'Sorted tags: ' . sorted_tags
     if has('unix')
-        execute("silent! grep '" .. sorted_tags .. "' .")
+        execute("silent! grep '" . sorted_tags . "' .")
     else
-        execute("silent! grep " .. sorted_tags .. " .")
+        execute('silent! grep ' . sorted_tags . ' .')
     endif
-    var qf = getqflist()
+    let qf = getqflist()
     if !empty(qf)
         if len(qf) == 1
-            var single = qf[0]
+            let single = qf[0]
             call cursor(single.lnum, 1)
         else
-            execute("copen")
-            execute("redraw!")
+            execute('copen')
+            execute('redraw!')
             echomsg 'Results sent to quickfix. Opening quickfix window...'
         endif
     else
         echomsg 'No matching lines found.'
     endif
-enddef
+endfunction
 
-export def AddFileNameTags()
-    var input_tags = input('Enter file name tags (space separated): ')
+function! rookie_tag#AddFileNameTags() abort
+    let input_tags = input('Enter file name tags (space separated): ')
     if empty(input_tags)
         echomsg 'No tags entered.'
         return
     endif
-    var tags_list = split(input_tags, ' ')
-    var cur_file_name = expand('%:t:r')
-    var cur_file_path = expand('%:p:h')
-    var cur_file_ext = expand('%:e')
-    var cur_file_tags = split(cur_file_name, '-')
-    var all_tags = cur_file_tags + tags_list
-    var uniq_tags = []
+    let tags_list = split(input_tags, ' ')
+    let cur_file_name = expand('%:t:r')
+    let cur_file_path = expand('%:p:h')
+    let cur_file_ext = expand('%:e')
+    let cur_file_tags = split(cur_file_name, '-')
+    let all_tags = cur_file_tags + tags_list
+    let uniq_tags = []
     for t in all_tags
         if index(uniq_tags, t) < 0
             call add(uniq_tags, t)
         endif
     endfor
     call sort(uniq_tags)
-    var sorted_tags = join(uniq_tags, '-')
-    execute('Rename ' ..
-        sorted_tags ..
-        '.' ..
-        cur_file_ext)
-enddef
+    let sorted_tags = join(uniq_tags, '-')
+    execute('Rename ' . sorted_tags . '.' . cur_file_ext)
+endfunction
 
-def SearchFilesWithTags(tags: list<string>)
-    var cwd = getcwd()
-    var matching_files = []
-    var files = globpath(cwd, '**/*', 0, 1)
+function! s:SearchFilesWithTags(tags) abort
+    let cwd = getcwd()
+    let matching_files = []
+    let files = globpath(cwd, '**/*', 0, 1)
     call filter(files, 'filereadable(v:val)')
     for file in files
         if empty(file)
             continue
         endif
-        var filename = fnamemodify(file, ':t')
-        var all_tags_match = 1
-        for tag in tags
+        let filename = fnamemodify(file, ':t')
+        let all_tags_match = 1
+        for tag in a:tags
             if filename !~? tag
-                all_tags_match = 0
+                let all_tags_match = 0
                 break
             endif
         endfor
@@ -149,43 +146,43 @@ def SearchFilesWithTags(tags: list<string>)
         endif
     endfor
     if len(matching_files) == 0
-        echo "\nNo files found containing all tags: [" .. join(tags, ', ') .. "]"
+        echo "\nNo files found containing all tags: [" . join(a:tags, ', ') . "]"
     elseif len(matching_files) == 1
-        execute 'edit ' .. fnameescape(matching_files[0])
+        execute 'edit ' . fnameescape(matching_files[0])
     else
-        var qf_list = []
+        let qf_list = []
         for file in matching_files
             call add(qf_list, {
                 \ 'filename': file,
-                \ 'text': 'File containing all tags: ' .. join(tags, ', ')
+                \ 'text': 'File containing all tags: ' . join(a:tags, ', ')
                 \ })
         endfor
         call setqflist(qf_list)
         copen
     endif
-enddef
+endfunction
 
-export def SearchFileNameTags()
-    var input_tags = input('Search file name tags (space separated): ')
+function! rookie_tag#SearchFileNameTags() abort
+    let input_tags = input('Search file name tags (space separated): ')
     if empty(input_tags)
         echomsg 'No tags entered.'
         return
     endif
-    var tags_list = split(input_tags, ' ')
-    call SearchFilesWithTags(tags_list)
-enddef
+    let tags_list = split(input_tags, ' ')
+    call s:SearchFilesWithTags(tags_list)
+endfunction
 
-export def ToggleHeaderSource()
-    var filename = expand('%:t:r')
-    var extension = expand('%:e')
-    var pattern = '**/' .. filename .. '.h'
-    if extension == 'h'
-        pattern = '**/' .. filename .. '.c'
+function! rookie_tag#ToggleHeaderSource() abort
+    let filename = expand('%:t:r')
+    let extension = expand('%:e')
+    let pattern = '**/' . filename . '.h'
+    if extension ==# 'h'
+        let pattern = '**/' . filename . '.c'
     endif
-    var matches = glob(pattern, 0, 1)
+    let matches = glob(pattern, 0, 1)
     if empty(matches)
         echomsg 'Corresponding header/source not exists'
         return
     endif
-    execute('edit ' .. fnameescape(matches[0]))
-enddef
+    execute('edit ' . fnameescape(matches[0]))
+endfunction

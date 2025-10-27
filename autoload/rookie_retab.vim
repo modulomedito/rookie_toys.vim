@@ -1,8 +1,8 @@
-vim9script
+scriptencoding utf-8
 
-export def Retab(): void
-    &tabstop = 4
-    &expandtab = false
+function! rookie_retab#Retab() abort
+    let &l:tabstop = 4
+    let &l:expandtab = 0
     execute(':%retab!')
-    &expandtab = true
-enddef
+    let &l:expandtab = 1
+endfunction

@@ -1,16 +1,13 @@
-vim9script
+scriptencoding utf-8
 
-import autoload 'rookie_lsp.vim'
-import autoload 'rookie_rg.vim'
-
-export def Setup()
-    # Misc
+function! rookie_setup#Setup() abort
+    " Misc
     source $VIMRUNTIME/defaults.vim
     colorscheme habamax
     language messages en_US
 
-    # Key mapping
-    g:mapleader = ' '
+    " Key mapping
+    let g:mapleader = ' '
     cnoremap <C-v> <C-r>*
     inoremap <C-U> <C-G>u<C-U>
     nnoremap * *N
@@ -35,14 +32,14 @@ export def Setup()
     vnoremap / "-y/<C-r>-<CR>N
     vnoremap <C-d> <C-d>zz
     vnoremap <C-f> <C-u>zz
-    vnoremap <D-j> :m '>+1<CR>gv=gv
-    vnoremap <D-k> :m '<-2<CR>gv=gv
+    vnoremap <D-j> :m ' >+1<CR>gv=gv
+    vnoremap <D-k> :m ' <-2<CR>gv=gv
     vnoremap <F2> "-y:%s/<C-r>-\C/<C-r>-/g<Left><Left>
-    vnoremap <M-j> :m '>+1<CR>gv=gv
-    vnoremap <M-k> :m '<-2<CR>gv=gv
+    vnoremap <M-j> :m ' >+1<CR>gv=gv
+    vnoremap <M-k> :m ' <-2<CR>gv=gv
     vnoremap <leader>ss :sort<CR>
 
-    # Options
+    " Options
     set autoindent
     set autoread
     set background=dark
@@ -53,7 +50,7 @@ export def Setup()
     set complete=.,w,b,u,t
     set completeopt=menuone,longest,preview
     set cursorcolumn
-    set cursorline
+
     set expandtab
     set fileformat=unix
     set grepformat=%f:%l:%c:%m,%f:%l:%m
@@ -82,13 +79,13 @@ export def Setup()
     set tabstop=4
     set termguicolors
     set textwidth=100
-    set undodir=expand('$HOME/.vim/undo/')
+    let &undodir = expand('$HOME/.vim/undo/')
     set undofile
-    set viminfofile=$HOME/.vim/.viminfo
+    let &viminfofile = expand('$HOME/.vim/.viminfo')
     set wildignorecase
     set wildoptions=pum
 
-    # Plugin keymaps
+    " Plugin keymaps
     xnoremap <M-d>   <Plug>(textmanip-duplicate-down)
     nnoremap <M-d>   <Plug>(textmanip-duplicate-down)
     xnoremap <M-D>   <Plug>(textmanip-duplicate-up)
@@ -99,7 +96,6 @@ export def Setup()
     xnoremap <C-l>   <Plug>(textmanip-move-right)
     nnoremap <F6>    <Plug>(textmanip-toggle-mode)
     xnoremap <F6>    <Plug>(textmanip-toggle-mode)
-    xnoremap <Up>    <Plug>(textmanip-move-up-r)
     xnoremap <Down>  <Plug>(textmanip-move-down-r)
     xnoremap <Left>  <Plug>(textmanip-move-left-r)
     xnoremap <Right> <Plug>(textmanip-move-right-r)
@@ -107,9 +103,9 @@ export def Setup()
     nnoremap <C-y>   :NERDTreeToggle<CR>
     nnoremap <F10>   :copen <bar> AsyncRun cargo<Space>
 
-    # Set rg keymaps
-    call rookie_rg.Setup()
+    " Set rg keymaps
+    call rookie_rg#Setup()
 
-    # Set lsp keymaps
-    call rookie_lsp.Setup()
-enddef
+    " Set lsp keymaps
+    call rookie_lsp#Setup()
+endfunction
