@@ -88,13 +88,28 @@ function! rookie_tag#SearchGlobalTags() abort
     endif
     let qf = getqflist()
     if !empty(qf)
-        if len(qf) == 1
-            let single = qf[0]
+        let seen = {}
+        let merged = []
+        for entry in qf
+            let fname = get(entry, 'filename', '')
+            if fname ==# '' && has_key(entry, 'bufnr') && entry.bufnr > 0
+                let fname = bufname(entry.bufnr)
+            endif
+            let key = fname . ':' . entry.lnum
+            if !has_key(seen, key)
+                let seen[key] = 1
+                call add(merged, entry)
+            endif
+        endfor
+
+        if len(merged) == 1
+            let single = merged[0]
             call cursor(single.lnum, 1)
         else
-            execute('copen')
-            execute('redraw!')
-            echomsg 'Results sent to quickfix. Opening quickfix window...'
+            call setqflist(merged, 'r')
+            copen
+            redraw!
+            echomsg 'Results sent to quickfix (deduped rows).'
         endif
     else
         echomsg 'No matching lines found.'
