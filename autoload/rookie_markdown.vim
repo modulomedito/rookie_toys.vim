@@ -14,6 +14,15 @@ function! rookie_markdown#ConvertMarkdownTitleToAnchorLink() abort
     call append(current_line - 1, mdlink)
 endfunction
 
+function! rookie_markdown#SlugifyString(s) abort
+    let t = a:s
+    let t = tolower(t)
+    let t = substitute(t, '\s\+', '-', 'g')
+    let t = substitute(t, '\(^#\+\)-', '\1 ', 'g')
+    let t = substitute(t, '-\+', '-', 'g')
+    return t
+endfunction
+
 function! rookie_markdown#MarkdownLinter() range abort
     " Condense blank lines
     let first = a:firstline
