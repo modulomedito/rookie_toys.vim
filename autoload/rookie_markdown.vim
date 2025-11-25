@@ -47,5 +47,65 @@ function! rookie_markdown#MarkdownLinter() abort
         endif
     endwhile
 
+    " Convert Chinese punctuation to English equivalents across buffer
+    let punct_map = {
+        \ '，': ',',
+        \ '。': '.',
+        \ '！': '!',
+        \ '？': '?',
+        \ '；': ';',
+        \ '：': ':',
+        \ '、': ',',
+        \ '“': '"',
+        \ '”': '"',
+        \ '‘': "'",
+        \ '’': "'",
+        \ '（': '(',
+        \ '）': ')',
+        \ '【': '[',
+        \ '】': ']',
+        \ '《': '"',
+        \ '》': '"',
+        \ '「': '"',
+        \ '」': '"',
+        \ '『': '"',
+        \ '』': '"',
+        \ '…': '...',
+        \ '—': '-',
+        \ '～': '~',
+        \ '·': '.',
+        \ '‥': '..',
+        \ '　': ' '
+    \ }
+
+    " Apply punctuation conversions from map
+    for item in items(punct_map)
+        let k = item[0]
+        let v = item[1]
+        execute '%s/' . escape(k, '/\') . '/' . escape(v, '/\') . '/ge'
+    endfor
+
+    " Normalize spaces after punctuation (single space), and fix dot sequences
+    execute '%s/\([.,!?:]\)\s\+/\1 /ge'
+    execute '%s/\([.,!?:;]\)\(\S\)/\1 \2/ge'
+    execute '%s/\. \./../ge'
+
+    " Normalize spacing around double quotes
+    execute '%s/\(\S\)\s\+"\([^"\+]\+\)"/\1 "\2"/ge'
+    execute '%s/\(\S\)"\([^"\+]\+\)"/\1 "\2"/ge'
+    execute '%s/"\([^"\+]\+\)"\s\+\(\S\)/"\1" \2/ge'
+    execute '%s/"\([^"\+]\+\)"\(\S\)/"\1" \2/ge'
+
+    " Normalize spacing around parentheses and remove space before punctuation
+    execute '%s/\(\S\)\s\+(/\1 (/ge'
+    execute '%s/\(\S\)(/\1 (/ge'
+    execute '%s/)\s\+\(\S\)/) \1/ge'
+    execute '%s/)\(\S\)/) \1/ge'
+    execute '%s/\([)]\) \([.,!?:\*]\)/\1\2/ge'
+
+    " Insert spaces between ASCII and CJK characters (both directions)
+    execute '%s/\([\x21-\x7e]\)\([^\x00-\xff]\)/\1 \2/ge'
+    execute '%s/\([^\x00-\xff]\)\([\x21-\x7e]\)/\1 \2/ge'
+
     call setpos('.', save_cursor)
 endfunction
