@@ -102,8 +102,10 @@ function! rookie_markdown#MarkdownLinter() range abort
     execute first . ',' . last . 's/"\([^"\+]\+\)"\(\S\)/"\1" \2/ge'
 
     " Insert spaces between ASCII and CJK characters (both directions)
-    execute first . ',' . last . 's/\([\x21-\x7e]\)\([^\x00-\xff]\)/\1 \2/ge'
-    execute first . ',' . last . 's/\([^\x00-\xff]\)\([\x21-\x7e]\)/\1 \2/ge'
+    " Exclude '(' before CJK to avoid space like "( 开"
+    execute first . ',' . last . 's/\([\x21-\x27\x29-\x7e]\)\([^\x00-\xff]\)/\1 \2/ge'
+    " Exclude ')' after CJK to avoid space like "开 )"
+    execute first . ',' . last . 's/\([^\x00-\xff]\)\([\x21-\x28\x2A-\x7e]\)/\1 \2/ge'
 
     " Remove space after '(' when followed by CJK
     execute first . ',' . last . 's/(\s\+\([^\x00-\xff]\))/(\1/ge'
