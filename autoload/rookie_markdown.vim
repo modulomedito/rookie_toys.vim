@@ -101,16 +101,16 @@ function! rookie_markdown#MarkdownLinter() range abort
     execute first . ',' . last . 's/"\([^"\+]\+\)"\s\+\(\S\)/"\1" \2/ge'
     execute first . ',' . last . 's/"\([^"\+]\+\)"\(\S\)/"\1" \2/ge'
 
+    " Insert spaces between ASCII and CJK characters (both directions)
+    execute first . ',' . last . 's/\([\x21-\x7e]\)\([^\x00-\xff]\)/\1 \2/ge'
+    execute first . ',' . last . 's/\([^\x00-\xff]\)\([\x21-\x7e]\)/\1 \2/ge'
+
     " Normalize spacing around parentheses and remove space before punctuation
     execute first . ',' . last . 's/\(\S\)\s\+(/\1 (/ge'
     execute first . ',' . last . 's/\(\S\)(/\1 (/ge'
     execute first . ',' . last . 's/)\s\+\(\S\)/) \1/ge'
     execute first . ',' . last . 's/)\(\S\)/) \1/ge'
     execute first . ',' . last . 's/\([)]\) \([.,!?:\*]\)/\1\2/ge'
-
-    " Insert spaces between ASCII and CJK characters (both directions)
-    execute first . ',' . last . 's/\([\x21-\x7e]\)\([^\x00-\xff]\)/\1 \2/ge'
-    execute first . ',' . last . 's/\([^\x00-\xff]\)\([\x21-\x7e]\)/\1 \2/ge'
 
     call setpos('.', save_cursor)
 endfunction
