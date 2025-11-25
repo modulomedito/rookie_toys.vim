@@ -14,37 +14,41 @@ function! rookie_markdown#ConvertMarkdownTitleToAnchorLink() abort
     call append(current_line - 1, mdlink)
 endfunction
 
-function! rookie_markdown#MarkdownLinter() abort
+function! rookie_markdown#MarkdownLinter() range abort
     " Condense blank lines
-    silent! %s/\(\n\)\{3,}/\r\r/g
+    let first = a:firstline
+    let last  = a:lastline
+    execute first . ',' . last . 's/\(\n\)\{3,}/\r\r/ge'
     let save_cursor = getpos('.')
-    normal! gg
-
-    " Add blank line before headers
-    while search('^\s*#\+\s', 'W') > 0
-        let current_line = line('.')
-        let prev_line = current_line - 1
-
-        if prev_line > 0
-            let prev_content = getline(prev_line)
-            if prev_content !~ '^\s*$' && prev_content !~ '^\s*#\+\s'
-                call append(prev_line, '')
+    " Add blank line before headers (within range)
+    let lnum = first
+    while lnum <= last
+        if getline(lnum) =~ '^\s*#\+\s'
+            if lnum - 1 >= first
+                let prev_content = getline(lnum - 1)
+                if prev_content !~ '^\s*$' && prev_content !~ '^\s*#\+\s'
+                    call append(lnum - 1, '')
+                    let last += 1
+                    let lnum += 1
+                endif
             endif
         endif
+        let lnum += 1
     endwhile
 
-    " Add blank line after headers
-    normal! gg
-    while search('^\s*#\+\s', 'W') > 0
-        let current_line = line('.')
-        let next_line = current_line + 1
-
-        if next_line <= line('$')
-            let next_content = getline(next_line)
-            if next_content !~ '^\s*$' && next_content !~ '^\s*#\+\s'
-                call append(current_line, '')
+    " Add blank line after headers (within range)
+    let lnum2 = first
+    while lnum2 <= last
+        if getline(lnum2) =~ '^\s*#\+\s'
+            if lnum2 + 1 <= last
+                let next_content = getline(lnum2 + 1)
+                if next_content !~ '^\s*$' && next_content !~ '^\s*#\+\s'
+                    call append(lnum2, '')
+                    let last += 1
+                endif
             endif
         endif
+        let lnum2 += 1
     endwhile
 
     " Convert Chinese punctuation to English equivalents across buffer
@@ -79,33 +83,34 @@ function! rookie_markdown#MarkdownLinter() abort
     \ }
 
     " Apply punctuation conversions from map
+    " Apply punctuation conversions from map
     for item in items(punct_map)
         let k = item[0]
         let v = item[1]
-        execute '%s/' . escape(k, '/\') . '/' . escape(v, '/\') . '/ge'
+        execute first . ',' . last . 's/' . escape(k, '/\') . '/' . escape(v, '/\') . '/ge'
     endfor
 
     " Normalize spaces after punctuation (single space), and fix dot sequences
-    execute '%s/\([.,!?:]\)\s\+/\1 /ge'
-    execute '%s/\([.,!?:;]\)\(\S\)/\1 \2/ge'
-    execute '%s/\. \./../ge'
+    execute first . ',' . last . 's/\([.,!?:]\)\s\+/\1 /ge'
+    execute first . ',' . last . 's/\([.,!?:;]\)\(\S\)/\1 \2/ge'
+    execute first . ',' . last . 's/\. \./../ge'
 
     " Normalize spacing around double quotes
-    execute '%s/\(\S\)\s\+"\([^"\+]\+\)"/\1 "\2"/ge'
-    execute '%s/\(\S\)"\([^"\+]\+\)"/\1 "\2"/ge'
-    execute '%s/"\([^"\+]\+\)"\s\+\(\S\)/"\1" \2/ge'
-    execute '%s/"\([^"\+]\+\)"\(\S\)/"\1" \2/ge'
+    execute first . ',' . last . 's/\(\S\)\s\+"\([^"\+]\+\)"/\1 "\2"/ge'
+    execute first . ',' . last . 's/\(\S\)"\([^"\+]\+\)"/\1 "\2"/ge'
+    execute first . ',' . last . 's/"\([^"\+]\+\)"\s\+\(\S\)/"\1" \2/ge'
+    execute first . ',' . last . 's/"\([^"\+]\+\)"\(\S\)/"\1" \2/ge'
 
     " Normalize spacing around parentheses and remove space before punctuation
-    execute '%s/\(\S\)\s\+(/\1 (/ge'
-    execute '%s/\(\S\)(/\1 (/ge'
-    execute '%s/)\s\+\(\S\)/) \1/ge'
-    execute '%s/)\(\S\)/) \1/ge'
-    execute '%s/\([)]\) \([.,!?:\*]\)/\1\2/ge'
+    execute first . ',' . last . 's/\(\S\)\s\+(/\1 (/ge'
+    execute first . ',' . last . 's/\(\S\)(/\1 (/ge'
+    execute first . ',' . last . 's/)\s\+\(\S\)/) \1/ge'
+    execute first . ',' . last . 's/)\(\S\)/) \1/ge'
+    execute first . ',' . last . 's/\([)]\) \([.,!?:\*]\)/\1\2/ge'
 
     " Insert spaces between ASCII and CJK characters (both directions)
-    execute '%s/\([\x21-\x7e]\)\([^\x00-\xff]\)/\1 \2/ge'
-    execute '%s/\([^\x00-\xff]\)\([\x21-\x7e]\)/\1 \2/ge'
+    execute first . ',' . last . 's/\([\x21-\x7e]\)\([^\x00-\xff]\)/\1 \2/ge'
+    execute first . ',' . last . 's/\([^\x00-\xff]\)\([\x21-\x7e]\)/\1 \2/ge'
 
     call setpos('.', save_cursor)
 endfunction

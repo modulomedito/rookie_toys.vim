@@ -10,7 +10,7 @@ command! -nargs=0 -bar RookieClangdGenerate call rookie_clangd#CreateCompileComm
 command! -nargs=0 -bar RookieGitGraph call rookie_gitgraph#OpenGitGraph(1)
 command! -nargs=0 -bar RookieGitGraphLocal call rookie_gitgraph#OpenGitGraph(0)
 command! -nargs=0 -bar RookieMarkdownTitleToAnchor call rookie_markdown#ConvertMarkdownTitleToAnchorLink()
-command! -nargs=0 -bar RookieMarkdownLinter call rookie_markdown#MarkdownLinter()
+command! -nargs=0 -bar -range=% RookieMarkdownLinter call rookie_markdown#MarkdownLinter(<line1>, <line2>)
 command! -nargs=0 -bar RookieRetab call rookie_retab#Retab()
 command! -nargs=0 -bar RookieGitDiff call rookie_gitdiff#Diff()
 command! -nargs=0 -bar RookieTagUpdate call rookie_tag#UpdateTags()
