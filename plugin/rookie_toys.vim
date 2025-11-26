@@ -22,3 +22,9 @@ command! -nargs=0 -bar RookieTagSearchGlobal call rookie_tag#SearchGlobalTags()
 command! -nargs=0 -bar RookieTagAddFileName call rookie_tag#AddFileNameTags()
 command! -nargs=0 -bar RookieTagSearchFileName call rookie_tag#SearchFileNameTags()
 command! -nargs=0 -bar RookieToggleHeaderSource call rookie_tag#ToggleHeaderSource()
+command! -nargs=0 -bar RookieGitAutoFetch call rookie_git#AutoFetch()
+
+if exists('g:rookie_git_fetch_interval_s')
+    call rookie_git#AutoFetch()
+endif
+call rookie_git#StartAutoFetchWatcher()
