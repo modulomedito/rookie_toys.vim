@@ -27,6 +27,7 @@ This plugin provides a collection of powerful development tools organized into s
 - **rookie_setup**: Complete Vim environment configuration
 - **rookie_lsp**: LSP (Language Server Protocol) integration
 - **rookie_rg**: Ripgrep integration for fast searching
+- **rookie_project**: Lightweight project management via CSV and quickfix
 
 ---
 
@@ -52,6 +53,37 @@ g:rookie_toys_clangd_args = ['-ferror-limit=3000']  # Arguments for clangd
 **Usage Example:**
 ```vim
 :RookieClangdGenerate
+```
+
+---
+
+### 📁 rookie_project
+
+Lightweight project management using a CSV info file.
+
+#### Commands
+
+- **`:RookieProjectList`** - List projects in quickfix; press `<CR>` to open and set CWD
+- **`:RookieProjectAdd`** - Add current CWD as a project; prompts for name
+- **`:RookieProjectRemove`** - Remove selected project from the info file
+- **`:RookieProjectRename`** - Rename selected project in the quickfix list
+
+**Features:**
+- Stores `.rookie_toys_project.csv` in runtime directory
+  - Non‑Windows: `$HOME/.vim/.rookie_toys_project.csv`
+  - Windows: `$HOME/vimfiles/.rookie_toys_project.csv`
+- CSV columns: `name,path`
+- Quickfix shows aligned columns for readability
+- When opening a project: quickfix closes, CWD changes, project moves to top
+
+**Usage Example:**
+```vim
+:RookieProjectList
+" In the quickfix window, move cursor to a project and press <CR>
+
+:RookieProjectAdd
+:RookieProjectRemove   " run with cursor on a project line in quickfix
+:RookieProjectRename   " run with cursor on a project line in quickfix
 ```
 
 ---
@@ -299,6 +331,10 @@ Ripgrep integration for blazing fast text searching across projects.
 | `:RookieTagAddFileName` | Add tags to filename |
 | `:RookieTagSearchFileName` | Search files by tags |
 | `:RookieToggleHeaderSource` | Toggle header/source |
+| `:RookieProjectList` | List projects in quickfix |
+| `:RookieProjectAdd` | Add current CWD as a project |
+| `:RookieProjectRemove` | Remove selected project |
+| `:RookieProjectRename` | Rename selected project |
 
 **Note:** All commands must be used with their full names. No short aliases are available.
 

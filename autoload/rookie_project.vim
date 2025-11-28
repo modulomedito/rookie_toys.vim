@@ -65,7 +65,7 @@ function! s:SetQuickfix(projects) abort
     let qf = []
     let idx = 1
     for p in a:projects
-        let text = printf('%-' . w . 's  %s', p.name, p.path)
+        let text = printf('%-' . w . 's | %s', p.name, p.path)
         call add(qf, {'lnum': idx, 'text': text})
         let idx += 1
     endfor
