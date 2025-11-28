@@ -97,6 +97,8 @@ function! rookie_project#OpenSelectedProject() abort
     if isdirectory(prj.path)
         execute 'cd ' . fnameescape(prj.path)
     endif
+    cclose
+    echomsg 'Opened ' . prj.name . ' at ' . prj.path
     let all = s:ReadProjects()
     let filtered = []
     for p in all
@@ -106,7 +108,6 @@ function! rookie_project#OpenSelectedProject() abort
     endfor
     let newlist = [prj] + filtered
     call s:WriteProjects(newlist)
-    call s:SetQuickfix(newlist)
 endfunction
 
 function! rookie_project#ProjectAdd() abort
