@@ -97,7 +97,6 @@ function! rookie_project#OpenSelectedProject() abort
     if isdirectory(prj.path)
         execute 'cd ' . fnameescape(prj.path)
     endif
-    execute 'cd ' . fnameescape(prj.path)
     cclose
     echomsg 'Opened [' . prj.name . '] at [' . prj.path . ']'
     let all = s:ReadProjects()
