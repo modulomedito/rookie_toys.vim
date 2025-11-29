@@ -28,6 +28,7 @@ This plugin provides a collection of powerful development tools organized into s
 - **rookie_lsp**: LSP (Language Server Protocol) integration
 - **rookie_rg**: Ripgrep integration for fast searching
 - **rookie_project**: Lightweight project management via CSV and quickfix
+- **rookie_rooter**: Automatic root detection and CWD management
 
 ---
 
@@ -87,6 +88,44 @@ Lightweight project management using a CSV info file.
 ```
 
 ---
+
+### 🧭 rookie_rooter
+
+Automatic working directory management based on root markers, designed not to conflict with `rookie_project`.
+
+#### Global Variables
+
+```vim
+let g:rookie_rooter_enable = 1                     " enable/disable auto-root
+let g:rookie_rooter_scope = 'cd'                   " 'cd'|'tcd'|'lcd'
+let g:rookie_rooter_patterns = ['.git', 'compile_commands.json', 'Cargo.toml', 'Makefile', '.root']
+let g:rookie_rooter_exclude_filetypes = ['git', 'help', 'qf', 'quickfix', 'nerdtree']
+let g:rookie_rooter_lock_seconds = 2               " cool down after project open
+let g:rookie_rooter_auto_setup = 1                 " auto setup on plugin load
+let g:rookie_rooter_echo_changed = 1               " echo message when CWD changes
+```
+
+#### Commands
+
+- **`:RookieRooterSetup`** — Setup auto-root autocmds
+- **`:RookieRooterDisable`** — Disable auto-root
+- **`:RookieRooterEnable`** — Enable and setup
+- **`:RookieRooterToggle`** — Toggle enable/disable
+- **`:RookieRooterHere`** — Root immediately based on current buffer
+
+**Features:**
+- Upward search for root markers; sets CWD with configurable scope
+- Skips auto-root briefly after `rookie_project` opens a project to avoid override
+- Optional echo showing the new CWD and which marker was matched
+
+**Usage Example:**
+```vim
+let g:rookie_rooter_scope = 'tcd'
+let g:rookie_rooter_patterns = ['.git', 'compile_commands.json', 'Cargo.toml']
+:RookieRooterSetup
+" Manually root current buffer
+:RookieRooterHere
+```
 
 ### 📊 rookie\_gitgraph
 
@@ -335,6 +374,11 @@ Ripgrep integration for blazing fast text searching across projects.
 | `:RookieProjectAdd` | Add current CWD as a project |
 | `:RookieProjectRemove` | Remove selected project |
 | `:RookieProjectRename` | Rename selected project |
+| `:RookieRooterSetup` | Setup auto-root |
+| `:RookieRooterDisable` | Disable auto-root |
+| `:RookieRooterEnable` | Enable and setup auto-root |
+| `:RookieRooterToggle` | Toggle auto-root |
+| `:RookieRooterHere` | Root immediately |
 
 **Note:** All commands must be used with their full names. No short aliases are available.
 
