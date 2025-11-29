@@ -1,34 +1,30 @@
-# rookie\_toys.vim
+# rookie_toys.vim
 
-A comprehensive Vim plugin collection providing powerful development tools and utilities for modern vim9script environments.
+Practical Vim plugin collection with focused, ready-to-use features.
 
-## Prerequisite
+## Compatibility
 
-Vim which supports **vim9script** (Vim 9.0+)
+- Vim 8.2+ or Neovim 0.6+
 
 ## Install
 
 **vim-plug**
 
-```vim9script
+```vim
 Plug 'https://github.com/modulomedito/rookie_toys.vim'
 ```
 
 ## Features Overview
 
-This plugin provides a collection of powerful development tools organized into several modules:
+Active modules:
 
-- **rookie_clangd**: C/C++ development with clangd integration
-- **rookie_gitgraph**: Git visualization and graph display
-- **rookie_gitdiff**: Advanced git diff utilities
-- **rookie_markdown**: Markdown editing and formatting tools
-- **rookie_tag**: Tag-based file organization and search
-- **rookie_retab**: Smart tab management
-- **rookie_setup**: Complete Vim environment configuration
-- **rookie_lsp**: LSP (Language Server Protocol) integration
-- **rookie_rg**: Ripgrep integration for fast searching
-- **rookie_project**: Lightweight project management via CSV and quickfix
-- **rookie_rooter**: Automatic root detection and CWD management
+- **rookie_project** — Project list and opener (CSV + quickfix)
+- **rookie_markdown** — Markdown tools (anchor, linter, slugify)
+- **rookie_tag** — Tag editing and searching utilities
+- **rookie_retab** — Consistent tab-to-space conversion
+- **rookie_gitgraph** — Git graph visualization (requires vim-fugitive)
+- **rookie_gitdiff** — Interactive diff between commits (requires vim-fugitive)
+- **rookie_clangd** — Generate `compile_commands.json` for clangd
 
 ---
 
@@ -89,43 +85,7 @@ Lightweight project management using a CSV info file.
 
 ---
 
-### 🧭 rookie_rooter
 
-Automatic working directory management based on root markers, designed not to conflict with `rookie_project`.
-
-#### Global Variables
-
-```vim
-let g:rookie_rooter_enable = 1                     " enable/disable auto-root
-let g:rookie_rooter_scope = 'cd'                   " 'cd'|'tcd'|'lcd'
-let g:rookie_rooter_patterns = ['.git', 'compile_commands.json', 'Cargo.toml', 'Makefile', '.root']
-let g:rookie_rooter_exclude_filetypes = ['git', 'help', 'qf', 'quickfix', 'nerdtree']
-let g:rookie_rooter_lock_seconds = 2               " cool down after project open
-let g:rookie_rooter_auto_setup = 1                 " auto setup on plugin load
-let g:rookie_rooter_echo_changed = 1               " echo message when CWD changes
-```
-
-#### Commands
-
-- **`:RookieRooterSetup`** — Setup auto-root autocmds
-- **`:RookieRooterDisable`** — Disable auto-root
-- **`:RookieRooterEnable`** — Enable and setup
-- **`:RookieRooterToggle`** — Toggle enable/disable
-- **`:RookieRooterHere`** — Root immediately based on current buffer
-
-**Features:**
-- Upward search for root markers; sets CWD with configurable scope
-- Skips auto-root briefly after `rookie_project` opens a project to avoid override
-- Optional echo showing the new CWD and which marker was matched
-
-**Usage Example:**
-```vim
-let g:rookie_rooter_scope = 'tcd'
-let g:rookie_rooter_patterns = ['.git', 'compile_commands.json', 'Cargo.toml']
-:RookieRooterSetup
-" Manually root current buffer
-:RookieRooterHere
-```
 
 ### 📊 rookie\_gitgraph
 
@@ -266,90 +226,11 @@ Smart tab management utility for consistent code formatting.
 
 ---
 
-### ⚙️ rookie\_setup
 
-Complete Vim environment configuration with sensible defaults and key mappings.
 
-#### Features
 
-**Key Mappings:**
-- `<Space>` as leader key
-- `<C-s>` - Save file and remove trailing whitespace
-- `<C-q>` - Quick quit
-- `<C-p>` - Find files
-- `<F2>` - Search and replace current word
-- `<M-j>/<M-k>` - Move lines up/down
-- And many more productivity mappings
 
-**Vim Options:**
-- Modern defaults with sensible settings
-- Relative line numbers with absolute current line
-- Smart case searching
-- Persistent undo
-- Terminal GUI colors
-- Custom status line with git integration
 
-**Plugin Integration:**
-- Automatically sets up LSP keymaps
-- Configures ripgrep integration
-- Sets up text manipulation plugins
-
----
-
-### 🔍 rookie\_lsp
-
-Language Server Protocol integration with support for multiple languages.
-
-#### Supported Languages
-
-- **C/C++** - clangd with background indexing
-- **Markdown** - marksman language server
-- **Rust** - rust-analyzer
-- **TOML** - taplo language server
-
-#### Key Mappings
-
-- `<leader>rn` - Rename symbol
-- `<S-M-f>` - Format document
-- `<leader>hh` - Switch between source/header
-- `[d` / `]d` - Navigate diagnostics
-- `gd` - Go to definition
-- `gr` - Show references
-- `gh` - Show hover information
-- `gi` - Go to implementation
-- `gy` - Go to type definition
-- `gs` - Document symbols
-- `gS` - Symbol search
-
----
-
-### 🔎 rookie\_rg
-
-Ripgrep integration for blazing fast text searching across projects.
-
-#### Features
-
-- Automatically detects and configures ripgrep if available
-- Smart case searching with hidden file support
-- Vim-compatible grep format
-- Quickfix integration
-
-#### Key Mappings
-
-- `<leader>gg` - Search word under cursor across project
-- `<leader>gf` - Interactive live grep with custom pattern
-
-**Usage Example:**
-```vim
-" Search current word under cursor
-<leader>gg
-
-" Interactive search
-<leader>gf
-" Enter your search pattern when prompted
-```
-
----
 
 ## Command Reference
 
@@ -374,11 +255,7 @@ Ripgrep integration for blazing fast text searching across projects.
 | `:RookieProjectAdd` | Add current CWD as a project |
 | `:RookieProjectRemove` | Remove selected project |
 | `:RookieProjectRename` | Rename selected project |
-| `:RookieRooterSetup` | Setup auto-root |
-| `:RookieRooterDisable` | Disable auto-root |
-| `:RookieRooterEnable` | Enable and setup auto-root |
-| `:RookieRooterToggle` | Toggle auto-root |
-| `:RookieRooterHere` | Root immediately |
+
 
 **Note:** All commands must be used with their full names. No short aliases are available.
 
@@ -395,16 +272,25 @@ This will configure your entire Vim environment with all the productivity featur
 
 ---
 
-## Dependencies
+## Requirements
 
-- **vim-fugitive** (for git features)
-- **ripgrep** (optional, for enhanced searching)
-- **Language servers** (optional, for LSP features):
-  - clangd (C/C++)
-  - marksman (Markdown)
-  - rust-analyzer (Rust)
-  - taplo (TOML)
+- `vim-fugitive` for Git graph and diff commands
+- Optional: NERDTree for project-tree sync on project open
+- Optional: clangd to consume generated `compile_commands.json`
+
+## Troubleshooting
+
+- Git commands fail or `:Git` not found
+  - Install `vim-fugitive` and ensure the `:Git` command is available
+- Project quickfix shows no items
+  - Ensure `.rookie_toys_project.csv` exists; add a project with `:RookieProjectAdd`
+- Opening a project didn’t change CWD
+  - Verify the path exists; re-add the project if the path changed
+- NERDTree didn’t update after opening a project
+  - Ensure a NERDTree buffer is open; the plugin runs `:NERDTreeCWD` when available
+- `compile_commands.json` missing entries
+  - Adjust `g:rookie_toys_clangd_*` patterns to match your file extensions
 
 ## License
 
-MIT License - see LICENSE file for details.
+MIT License — see `LICENSE` for details.
