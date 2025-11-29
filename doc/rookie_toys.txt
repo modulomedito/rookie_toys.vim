@@ -1,0 +1,276 @@
+*rookie_toys.txt*   Rookie Toys beginner help                     Version: 1.0
+                                               Last change: 2025-11-29
+
+ROOKIE_TOYS HELP                                           *rookie_toys*
+
+This file provides beginner-friendly Vim commands and tips, plus usage for
+active features in rookie_toys.vim.
+
+Installation: place this file in your help directory and generate helptags.
+- Unix/macOS:   ~/.vim/doc/  or  ~/.config/nvim/doc/
+- Windows:      $HOME/vimfiles/doc/
+Then run:  :helptags ALL   or   :helptags {path-to-doc}
+See also: |:helptags| |helphelp|
+
+==============================================================================
+TABLE OF CONTENTS                                     *rookie_toys-toc*
+
+1. Introduction                |rookie_toys-intro|
+2. Installation                |rookie_toys-install|
+3. Navigation                  |rookie_toys-nav|
+4. Editing                     |rookie_toys-edit|
+5. Searching                   |rookie_toys-search|
+6. Windows and Buffers         |rookie_toys-windows|
+7. Files and Projects          |rookie_toys-projects|
+8. Git Utilities               |rookie_toys-git|
+9. Markdown Tools              |rookie_toys-markdown|
+10. Troubleshooting            |rookie_toys-troubleshoot|
+11. See Also                   |rookie_toys-seealso|
+
+==============================================================================
+INTRODUCTION                                             *rookie_toys-intro*
+
+This guide helps new users learn essential Vim operations: movement,
+editing, searching, windows/buffers, and using rookie_toys active features.
+Each command includes syntax, description, examples, and common use cases.
+
+==============================================================================
+INSTALLATION                                            *rookie_toys-install*
+
+Place this file under your runtime help directory and build helptags.
+
+Unix/macOS (Vim):
+    ~/.vim/doc/rookie_toys.txt
+Unix/macOS (Neovim):
+    ~/.config/nvim/doc/rookie_toys.txt
+Windows:
+    $HOME/vimfiles/doc/rookie_toys.txt
+
+Generate tags:
+    :helptags ALL
+or :helptags ~/.vim/doc     (adjust path as needed)
+
+Related: |:helptags| |helphelp| |rtp|
+
+==============================================================================
+NAVIGATION                                               *rookie_toys-nav*
+
+Basic movement
+    Syntax: *h* *j* *k* *l*
+    Description: Left, Down, Up, Right cursor movement.
+    Examples:
+        Press h/j/k/l to move character-wise.
+    Use cases: Line/character navigation without leaving Normal mode.
+    Related: |motion|
+
+Word-wise
+    Syntax: *w* *b* *e*
+    Description: Move to next word, previous word, end of word.
+    Examples:
+        w  jump to the start of next word
+        b  jump back to the start of previous word
+        e  jump to end of current/next word
+    Use cases: Faster token navigation.
+    Related: |word-motions|
+
+Line boundaries
+    Syntax: *0* *^* *$*
+    Description: Start of line (column 0), first non-blank, end of line.
+    Related: |motion|
+
+File boundaries
+    Syntax: *gg* *G*
+    Description: Go to first line (gg) or last line (G).
+    Related: |motion|
+
+Page scroll
+    Syntax: *<C-f>* *<C-b>* *<C-d>* *<C-u>*
+    Description: Page forward/back, half-page down/up.
+    Related: |scroll.txt|
+
+Search next/prev
+    Syntax: *n* *N*
+    Description: Next (n) / previous (N) match for last search.
+    Related: |search-commands|
+
+==============================================================================
+EDITING                                                 *rookie_toys-edit*
+
+Insert
+    Syntax: *i* *a* *o* *O*
+    Description: Insert before cursor (i), after (a), open new line below (o),
+                 open new line above (O).
+    Examples:
+        o  start a new line below and enter Insert mode
+    Use cases: Quick text entry.
+    Related: |insert|
+
+Delete / yank / put
+    Syntax: *dd* *yy* *p* *P*
+    Description: Delete line, yank line, put after, put before.
+    Examples:
+        dd  delete current line
+        yy  copy current line
+        p   paste after cursor
+    Related: |change.txt| |quote_ registers|
+
+Change
+    Syntax: *cw* *c$* *C*
+    Description: Change to end of word/line.
+    Related: |c|
+
+Undo/Redo
+    Syntax: *u* *<C-r>*
+    Description: Undo (u), redo (CTRL-R).
+    Related: |undo|
+
+Substitute
+    Syntax: *:%s/pattern/repl/g*
+    Description: Replace matches in the buffer.
+    Examples:
+        :%s/\s\+$//e   remove trailing spaces, ignore errors
+    Related: |:substitute|
+
+Indent
+    Syntax: *<<* *>>*
+    Description: Shift left/right indentation in Normal/Visual.
+    Related: |shift-left-right|
+
+==============================================================================
+SEARCHING                                            *rookie_toys-search*
+
+Forward/Backward search
+    Syntax: */pattern* *?pattern*
+    Description: Search forward/backward for pattern.
+    Examples:
+        /TODO<CR>
+    Related: |pattern| |magic|
+
+Repeat last search
+    Syntax: *n* *N*
+    Description: Next/previous match.
+    Related: |search-commands|
+
+Quickfix list
+    Syntax: *:copen* *:cnext* *:cprev*
+    Description: Open quickfix, navigate entries.
+    Related: |quickfix|
+
+==============================================================================
+WINDOWS AND BUFFERS                                  *rookie_toys-windows*
+
+Split windows
+    Syntax: *:split* *:vsplit*  *<C-w> w*
+    Description: Horizontal/vertical splits, switch window.
+    Related: |windows.txt|
+
+Buffers
+    Syntax: *:ls* *:bnext* *:bprev* *:buffer {N}*
+    Description: List buffers, jump among them.
+    Related: |buffers|
+
+==============================================================================
+FILES AND PROJECTS                                   *rookie_toys-projects*
+
+Project list (rookie_toys.vim)
+    Tag: *RookieProjectList*
+    Syntax: *:RookieProjectList*
+    Description: List projects from CSV in quickfix. Press <CR> on a line to
+                 open the project, change CWD, and move the project to top.
+    Examples:
+        :RookieProjectList
+        " Select a project in quickfix and press <CR>
+    Use cases: Switch between multiple working directories quickly.
+    Related: |quickfix| |:cd|
+
+Add project
+    Tag: *RookieProjectAdd*
+    Syntax: *:RookieProjectAdd*
+    Description: Add current CWD as a project; prompts for name. Empty input
+                 uses deepest directory name.
+
+Remove project
+    Tag: *RookieProjectRemove*
+    Syntax: *:RookieProjectRemove*
+    Description: Remove selected project (run while cursor is on a project row
+                 in the quickfix list).
+
+Rename project
+    Tag: *RookieProjectRename*
+    Syntax: *:RookieProjectRename*
+    Description: Rename selected project (run in quickfix). Empty input keeps
+                 the old name.
+
+Storage
+    CSV path:
+        Non‑Windows:  $HOME/.vim/.rookie_toys_project.csv
+        Windows:      $HOME/vimfiles/.rookie_toys_project.csv
+
+==============================================================================
+GIT UTILITIES                                           *rookie_toys-git*
+
+Git graph (requires vim-fugitive)
+    Tag: *RookieGitGraph*  *RookieGitGraphLocal*
+    Syntax: *:RookieGitGraph*   *:RookieGitGraphLocal*
+    Description: Show decorated git log for all branches or current branch.
+    Examples:
+        :RookieGitGraph
+        :RookieGitGraphLocal
+    Related: |fugitive|
+
+Interactive diff (requires vim-fugitive)
+    Tag: *RookieGitDiff*
+    Syntax: *:RookieGitDiff*
+    Description: Three-step workflow to diff current file between two commits.
+    Examples:
+        :RookieGitDiff        " on the target file
+        " move cursor onto a 7-char SHA and run again
+        :RookieGitDiff        " save first commit
+        " move onto another 7-char SHA and run
+        :RookieGitDiff        " open split diff view
+    Related: |fugitive|
+
+==============================================================================
+MARKDOWN TOOLS                                       *rookie_toys-markdown*
+
+Anchor from header
+    Tag: *RookieMarkdownTitleToAnchor*
+    Syntax: *:RookieMarkdownTitleToAnchor*
+    Description: Convert header under cursor to an anchor link above it.
+
+Markdown linter
+    Tag: *RookieMarkdownLinter*
+    Syntax: *:RookieMarkdownLinter*
+    Description: Normalize spacing around headers/punctuation; preserve cursor
+                 position; improve readability.
+    Related: |quickfix|
+
+Slugify helpers
+    Tag: *RookieSlugify*  *RookieSlugifyLine*  *RookieSlugifyYank*
+    Syntax: *:RookieSlugify* [text]  |  *:RookieSlugifyLine*  |  *:RookieSlugifyYank*
+    Description: Produce URL-friendly slugs for text/line and optionally yank.
+
+==============================================================================
+TROUBLESHOOTING                                   *rookie_toys-troubleshoot*
+
+Git features fail or :Git not found
+    - Install vim-fugitive and ensure |:Git| is available.
+
+Project did not change CWD
+    - Verify the stored path exists and is a directory; re-add the project.
+
+Quickfix window didn’t open
+    - Use |:copen| and check there are items; filters may produce none.
+
+Clangd compile_commands.json missing entries
+    - Adjust g:rookie_toys_clangd_* patterns to match your file extensions.
+
+==============================================================================
+SEE ALSO                                               *rookie_toys-seealso*
+
+|helphelp| |intro.txt| |tutor| |motion| |insert| |change.txt|
+|search-commands| |quickfix| |windows.txt| |buffers| |:helptags|
+
+==============================================================================
+Copyright (c) 2025 modulomedito.  MIT License.
+
