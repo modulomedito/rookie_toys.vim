@@ -33,7 +33,17 @@ command! -nargs=0 -bar RookieProjectAdd call rookie_project#ProjectAdd()
 command! -nargs=0 -bar RookieProjectRemove call rookie_project#ProjectRemove()
 command! -nargs=0 -bar RookieProjectRename call rookie_project#ProjectRename()
 
+command! -nargs=0 -bar RookieRooterSetup call rookie_rooter#Setup()
+command! -nargs=0 -bar RookieRooterDisable call rookie_rooter#Disable()
+command! -nargs=0 -bar RookieRooterEnable let g:rookie_rooter_enable = 1 | call rookie_rooter#Setup()
+command! -nargs=0 -bar RookieRooterToggle let g:rookie_rooter_enable = get(g:, 'rookie_rooter_enable', 1) ? 0 : 1 | if g:rookie_rooter_enable | call rookie_rooter#Setup() | else | call rookie_rooter#Disable() | endif
+command! -nargs=0 -bar RookieRooterHere call rookie_rooter#RootHere()
+
 if exists('g:rookie_git_fetch_interval_s')
     call rookie_git#AutoFetch()
 endif
 call rookie_git#StartAutoFetchWatcher()
+
+if get(g:, 'rookie_rooter_auto_setup', 1)
+    call rookie_rooter#Setup()
+endif

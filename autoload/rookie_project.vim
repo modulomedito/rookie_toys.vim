@@ -96,6 +96,9 @@ function! rookie_project#OpenSelectedProject() abort
     let prj = b:rookie_project_items[idx]
     if isdirectory(prj.path)
         execute 'cd ' . fnameescape(prj.path)
+        if exists('*rookie_rooter#Lock')
+            call rookie_rooter#Lock(get(g:, 'rookie_rooter_lock_seconds', 2))
+        endif
     endif
     cclose
     echomsg 'Opened [' . prj.name . '] at [' . prj.path . ']'
