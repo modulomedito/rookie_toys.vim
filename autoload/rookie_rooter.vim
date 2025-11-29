@@ -1,7 +1,7 @@
 scriptencoding utf-8
 
 " rookie_rooter global options
-" g:rookie_rooter_enable           (default: 1)
+" g:rookie_rooter_enable           (default: 0)
 "     Enable/disable auto-root on buffer enter.
 " g:rookie_rooter_scope            (default: 'cd')
 "     Scope of CWD change: 'cd' (global), 'tcd' (tab-local), or 'lcd' (window-local).
@@ -47,7 +47,7 @@ function! s:LockActive() abort
 endfunction
 
 function! rookie_rooter#AutoRoot() abort
-    if !get(g:, 'rookie_rooter_enable', 1)
+    if !get(g:, 'rookie_rooter_enable', 0)
         return
     endif
     if s:LockActive()
@@ -91,7 +91,7 @@ endfunction
 
 function! rookie_rooter#Setup() abort
     call rookie_rooter#Disable()
-    if get(g:, 'rookie_rooter_enable', 1)
+    if get(g:, 'rookie_rooter_enable', 0)
         augroup RookieRooter
             autocmd!
             autocmd BufEnter * call rookie_rooter#AutoRoot()
