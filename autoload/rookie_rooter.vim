@@ -27,14 +27,14 @@ function! s:FindRoot(start) abort
     for pat in patterns
         let d = finddir(pat, start . ';')
         if !empty(d)
-            return fnamemodify(d, ':h')
+            return {'root': fnamemodify(d, ':h'), 'marker': pat}
         endif
         let f = findfile(pat, start . ';')
         if !empty(f)
-            return fnamemodify(f, ':h')
+            return {'root': fnamemodify(f, ':h'), 'marker': pat}
         endif
     endfor
-    return ''
+    return {'root': '', 'marker': ''}
 endfunction
 
 function! rookie_rooter#Lock(seconds) abort
@@ -64,11 +64,12 @@ function! rookie_rooter#AutoRoot() abort
     if bufpath ==# ''
         return
     endif
-    let root = s:FindRoot(fnamemodify(bufpath, ':h'))
+    let found = s:FindRoot(fnamemodify(bufpath, ':h'))
+    let root = s:NormalizePath(get(found, 'root', ''))
+    let marker = get(found, 'marker', '')
     if root ==# ''
         return
     endif
-    let root = s:NormalizePath(root)
     if getcwd() ==# root
         return
     endif
@@ -77,6 +78,9 @@ function! rookie_rooter#AutoRoot() abort
         let scope = 'cd'
     endif
     execute scope . ' ' . fnameescape(root)
+    if get(g:, 'rookie_rooter_echo_changed', 1)
+        echomsg 'RookieRooter: CWD changed to ' . root . (marker !=# '' ? ' (marker: ' . marker . ')' : '')
+    endif
 endfunction
 
 function! rookie_rooter#Disable() abort
@@ -100,14 +104,18 @@ function! rookie_rooter#RootHere() abort
     if bufpath ==# ''
         return
     endif
-    let root = s:FindRoot(fnamemodify(bufpath, ':h'))
+    let found = s:FindRoot(fnamemodify(bufpath, ':h'))
+    let root = s:NormalizePath(get(found, 'root', ''))
+    let marker = get(found, 'marker', '')
     if root ==# ''
         return
     endif
-    let root = s:NormalizePath(root)
     let scope = get(g:, 'rookie_rooter_scope', 'cd')
     if scope !=# 'cd' && scope !=# 'tcd' && scope !=# 'lcd'
         let scope = 'cd'
     endif
     execute scope . ' ' . fnameescape(root)
+    if get(g:, 'rookie_rooter_echo_changed', 1)
+        echomsg 'RookieRooter: CWD changed to ' . root . (marker !=# '' ? ' (marker: ' . marker . ')' : '')
+    endif
 endfunction
