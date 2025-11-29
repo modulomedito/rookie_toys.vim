@@ -99,6 +99,18 @@ function! rookie_project#OpenSelectedProject() abort
         if exists('*rookie_rooter#Lock')
             call rookie_rooter#Lock(get(g:, 'rookie_rooter_lock_seconds', 2))
         endif
+        if exists(':NERDTreeCWD')
+            let has_tree = 0
+            for b in getbufinfo({'bufloaded': 1})
+                if getbufvar(b.bufnr, '&filetype') ==# 'nerdtree'
+                    let has_tree = 1
+                    break
+                endif
+            endfor
+            if has_tree
+                execute 'NERDTreeCWD'
+            endif
+        endif
     endif
     cclose
     echomsg 'Opened [' . prj.name . '] at [' . prj.path . ']'
