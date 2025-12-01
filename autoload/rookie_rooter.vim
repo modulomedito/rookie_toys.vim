@@ -101,8 +101,9 @@ endfunction
 
 function! rookie_rooter#RootHere() abort
     let bufpath = expand('%:p')
+    " Fallback for unsaved/new buffers: use current working directory
     if bufpath ==# ''
-        return
+        let bufpath = getcwd()
     endif
     let found = s:FindRoot(fnamemodify(bufpath, ':h'))
     let root = s:NormalizePath(get(found, 'root', ''))
@@ -117,5 +118,18 @@ function! rookie_rooter#RootHere() abort
     execute scope . ' ' . fnameescape(root)
     if get(g:, 'rookie_rooter_echo_changed', 1)
         echomsg 'RookieRooter: CWD changed to ' . root . (marker !=# '' ? ' (marker: ' . marker . ')' : '')
+    endif
+    " Sync NERDTree root to the new CWD when NERDTree is open
+    if exists(':NERDTreeCWD')
+        let has_tree = 0
+        for binfo in getbufinfo({'bufloaded': 1})
+            if getbufvar(binfo.bufnr, '&filetype') ==# 'nerdtree'
+                let has_tree = 1
+                break
+            endif
+        endfor
+        if has_tree
+            execute 'NERDTreeCWD'
+        endif
     endif
 endfunction
