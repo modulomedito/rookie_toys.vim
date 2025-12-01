@@ -112,6 +112,8 @@ function! rookie_project#OpenSelectedProject() abort
             endif
         endif
     endif
+    " Remove the quickfix <CR> remap now that the project is opened
+    silent! nunmap <buffer> <CR>
     cclose
     echomsg 'Opened [' . prj.name . '] at [' . prj.path . ']'
     let all = s:ReadProjects()
