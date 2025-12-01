@@ -101,13 +101,16 @@ endfunction
 
 function! rookie_rooter#RootHere() abort
     let bufpath = expand('%:p')
-    " Fallback for unsaved/new buffers: use current working directory
-    if bufpath ==# ''
-        let bufpath = getcwd()
+    let debug = get(g:, 'rookie_rooter_debug', 0)
+    if debug
+        echomsg 'RookieRooter[Debug]: bufpath=' . bufpath
     endif
     let found = s:FindRoot(fnamemodify(bufpath, ':h'))
     let root = s:NormalizePath(get(found, 'root', ''))
     let marker = get(found, 'marker', '')
+    if debug
+        echomsg 'RookieRooter[Debug]: found root=' . root . (marker !=# '' ? ' (marker: ' . marker . ')' : '')
+    endif
     if root ==# ''
         return
     endif
@@ -115,7 +118,14 @@ function! rookie_rooter#RootHere() abort
     if scope !=# 'cd' && scope !=# 'tcd' && scope !=# 'lcd'
         let scope = 'cd'
     endif
+    if debug
+        echomsg 'RookieRooter[Debug]: scope=' . scope
+        echomsg 'RookieRooter[Debug]: changing CWD to ' . root
+    endif
     execute scope . ' ' . fnameescape(root)
+    if debug
+        echomsg 'RookieRooter[Debug]: new getcwd()=' . getcwd()
+    endif
     if get(g:, 'rookie_rooter_echo_changed', 1)
         echomsg 'RookieRooter: CWD changed to ' . root . (marker !=# '' ? ' (marker: ' . marker . ')' : '')
     endif
@@ -130,6 +140,11 @@ function! rookie_rooter#RootHere() abort
         endfor
         if has_tree
             execute 'NERDTreeCWD'
+            if debug
+                echomsg 'RookieRooter[Debug]: NERDTreeCWD executed'
+            endif
+        elseif debug
+            echomsg 'RookieRooter[Debug]: NERDTree not open; skip sync'
         endif
     endif
 endfunction
