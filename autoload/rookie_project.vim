@@ -135,14 +135,35 @@ function! rookie_project#ProjectAdd() abort
         let name = fnamemodify(path, ':t')
     endif
     let projects = s:ReadProjects()
+    " Check if project name exists; prompt to overwrite
+    let exists = 0
     for p in projects
         if p.name ==# name
-            echomsg 'Project name already exists.'
-            return
+            let exists = 1
+            break
         endif
     endfor
+    if exists
+        let ans = input("Project '" . name . "' exists. Overwrite with current path? (y/N): ")
+        if tolower(ans) !=# 'y'
+            echomsg 'Project add canceled.'
+            return
+        endif
+        let out = []
+        for p in projects
+            if p.name ==# name
+                call add(out, {'name': name, 'path': path})
+            else
+                call add(out, p)
+            endif
+        endfor
+        call s:WriteProjects(out)
+        echomsg 'Project ' . name . ' updated to ' . path
+        return
+    endif
     call add(projects, {'name': name, 'path': path})
     call s:WriteProjects(projects)
+    echomsg 'Project ' . name . ' added at ' . path
 endfunction
 
 function! rookie_project#ProjectRemove() abort
