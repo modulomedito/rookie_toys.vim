@@ -22,18 +22,22 @@ function! s:NormalizePath(p) abort
 endfunction
 
 function! s:FindRoot(start) abort
-    let start = s:NormalizePath(a:start)
+    " Search upwards from start and pick the nearest directory containing any marker.
+    let dir = s:NormalizePath(a:start)
     let patterns = get(g:, 'rookie_rooter_patterns', ['.git', 'compile_commands.json', 'Cargo.toml', 'Makefile', '.root'])
-    for pat in patterns
-        let d = finddir(pat, start . ';')
-        if !empty(d)
-            return {'root': fnamemodify(d, ':h'), 'marker': pat}
+    while 1
+        for pat in patterns
+            let cand = dir . '/' . pat
+            if isdirectory(cand) || filereadable(cand)
+                return {'root': dir, 'marker': pat}
+            endif
+        endfor
+        let parent = fnamemodify(dir, ':h')
+        if parent ==# dir
+            break
         endif
-        let f = findfile(pat, start . ';')
-        if !empty(f)
-            return {'root': fnamemodify(f, ':h'), 'marker': pat}
-        endif
-    endfor
+        let dir = parent
+    endwhile
     return {'root': '', 'marker': ''}
 endfunction
 
