@@ -21,7 +21,8 @@ function! rookie_gitgraph#OpenGitGraph(all_branches) abort
     execute cmd
 
     " Define a region for the refs decoration so matches are scoped
-    silent! syntax region RookieGitGraphDecor start=/|\s\+(/ end=/)\s/ keepend
+    " Scope decoration region: allow optional space after '|', and end at ')' before space or EOL
+    silent! syntax region RookieGitGraphDecor start=/|\s*(/ end=/)\ze\(\s\|$\)/ keepend
     " Highlight HEAD pointer for visibility
     silent! syntax match RookieGitGraphHead /HEAD ->\s\+[^,)]\+/ containedin=ALL
     silent! highlight RookieGitGraphHead cterm=bold ctermfg=red gui=bold guifg=Red
