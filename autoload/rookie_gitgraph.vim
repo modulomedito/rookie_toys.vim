@@ -33,7 +33,10 @@ function! rookie_gitgraph#OpenGitGraph(all_branches) abort
     silent! syntax match RookieGitGraphDecorClose /)\ze\s/ containedin=ALL
     silent! highlight RookieGitGraphDecorOpen cterm=bold ctermfg=214 gui=bold guifg=Orange
     silent! highlight RookieGitGraphDecorClose cterm=bold ctermfg=214 gui=bold guifg=Orange
-    " Highlight other local branch names inside the decoration (exclude HEAD and origin/* and tag:)
-    silent! syntax match RookieGitGraphOther /\%(HEAD -> \|tag:\s*\)\@!\<\w\+\>/ contained containedin=RookieGitGraphDecor
+    " Highlight tag names after 'tag:' inside the decoration
+    silent! syntax match RookieGitGraphTagName /tag:\s*\zs[^, )]\+/ contained containedin=RookieGitGraphDecor
+    silent! highlight RookieGitGraphTagName cterm=bold ctermfg=79 gui=bold guifg=#7fbbb3
+    " Highlight other local branch names inside the decoration (exclude HEAD, tag:, and origin/*)
+    silent! syntax match RookieGitGraphOther /\v%(HEAD ->|tag:\s*|origin\/)@!\zs[^, )]+/ contained containedin=RookieGitGraphDecor
     silent! highlight RookieGitGraphOther cterm=bold ctermfg=79 gui=bold guifg=#7fbbb3
 endfunction
