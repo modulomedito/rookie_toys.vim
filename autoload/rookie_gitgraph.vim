@@ -18,7 +18,12 @@ function! rookie_gitgraph#OpenGitGraph(all_branches) abort
             execute 'bd ' . b.bufnr
         endif
     endfor
+
+    vsplit
+    wincmd l
     execute cmd
+    wincmd k
+    quit
 
     call rookie_gitgraph#HighlightRefs()
 endfunction
