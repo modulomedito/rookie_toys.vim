@@ -20,6 +20,6 @@ function! rookie_gitgraph#OpenGitGraph(all_branches) abort
     endfor
     execute cmd
     " Highlight HEAD pointer for visibility
-    silent! syntax match RookieGitGraphHead /HEAD ->/ containedin=ALL
+    silent! syntax match RookieGitGraphHead /HEAD ->\s\+[^,)]\+/ containedin=ALL
     silent! highlight RookieGitGraphHead cterm=bold ctermfg=red gui=bold guifg=Red
 endfunction
