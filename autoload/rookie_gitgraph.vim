@@ -21,7 +21,6 @@ function! rookie_gitgraph#OpenGitGraph(all_branches) abort
     execute cmd
 
     call rookie_gitgraph#HighlightRefs()
-
 endfunction
 
 function! rookie_gitgraph#HighlightRefs() abort
@@ -33,10 +32,10 @@ function! rookie_gitgraph#HighlightRefs() abort
     silent! syntax clear RookieGitGraphHead
     silent! syntax clear RookieGitGraphBracket
 
-    highlight RookieGitGraphDecorRegion guifg=#7fbbb3
-    highlight RookieGitGraphBracket guifg=#7fbbb3
-    highlight RookieGitGraphOrigin guifg=orange
-    highlight RookieGitGraphHead guifg=red
+    highlight RookieGitGraphDecorRegion guifg=#7fbbb3 gui=bold cterm=bold
+    highlight RookieGitGraphBracket guifg=#7fbbb3 gui=bold cterm=bold
+    highlight RookieGitGraphOrigin guifg=orange gui=bold cterm=bold
+    highlight RookieGitGraphHead guifg=red gui=bold cterm=bold
 
     execute 'syntax region RookieGitGraphDecorRegion matchgroup=RookieGitGraphBracket start=/\v\| *\(/ end=/\v\)\s/ keepend contains=RookieGitGraphOrigin,RookieGitGraphHead'
     execute 'syntax match RookieGitGraphOrigin /\vorigin\/[^, )]+/ contained containedin=RookieGitGraphDecorRegion'
