@@ -25,4 +25,7 @@ function! rookie_gitgraph#OpenGitGraph(all_branches) abort
     " Highlight remote branch refs like origin/<branch> in orange
     silent! syntax match RookieGitGraphRemote /origin\/[^, )]\+/ containedin=ALL
     silent! highlight RookieGitGraphRemote cterm=bold ctermfg=214 gui=bold guifg=Orange
+    " Highlight parentheses around decorations in orange
+    silent! syntax match RookieGitGraphParen /[()]/ containedin=ALL
+    silent! highlight RookieGitGraphParen cterm=bold ctermfg=214 gui=bold guifg=Orange
 endfunction
