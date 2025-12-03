@@ -44,5 +44,5 @@ function! rookie_gitgraph#HighlightRefs() abort
 
     execute 'syntax region RookieGitGraphDecorRegion matchgroup=RookieGitGraphBracket start=/\v\| *\(/ end=/\v\)\s/ keepend contains=RookieGitGraphOrigin,RookieGitGraphHead'
     execute 'syntax match RookieGitGraphOrigin /\vorigin\/[^, )]+/ contained containedin=RookieGitGraphDecorRegion'
-    execute 'syntax match RookieGitGraphHead /\vHEAD(\s*->\s*[^, )]+)?/ contained containedin=RookieGitGraphDecorRegion'
+    execute 'syntax match RookieGitGraphHead /\vHEAD(\s*->\s*[^,)]+)?/ contained containedin=RookieGitGraphDecorRegion'
 endfunction
