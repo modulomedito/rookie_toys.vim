@@ -29,15 +29,15 @@ function! rookie_gitgraph#OpenGitGraph(all_branches) abort
     silent! syntax match RookieGitGraphRemote /origin\/[^, )]\+/ containedin=ALL
     silent! highlight RookieGitGraphRemote cterm=bold ctermfg=214 gui=bold guifg=Orange
     " Allow whitespace between '|' and '(', as %d usually prints a leading space
+    silent! syntax match RookieGitGraphDecorOpen /|\s\+\zs(/ containedin=ALL
     silent! syntax match RookieGitGraphDecorClose /)\ze\s/ containedin=ALL
+    silent! highlight RookieGitGraphDecorOpen cterm=bold ctermfg=214 gui=bold guifg=Orange
     silent! highlight RookieGitGraphDecorClose cterm=bold ctermfg=214 gui=bold guifg=Orange
     " Highlight tag names after 'tag:' inside the decoration
     silent! syntax match RookieGitGraphTagName /tag:\s*\zs[^, )]\+/ contained containedin=RookieGitGraphDecor
     silent! highlight RookieGitGraphTagName cterm=bold ctermfg=79 gui=bold guifg=#7fbbb3
     " Highlight other local branch names inside the decoration (exclude HEAD, tag:, and origin/*)
-    silent! syntax match RookieGitGraphOther /\v%(HEAD ->|tag:\s*|origin\/)@!\zs[^, )]+/ contained containedin=RookieGitGraphDecor
+    " Anchor at '(' or ',' so we never start at the '|' character
+    silent! syntax match RookieGitGraphOther /\v%(\(|,)\s*\zs%(HEAD ->|tag:\s*|origin\/)@![^, )]+/ contained containedin=RookieGitGraphDecor
     silent! highlight RookieGitGraphOther cterm=bold ctermfg=79 gui=bold guifg=#7fbbb3
-    " Fix highlight the opening parenthesis '(' in the decoration
-    silent! syntax match RookieGitGraphDecorOpen /|\s\+\zs(/ containedin=ALL
-    silent! highlight RookieGitGraphDecorOpen cterm=bold ctermfg=214 gui=bold guifg=Orange
 endfunction
