@@ -20,21 +20,20 @@ function! rookie_gitgraph#OpenGitGraph(all_branches) abort
     endfor
     execute cmd
 
+    " Define a region for the refs decoration so matches are scoped
+    silent! syntax region RookieGitGraphDecor start=/|\s\+(/ end=/)\s/ keepend
     " Highlight HEAD pointer for visibility
     silent! syntax match RookieGitGraphHead /HEAD ->\s\+[^,)]\+/ containedin=ALL
     silent! highlight RookieGitGraphHead cterm=bold ctermfg=red gui=bold guifg=Red
     " Highlight remote branch refs like origin/<branch> in orange
     silent! syntax match RookieGitGraphRemote /origin\/[^, )]\+/ containedin=ALL
     silent! highlight RookieGitGraphRemote cterm=bold ctermfg=214 gui=bold guifg=Orange
-    " Highlight only the parentheses that wrap the decoration (%d)
+    " Allow whitespace between '|' and '(', as %d usually prints a leading space
     silent! syntax match RookieGitGraphDecorOpen /|\s\+\zs(/ containedin=ALL
     silent! syntax match RookieGitGraphDecorClose /)\ze\s/ containedin=ALL
     silent! highlight RookieGitGraphDecorOpen cterm=bold ctermfg=214 gui=bold guifg=Orange
     silent! highlight RookieGitGraphDecorClose cterm=bold ctermfg=214 gui=bold guifg=Orange
-    " Highlight the short commit SHA at start of line in light blue
-    silent! syntax match RookieGitGraphSha /^\x\+/ containedin=ALL
-    silent! highlight RookieGitGraphSha cterm=bold ctermfg=81 gui=bold guifg=LightSkyBlue
-    " Highlight local branch names inside the decoration parentheses using same color as SHA
-    silent! syntax match RookieGitGraphLocalBranch /\%(|\s*\()\@<=\%(tag:\s\)\@!\%(HEAD\)\@![^\/, )]\+/ containedin=ALL
-    silent! highlight link RookieGitGraphLocalBranch RookieGitGraphSha
+    " Highlight other local branch names inside the decoration (exclude HEAD and origin/* and tag:)
+    silent! syntax match RookieGitGraphOther /\%(HEAD -> \|tag:\s*\)\@!\<\w\+\>/ contained containedin=RookieGitGraphDecor
+    silent! highlight RookieGitGraphOther cterm=bold ctermfg=79 gui=bold guifg=#7fbbb3
 endfunction
