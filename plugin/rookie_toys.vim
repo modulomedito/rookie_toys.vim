@@ -20,6 +20,7 @@ command! -nargs=0 -bar RookieTagAddFileName call rookie_tag#AddFileNameTags()
 command! -nargs=0 -bar RookieTagSearchFileName call rookie_tag#SearchFileNameTags()
 
 command! -nargs=0 -bar RookieClangdGenerate call rookie_clangd#CreateCompileCommandsJson()
+command! -nargs=0 -bar RookieRustTestFunctionUnderCursor call rookie_rust#TestFunctionUnderCursor()
 command! -nargs=0 -bar RookieRetab call rookie_retab#Retab()
 command! -nargs=0 -bar RookieToggleHeaderSource call rookie_tag#ToggleHeaderSource()
 

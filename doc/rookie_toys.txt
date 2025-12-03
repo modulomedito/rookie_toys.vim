@@ -24,8 +24,9 @@ TABLE OF CONTENTS                                     *rookie_toys-toc*
 7. Files and Projects          |rookie_toys-projects|
 8. Git Utilities               |rookie_toys-git|
 9. Markdown Tools              |rookie_toys-markdown|
-10. Troubleshooting            |rookie_toys-troubleshoot|
-11. See Also                   |rookie_toys-seealso|
+10. Rust Tools                 |rookie_toys-rust|
+11. Troubleshooting            |rookie_toys-troubleshoot|
+12. See Also                   |rookie_toys-seealso|
 
 ==============================================================================
 INTRODUCTION                                             *rookie_toys-intro*
@@ -249,6 +250,25 @@ Slugify helpers
     Tag: *RookieSlugify*  *RookieSlugifyLine*  *RookieSlugifyYank*
     Syntax: *:RookieSlugify* [text]  |  *:RookieSlugifyLine*  |  *:RookieSlugifyYank*
     Description: Produce URL-friendly slugs for text/line and optionally yank.
+
+==============================================================================
+RUST TOOLS                                             *rookie_toys-rust*
+
+Rust Test Under Cursor
+    Tag: *RookieRustTest*
+    Syntax: *:RookieRustTest*
+    Description: Detects the Rust test function under the cursor and prepares
+                 a command to run it. It parses Cargo.toml for the crate name,
+                 determines the full module path from the file structure and
+                 in-file 'mod' definitions, and constructs a 'cargo test' command.
+                 If AsyncRun is installed, it uses it; otherwise it uses !.
+    Examples:
+        Move cursor to a test function:
+            #[test]
+            fn my_test() { ... }
+        Run: :RookieRustTest
+        Result: :copen | AsyncRun cargo test -p Crate --test path::to::my_test ...
+    Use cases: Quickly running the unit test you are currently editing.
 
 ==============================================================================
 TROUBLESHOOTING                                   *rookie_toys-troubleshoot*
