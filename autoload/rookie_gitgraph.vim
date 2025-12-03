@@ -22,4 +22,7 @@ function! rookie_gitgraph#OpenGitGraph(all_branches) abort
     " Highlight HEAD pointer for visibility
     silent! syntax match RookieGitGraphHead /HEAD ->\s\+[^,)]\+/ containedin=ALL
     silent! highlight RookieGitGraphHead cterm=bold ctermfg=red gui=bold guifg=Red
+    " Highlight remote branch refs like origin/<branch> in orange
+    silent! syntax match RookieGitGraphRemote /origin\/[^, )]\+/ containedin=ALL
+    silent! highlight RookieGitGraphRemote cterm=bold ctermfg=214 gui=bold guifg=Orange
 endfunction
