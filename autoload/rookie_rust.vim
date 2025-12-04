@@ -139,7 +139,7 @@ function! rookie_rust#TestFunctionUnderCursor() abort
     " User requested format:
     " copen | AsyncRun cargo test -p ACrate --test dir1::dir2::srcfile::test::test_something -- --nocapture
 
-    let l:cmd_core = 'cargo test -p ' . l:crate_name . l:full_path . ' -- --nocapture'
+    let l:cmd_core = 'cargo test -p ' . l:crate_name . ' ' . l:full_path . ' -- --nocapture'
 
     if exists(':AsyncRun')
         let l:final_cmd = 'copen | AsyncRun ' . l:cmd_core
