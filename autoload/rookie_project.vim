@@ -112,9 +112,14 @@ function! rookie_project#OpenSelectedProject() abort
             endif
         endif
     endif
+
     " Remove the quickfix <CR> remap now that the project is opened
     silent! nunmap <buffer> <CR>
+    " Remove the quickfix buffer
     cclose
+    " Delete all buffers because of entering a new project
+    silent! execute '%bd!'
+
     echomsg 'Opened [' . prj.name . '] at [' . prj.path . ']'
     let all = s:ReadProjects()
     let filtered = []
