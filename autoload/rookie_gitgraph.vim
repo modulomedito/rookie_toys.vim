@@ -19,15 +19,11 @@ function! rookie_gitgraph#OpenGitGraph(all_branches) abort
         endif
     endfor
 
-    if &filetype !=# 'git'
-        vsplit
-        wincmd l
-        execute cmd
-        wincmd k
-        quit
-    else
-        execute cmd
-    endif
+    vsplit
+    wincmd l
+    execute cmd
+    wincmd k
+    quit
 
     call rookie_gitgraph#HighlightRefs()
 endfunction
