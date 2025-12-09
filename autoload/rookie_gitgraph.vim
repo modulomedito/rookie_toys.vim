@@ -25,6 +25,8 @@ function! rookie_gitgraph#OpenGitGraph(all_branches) abort
         execute cmd
         wincmd k
         quit
+    else
+        execute cmd
     endif
 
     call rookie_gitgraph#HighlightRefs()
