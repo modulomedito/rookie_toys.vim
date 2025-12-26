@@ -45,3 +45,39 @@ function! rookie_gitdiff#Diff() abort
     let g:rookie_gitdiff_sha1 = ''
 endfunction
 
+" Jump to first differing column between this window and the other diff window
+function! rookie_gitdiff#JumpToChange()
+  let cur = getline('.')
+  " find another window that has 'diff' enabled
+  let other_buf = -1
+  for w in range(1, winnr('$'))
+    if w != winnr() && getwinvar(w, '&diff')
+      let other_buf = winbufnr(w)
+      break
+    endif
+  endfor
+  if other_buf == -1
+    echo "No other diff window found"
+    return
+  endif
+  let other_line = getbufline(other_buf, line('.'))[0]
+  let a = split(cur, '\zs')
+  let b = split(other_line, '\zs')
+  let m = min([len(a), len(b)])
+  let col = 0
+  for i in range(0, m - 1)
+    if a[i] != b[i]
+      let col = i + 1
+      break
+    endif
+  endfor
+  if col == 0
+    if len(a) != len(b)
+      let col = m + 1
+    else
+      echo "No difference on this line"
+      return
+    endif
+  endif
+  call cursor(line('.'), col)
+endfunction
