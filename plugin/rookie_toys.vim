@@ -23,6 +23,7 @@ command! -nargs=0 -bar RookieClangdGenerate call rookie_clangd#CreateCompileComm
 command! -nargs=0 -bar RookieRustTestFunctionUnderCursor call rookie_rust#TestFunctionUnderCursor()
 command! -nargs=0 -bar RookieRetab call rookie_retab#Retab()
 command! -nargs=0 -bar RookieToggleHeaderSource call rookie_tag#ToggleHeaderSource()
+command! -nargs=0 -range=-1 -bar RookieHexToAscii call rookie_hex#HexToAscii(<count> != -1)
 
 command! -nargs=0 -bar RookieGitGraph call rookie_gitgraph#OpenGitGraph(1)
 command! -nargs=0 -bar RookieGitGraphLocal call rookie_gitgraph#OpenGitGraph(0)
