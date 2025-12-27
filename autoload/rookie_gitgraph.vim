@@ -67,7 +67,7 @@ function! rookie_gitgraph#CheckGitAndRun() abort
 
     " Defer if in command-line mode ('c') or hit-enter prompt ('r')
     if mode() =~# '^[cr]'
-        call timer_start(200, {-> rookie_gitgraph#CheckGitAndRun()})
+        call timer_start(1000, {-> rookie_gitgraph#CheckGitAndRun()})
         return
     endif
 
