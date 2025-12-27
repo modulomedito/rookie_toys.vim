@@ -53,3 +53,19 @@ call rookie_git#StartAutoFetchWatcher()
 if get(g:, 'rookie_rooter_auto_setup', 1)
     call rookie_rooter#Setup()
 endif
+
+if !exists('g:rookie_auto_git_graph_enable')
+    let g:rookie_auto_git_graph_enable = 1
+endif
+
+augroup RookieAutoGitGraph
+    autocmd!
+    autocmd FocusGained,BufEnter,BufWinEnter * call rookie_gitgraph#CheckGitAndRun()
+    autocmd ShellCmdPost * call rookie_gitgraph#CheckGitAndRun()
+    autocmd User FugitiveChanged call rookie_gitgraph#CheckGitAndRun()
+    autocmd DirChanged * let g:rookie_last_git_state = rookie_gitgraph#GetGitState()
+    autocmd FileType gitcommit autocmd BufUnload <buffer> call timer_start(1000, {-> rookie_gitgraph#CheckGitAndRun()})
+augroup END
+
+command! -nargs=0 -bar RookieGitGraphAutoToggle let g:rookie_auto_git_graph_enable = get(g:, 'rookie_auto_git_graph_enable', 1) ? 0 : 1 | echo "Auto Git Graph: " . (g:rookie_auto_git_graph_enable ? "On" : "Off")
+

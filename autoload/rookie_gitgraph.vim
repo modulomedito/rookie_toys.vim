@@ -46,3 +46,40 @@ function! rookie_gitgraph#HighlightRefs() abort
     execute 'syntax match RookieGitGraphOrigin /\vorigin\/[^, )]+/ contained containedin=RookieGitGraphDecorRegion'
     execute 'syntax match RookieGitGraphHead /\vHEAD(\s*->\s*[^,)]+)?/ contained containedin=RookieGitGraphDecorRegion'
 endfunction
+
+let g:rookie_last_git_state = ''
+
+function! rookie_gitgraph#GetGitState() abort
+    " Check if inside a git repository
+    let l:null_device = (has('win32') || has('win64')) ? 'NUL' : '/dev/null'
+    let l:is_git = system('git rev-parse --is-inside-work-tree 2>' . l:null_device)
+    if l:is_git !~ 'true'
+        return ''
+    endif
+    " Capture HEAD and all refs (covers commit, checkout, pull, push, fetch, etc.)
+    return system('git rev-parse HEAD 2>' . l:null_device) . system('git show-ref -s 2>' . l:null_device)
+endfunction
+
+function! rookie_gitgraph#CheckGitAndRun() abort
+    if !get(g:, 'rookie_auto_git_graph_enable', 1)
+        return
+    endif
+
+    " Defer if in command-line mode ('c') or hit-enter prompt ('r')
+    if mode() =~# '^[cr]'
+        call timer_start(200, {-> rookie_gitgraph#CheckGitAndRun()})
+        return
+    endif
+
+    let l:current_state = rookie_gitgraph#GetGitState()
+    " Only run if state is valid (in git) and has changed
+    if !empty(l:current_state) && l:current_state != g:rookie_last_git_state
+        let g:rookie_last_git_state = l:current_state
+        " Use timer_start to avoid blocking and ensure UI is ready
+        call timer_start(50, {-> execute('RookieGitGraph')})
+    endif
+endfunction
+
+" Initialize state on startup to avoid triggering immediately
+let g:rookie_last_git_state = rookie_gitgraph#GetGitState()
+
