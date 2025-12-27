@@ -50,6 +50,11 @@ endfunction
 let g:rookie_last_git_state = ''
 
 function! rookie_gitgraph#GetGitState() abort
+    " Check if .git directory or file exists in CWD or upwards to avoid slow system() call
+    if finddir('.git', '.;') ==# '' && findfile('.git', '.;') ==# ''
+        return ''
+    endif
+
     " Check if inside a git repository
     let l:null_device = (has('win32') || has('win64')) ? 'NUL' : '/dev/null'
     let l:is_git = system('git rev-parse --is-inside-work-tree 2>' . l:null_device)
