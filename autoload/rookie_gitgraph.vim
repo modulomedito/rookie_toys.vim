@@ -78,7 +78,7 @@ function! rookie_gitgraph#GetGitState() abort
 endfunction
 
 function! rookie_gitgraph#CheckGitAndRun() abort
-    if !get(g:, 'rookie_auto_git_graph_enable', 1)
+    if !get(g:, 'rookie_auto_git_graph_enable', 0)
         return
     endif
 
