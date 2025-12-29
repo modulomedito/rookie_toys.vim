@@ -93,7 +93,7 @@ function! rookie_gitgraph#CheckGitAndRun() abort
     if !empty(l:current_state) && l:current_state != g:rookie_last_git_state
         let g:rookie_last_git_state = l:current_state
         " Use timer_start to avoid blocking and ensure UI is ready
-        call timer_start(50, {-> execute('RookieGitGraph')})
+        call timer_start(1000, {-> execute('RookieGitGraph')})
     endif
 endfunction
 
