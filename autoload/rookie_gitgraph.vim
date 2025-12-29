@@ -50,9 +50,21 @@ endfunction
 let g:rookie_last_git_state = ''
 
 function! rookie_gitgraph#GetGitState() abort
-    " Check if .git directory or file exists in CWD or upwards to avoid slow system() call
-    if finddir('.git', '.;') ==# '' && findfile('.git', '.;') ==# ''
-        return ''
+    " Check relative to the current file path to avoid slow checks in non-git folders
+    let l:dir = expand('%:p:h')
+
+    " Skip optimization for special buffers (fugitive, etc.)
+    if l:dir !~# '://'
+        if empty(l:dir)
+            let l:dir = getcwd()
+        endif
+        " Escape commas for finddir path argument
+        let l:search_path = substitute(l:dir, ',', '\\,', 'g') . ';'
+
+        " Check if .git directory or file exists upwards from the file's directory
+        if finddir('.git', l:search_path) ==# '' && findfile('.git', l:search_path) ==# ''
+            return ''
+        endif
     endif
 
     " Check if inside a git repository
