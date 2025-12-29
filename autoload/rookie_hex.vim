@@ -133,3 +133,54 @@ function! s:HexToAsciiString(hex) abort
     endwhile
     return l:res
 endfunction
+
+function! rookie_hex#UpdateIntelHexChecksum() abort
+    let l:line = getline('.')
+    " Remove whitespace
+    let l:clean_line = substitute(l:line, '^\s*', '', '')
+    let l:clean_line = substitute(l:clean_line, '\s*$', '', '')
+
+    if l:clean_line !~# '^:'
+        echohl ErrorMsg
+        echomsg "Current line is not a valid Intel HEX record (must start with ':')"
+        echohl None
+        return
+    endif
+
+    let l:content = l:clean_line[1:]
+    " Min length: LL (2) + AAAA (4) + TT (2) + CC (2) = 10 chars
+    if len(l:content) < 10
+        echohl ErrorMsg
+        echomsg "Line too short to be a valid Intel HEX record."
+        echohl None
+        return
+    endif
+
+    " Check if the length is even (hex pairs)
+    if len(l:content) % 2 != 0
+        echohl ErrorMsg
+        echomsg "Hex content length must be even."
+        echohl None
+        return
+    endif
+
+    " The data to sum is everything excluding the last byte (2 chars) which is the old checksum
+    let l:data_hex = l:content[:-3]
+
+    let l:sum = 0
+    let l:i = 0
+    while l:i < len(l:data_hex)
+        let l:byte_hex = strpart(l:data_hex, l:i, 2)
+        let l:sum += str2nr(l:byte_hex, 16)
+        let l:i += 2
+    endwhile
+
+    let l:checksum = (0x100 - (l:sum % 0x100)) % 0x100
+    let l:new_checksum_hex = printf('%02X', l:checksum)
+
+    " Reconstruct the line: Original indentation + : + data + new checksum
+    let l:indent = matchstr(l:line, '^\s*')
+    let l:new_line = l:indent . ':' . l:data_hex . l:new_checksum_hex
+    call setline('.', l:new_line)
+    echo "Checksum updated: " . l:new_checksum_hex
+endfunction

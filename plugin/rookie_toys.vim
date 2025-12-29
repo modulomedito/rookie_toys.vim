@@ -24,6 +24,7 @@ command! -nargs=0 -bar RookieRustTestFunctionUnderCursor call rookie_rust#TestFu
 command! -nargs=0 -bar RookieRetab call rookie_retab#Retab()
 command! -nargs=0 -bar RookieToggleHeaderSource call rookie_tag#ToggleHeaderSource()
 command! -nargs=0 -range=-1 -bar RookieHexToAscii call rookie_hex#HexToAscii(<count> != -1)
+command! -nargs=0 -bar RookieHexChecksum call rookie_hex#UpdateIntelHexChecksum()
 
 command! -nargs=0 -bar RookieNERDTreeCopy call rookie_nerdtree#CopyNode()
 command! -nargs=0 -bar RookieNERDTreePaste call rookie_nerdtree#PasteNode()
