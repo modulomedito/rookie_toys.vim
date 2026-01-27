@@ -119,6 +119,7 @@ function! rookie_project#OpenSelectedProject() abort
         endif
         if has_tree
             try
+                let g:NERDTreeChDirMode = 2
                 execute 'NERDTree ' . fnameescape(prj.path)
                 " Force CWD back to project path in case plugin changed it
                 execute 'cd ' . fnameescape(prj.path)
