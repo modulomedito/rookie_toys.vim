@@ -118,7 +118,16 @@ function! rookie_project#OpenSelectedProject() abort
             call rookie_rooter#Lock(get(g:, 'rookie_rooter_lock_seconds', 2))
         endif
         if has_tree
-            execute 'NERDTree'
+            try
+                execute 'NERDTree ' . fnameescape(prj.path)
+                " Force CWD back to project path in case plugin changed it
+                execute 'cd ' . fnameescape(prj.path)
+                if exists(':NERDTreeCWD')
+                    execute 'NERDTreeCWD'
+                endif
+            catch
+                echomsg 'NERDTree Error: ' . v:exception
+            endtry
         endif
     endif
 
