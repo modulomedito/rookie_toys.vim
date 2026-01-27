@@ -59,6 +59,15 @@ if !exists('g:rookie_auto_git_graph_enable')
     let g:rookie_auto_git_graph_enable = 0
 endif
 
+if !exists('g:rookie_toys_syntax_highlight_enable')
+    let g:rookie_toys_syntax_highlight_enable = 1
+endif
+
+augroup RookieSyntax
+    autocmd!
+    autocmd FileType * call rookie_syntax#Setup()
+augroup END
+
 augroup RookieAutoGitGraph
     autocmd!
     autocmd FocusGained,BufEnter,BufWinEnter * call rookie_gitgraph#CheckGitAndRun()
