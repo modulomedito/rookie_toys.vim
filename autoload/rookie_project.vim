@@ -94,23 +94,15 @@ function! rookie_project#OpenSelectedProject() abort
         return
     endif
     let prj = b:rookie_project_items[idx]
-    if isdirectory(prj.path)
-        execute 'cd ' . fnameescape(prj.path)
-        if exists('*rookie_rooter#Lock')
-            call rookie_rooter#Lock(get(g:, 'rookie_rooter_lock_seconds', 2))
-        endif
-        if exists(':NERDTreeCWD')
-            let has_tree = 0
-            for b in getbufinfo({'bufloaded': 1})
-                if getbufvar(b.bufnr, '&filetype') ==# 'nerdtree'
-                    let has_tree = 1
-                    break
-                endif
-            endfor
-            if has_tree
-                execute 'NERDTreeCWD'
+
+    let has_tree = 0
+    if exists(':NERDTree')
+        for b in getbufinfo({'bufloaded': 1})
+            if getbufvar(b.bufnr, '&filetype') ==# 'nerdtree'
+                let has_tree = 1
+                break
             endif
-        endif
+        endfor
     endif
 
     " Remove the quickfix <CR> remap now that the project is opened
@@ -119,6 +111,16 @@ function! rookie_project#OpenSelectedProject() abort
     cclose
     " Delete all buffers because of entering a new project
     silent! execute '%bd!'
+
+    if isdirectory(prj.path)
+        execute 'cd ' . fnameescape(prj.path)
+        if exists('*rookie_rooter#Lock')
+            call rookie_rooter#Lock(get(g:, 'rookie_rooter_lock_seconds', 2))
+        endif
+        if has_tree
+            execute 'NERDTree'
+        endif
+    endif
 
     echomsg 'Opened [' . prj.name . '] at [' . prj.path . ']'
     let all = s:ReadProjects()
