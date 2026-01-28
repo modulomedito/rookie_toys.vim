@@ -21,6 +21,7 @@ function! rookie_gitgraph#OpenGitGraph(all_branches) abort
 
     vsplit
     wincmd l
+    execute 'vertical resize ' . float2nr(&columns * 2.0 / 3.0)
     execute cmd
     setlocal modifiable
     silent! %s/^\([|\\/ ]*\)\*/\1●/e
