@@ -55,13 +55,13 @@ function! rookie_gitgraph#HighlightRefs() abort
     execute 'syntax match RookieGitGraphOrigin /\vorigin\/[^, )]+/ contained containedin=RookieGitGraphDecorRegion'
     execute 'syntax match RookieGitGraphHead /\vHEAD(\s*->\s*[^,)]+)?/ contained containedin=RookieGitGraphDecorRegion'
 
-    " Match * based on line content priority (last defined wins)
+    " Match ● based on line content priority (last defined wins)
     " 3. Local/Tag/Decor (#7fbbb3) - Match if line contains '} | ('
-    syntax match RookieGitGraphStarNormal /\*\(.*} | (\)\@=/
+    syntax match RookieGitGraphStarNormal /●\(.*} | (\)\@=/
     " 2. Origin (Orange) - Match if line contains 'origin/'
-    syntax match RookieGitGraphStarOrigin /\*\(.*origin\/\)\@=/
+    syntax match RookieGitGraphStarOrigin /●\(.*origin\/\)\@=/
     " 1. HEAD (Red) - Match if line contains 'HEAD' but not 'origin/HEAD'
-    syntax match RookieGitGraphStarHead   /\*\(.*\(origin\/\)\@<!HEAD\)\@=/
+    syntax match RookieGitGraphStarHead   /●\(.*\(origin\/\)\@<!HEAD\)\@=/
 endfunction
 
 let g:rookie_last_git_state = ''
