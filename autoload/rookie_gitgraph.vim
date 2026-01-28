@@ -53,8 +53,8 @@ function! rookie_gitgraph#HighlightRefs() abort
     execute 'syntax match RookieGitGraphHead /\vHEAD(\s*->\s*[^,)]+)?/ contained containedin=RookieGitGraphDecorRegion'
 
     " Match * based on line content priority (last defined wins)
-    " 3. Local/Tag/Decor (#7fbbb3) - Match if line contains '('
-    syntax match RookieGitGraphStarNormal /\*\(.*(\)\@=/
+    " 3. Local/Tag/Decor (#7fbbb3) - Match if line contains '} | ('
+    syntax match RookieGitGraphStarNormal /\*\(.*} | (\)\@=/
     " 2. Origin (Orange) - Match if line contains 'origin/'
     syntax match RookieGitGraphStarOrigin /\*\(.*origin\/\)\@=/
     " 1. HEAD (Red) - Match if line contains 'HEAD' but not 'origin/HEAD'
