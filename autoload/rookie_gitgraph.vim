@@ -26,6 +26,7 @@ function! rookie_gitgraph#OpenGitGraph(all_branches) abort
     setlocal modifiable
     silent! %s/^\([|\\/ ]*\)\*/\1●/e
     setlocal nomodifiable
+    call cursor(1, 1)
     wincmd k
     quit
 
