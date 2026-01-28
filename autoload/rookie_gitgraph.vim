@@ -22,6 +22,9 @@ function! rookie_gitgraph#OpenGitGraph(all_branches) abort
     vsplit
     wincmd l
     execute cmd
+    setlocal modifiable
+    silent! %s/^\([|\\/ ]*\)\*/\1●/e
+    setlocal nomodifiable
     wincmd k
     quit
 
