@@ -57,8 +57,8 @@ function! rookie_gitgraph#HighlightRefs() abort
     syntax match RookieGitGraphStarNormal /\*\(.*(\)\@=/
     " 2. Origin (Orange) - Match if line contains 'origin/'
     syntax match RookieGitGraphStarOrigin /\*\(.*origin\/\)\@=/
-    " 1. HEAD (Red) - Match if line contains 'HEAD'
-    syntax match RookieGitGraphStarHead   /\*\(.*HEAD\)\@=/
+    " 1. HEAD (Red) - Match if line contains 'HEAD' but not 'origin/HEAD'
+    syntax match RookieGitGraphStarHead   /\*\(.*\(origin\/\)\@<!HEAD\)\@=/
 endfunction
 
 let g:rookie_last_git_state = ''
