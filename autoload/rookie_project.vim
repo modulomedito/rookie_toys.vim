@@ -125,6 +125,7 @@ function! rookie_project#OpenSelectedProject() abort
                 execute 'cd ' . fnameescape(prj.path)
                 if exists(':NERDTreeCWD')
                     execute 'NERDTreeCWD'
+                    wincmd p
                 endif
             catch
                 echomsg 'NERDTree Error: ' . v:exception
