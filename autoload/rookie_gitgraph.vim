@@ -36,15 +36,29 @@ function! rookie_gitgraph#HighlightRefs() abort
     silent! syntax clear RookieGitGraphOrigin
     silent! syntax clear RookieGitGraphHead
     silent! syntax clear RookieGitGraphBracket
+    silent! syntax clear RookieGitGraphStarNormal
+    silent! syntax clear RookieGitGraphStarOrigin
+    silent! syntax clear RookieGitGraphStarHead
 
     highlight RookieGitGraphDecorRegion guifg=#7fbbb3 gui=bold cterm=bold
     highlight RookieGitGraphBracket guifg=#7fbbb3 gui=bold cterm=bold
     highlight RookieGitGraphOrigin guifg=orange gui=bold cterm=bold
     highlight RookieGitGraphHead guifg=red gui=bold cterm=bold
+    highlight RookieGitGraphStarNormal guifg=#7fbbb3 gui=bold cterm=bold
+    highlight RookieGitGraphStarOrigin guifg=orange gui=bold cterm=bold
+    highlight RookieGitGraphStarHead   guifg=red     gui=bold cterm=bold
 
     execute 'syntax region RookieGitGraphDecorRegion matchgroup=RookieGitGraphBracket start=/\v\| *\(/ end=/\v\)\s/ keepend contains=RookieGitGraphOrigin,RookieGitGraphHead'
     execute 'syntax match RookieGitGraphOrigin /\vorigin\/[^, )]+/ contained containedin=RookieGitGraphDecorRegion'
     execute 'syntax match RookieGitGraphHead /\vHEAD(\s*->\s*[^,)]+)?/ contained containedin=RookieGitGraphDecorRegion'
+
+    " Match * based on line content priority (last defined wins)
+    " 3. Local/Tag/Decor (#7fbbb3) - Match if line contains '('
+    syntax match RookieGitGraphStarNormal /\*\(.*(\)\@=/
+    " 2. Origin (Orange) - Match if line contains 'origin/'
+    syntax match RookieGitGraphStarOrigin /\*\(.*origin\/\)\@=/
+    " 1. HEAD (Red) - Match if line contains 'HEAD'
+    syntax match RookieGitGraphStarHead   /\*\(.*HEAD\)\@=/
 endfunction
 
 let g:rookie_last_git_state = ''

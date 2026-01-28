@@ -44,10 +44,11 @@ endfunction
 function! rookie_syntax#Doxygen() abort
     " Define the doxygen keyword matches
     " Match @keyword or \keyword
+    silent! syntax clear RookieDoxygenKeyword
     syntax match RookieDoxygenKeyword /@\w\+/ contained
     syntax match RookieDoxygenKeyword /\\\w\+/ contained
 
-    highlight default link RookieDoxygenKeyword SpecialComment
+    highlight link RookieDoxygenKeyword Type
 
     " List of common comment groups in various languages
     let l:comment_groups = [
