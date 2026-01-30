@@ -1,6 +1,22 @@
 scriptencoding utf-8
 
 function! rookie_gitgraph#OpenGitGraph(all_branches) abort
+    " If Fugitive is available, fetch updates before showing the graph
+    if get(g:, 'rookie_gitgraph_async_fetch', 1)
+        let l:dir = getcwd()
+        if exists('*FugitiveWorkTree')
+            try
+                let l:dir = FugitiveWorkTree()
+            catch
+            endtry
+        endif
+        call rookie_git#AsyncFetch(l:dir)
+    elseif exists(':G')
+        silent! execute 'G fetch'
+    elseif exists(':Git')
+        silent! execute 'Git fetch'
+    endif
+
     let cmd = 'Git log --graph --decorate '
     if a:all_branches
         let cmd = cmd . '--all '
