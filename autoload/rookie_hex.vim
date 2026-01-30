@@ -181,15 +181,8 @@ function! s:UpdateLineChecksum(lnum) abort
 endfunction
 
 function! rookie_hex#UpdateIntelHexChecksum(...) abort
-    let l:is_range = (a:0 > 0 && a:1 != -1)
-
     let l:start_line = 1
     let l:end_line = line('$')
-
-    if l:is_range
-        let l:start_line = a:firstline
-        let l:end_line = a:lastline
-    endif
 
     let l:count = 0
     for l:lnum in range(l:start_line, l:end_line)
@@ -199,6 +192,6 @@ function! rookie_hex#UpdateIntelHexChecksum(...) abort
     if l:count > 0
         echo "Updated checksum for " . l:count . " line(s)."
     else
-        echo "No lines updated."
+        echo "No checksums updated."
     endif
 endfunction
