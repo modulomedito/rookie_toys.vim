@@ -1,12 +1,6 @@
 scriptencoding utf-8
 
 function! rookie_gitgraph#OpenGitGraph(all_branches) abort
-    " If Fugitive is available, fetch updates before showing the graph
-    if exists(':G')
-        silent! execute 'G fetch'
-    elseif exists(':Git')
-        silent! execute 'Git fetch'
-    endif
     let cmd = 'Git log --graph --decorate '
     if a:all_branches
         let cmd = cmd . '--all '
