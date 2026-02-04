@@ -1,28 +1,31 @@
 scriptencoding utf-8
 
+function! s:UpdateGraphCallback(bufnr, cmd) abort
+    if !bufexists(a:bufnr)
+        return
+    endif
+
+    let l:output = systemlist(a:cmd)
+
+    " Update buffer content
+    call setbufvar(a:bufnr, '&modifiable', 1)
+    call deletebufline(a:bufnr, 1, '$')
+    call setbufline(a:bufnr, 1, l:output)
+
+    " Apply highlighting and formatting
+    let l:winid = bufwinid(a:bufnr)
+    if l:winid != -1
+        call win_execute(l:winid, 'silent! %s/^\([|\\/ ]*\)\*/\1●/e')
+        call win_execute(l:winid, 'setlocal nomodifiable')
+        call win_execute(l:winid, 'normal! gg')
+        call win_execute(l:winid, 'call rookie_gitgraph#HighlightRefs()')
+    else
+        call setbufvar(a:bufnr, '&modifiable', 0)
+    endif
+endfunction
+
 function! rookie_gitgraph#OpenGitGraph(all_branches) abort
-    " If Fugitive is available, fetch updates before showing the graph
-    if get(g:, 'rookie_gitgraph_async_fetch', 1)
-        let l:dir = getcwd()
-        if exists('*FugitiveWorkTree')
-            try
-                let l:dir = FugitiveWorkTree()
-            catch
-            endtry
-        endif
-        call rookie_git#AsyncFetch(l:dir)
-    elseif exists(':G')
-        silent! execute 'G fetch'
-    elseif exists(':Git')
-        silent! execute 'Git fetch'
-    endif
-
-    let cmd = 'Git log --graph --decorate '
-    if a:all_branches
-        let cmd = cmd . '--all '
-    endif
-    let cmd = cmd . '--pretty=format:"%h [%ad] {%an} |%d %s" --date=format-local:"%y-%m-%d %H:%M"'
-
+    " Close existing git buffers
     for b in getbufinfo({'bufloaded': 1})
         if getbufvar(b.bufnr, '&filetype') ==# 'git'
             execute 'bd ' . b.bufnr
@@ -32,15 +35,48 @@ function! rookie_gitgraph#OpenGitGraph(all_branches) abort
     vsplit
     wincmd l
     execute 'vertical resize ' . float2nr(&columns * 2.0 / 3.0)
-    execute cmd
-    setlocal modifiable
-    silent! %s/^\([|\\/ ]*\)\*/\1●/e
-    setlocal nomodifiable
-    call cursor(1, 1)
-    wincmd k
-    quit
 
-    call rookie_gitgraph#HighlightRefs()
+    setlocal filetype=git
+    setlocal buftype=nofile
+    setlocal bufhidden=wipe
+    setlocal noswapfile
+    setlocal modifiable
+
+    call setline(1, 'Fetching updates...')
+    setlocal nomodifiable
+
+    let l:bufnr = bufnr('%')
+
+    " Determine git root
+    let l:dir = getcwd()
+    if exists('*FugitiveWorkTree')
+        try
+            let l:dir = FugitiveWorkTree()
+        catch
+        endtry
+    endif
+
+    " Construct git command
+    let l:cmd = 'git -C ' . shellescape(l:dir) . ' log --graph --decorate '
+    if a:all_branches
+        let l:cmd = l:cmd . '--all '
+    endif
+    let l:cmd = l:cmd . '--pretty=format:"%h [%ad] {%an} |%d %s" --date=format-local:"%y-%m-%d %H:%M"'
+
+    " Async Fetch + Callback
+    if get(g:, 'rookie_gitgraph_async_fetch', 1)
+        call rookie_git#AsyncFetch(l:dir, function('s:UpdateGraphCallback', [l:bufnr, l:cmd]))
+    else
+        " Synchronous fallback
+        if exists(':G')
+            silent! execute 'G fetch'
+        elseif exists(':Git')
+            silent! execute 'Git fetch'
+        else
+            call system('git -C ' . shellescape(l:dir) . ' fetch --all --quiet')
+        endif
+        call s:UpdateGraphCallback(l:bufnr, l:cmd)
+    endif
 endfunction
 
 function! rookie_gitgraph#HighlightRefs() abort
@@ -128,4 +164,3 @@ endfunction
 
 " Initialize state on startup to avoid triggering immediately
 let g:rookie_last_git_state = rookie_gitgraph#GetGitState()
-
