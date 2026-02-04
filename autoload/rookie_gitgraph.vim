@@ -25,17 +25,18 @@ function! s:UpdateGraphCallback(bufnr, cmd) abort
 endfunction
 
 function! rookie_gitgraph#OpenGitGraph(all_branches) abort
-    " Close existing git buffers
+    " Close existing Rookie GitGraph buffers
     for b in getbufinfo({'bufloaded': 1})
-        if getbufvar(b.bufnr, '&filetype') ==# 'git'
+        if getbufvar(b.bufnr, 'is_rookie_gitgraph')
             execute 'bd ' . b.bufnr
         endif
     endfor
 
-    vsplit
-    wincmd l
+    " Open new buffer on the right
+    rightbelow vnew
     execute 'vertical resize ' . float2nr(&columns * 2.0 / 3.0)
 
+    let b:is_rookie_gitgraph = 1
     setlocal filetype=git
     setlocal buftype=nofile
     setlocal bufhidden=wipe
