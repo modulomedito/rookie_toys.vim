@@ -8,11 +8,11 @@ function! rookie_git#AsyncFetch(...) abort
     let l:dir = getcwd()
     let l:Callback = v:null
 
-    for l:arg in a:000
-        if type(l:arg) == v:t_string
-            let l:dir = l:arg
-        elseif type(l:arg) == v:t_func
-            let l:Callback = l:arg
+    for l:Arg in a:000
+        if type(l:Arg) == v:t_string
+            let l:dir = l:Arg
+        elseif type(l:Arg) == v:t_func
+            let l:Callback = l:Arg
         endif
     endfor
 
