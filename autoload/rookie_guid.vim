@@ -1,6 +1,6 @@
 scriptencoding utf-8
 
-function! rookie_guid#Generate() abort
+function! rookie_guid#New() abort
     if has('win32') || has('win64')
         let l:cmd = 'powershell -NoProfile -NonInteractive -Command "[guid]::NewGuid().ToString().ToUpper()"'
         let l:guid = trim(system(l:cmd))
@@ -22,7 +22,11 @@ function! rookie_guid#Generate() abort
             for i in range(12) | let l:guid .= printf('%X', rand() % 16) | endfor
         endif
     endif
-    let l:final_guid = '{' . l:guid . '}'
+    return '{' . l:guid . '}'
+endfunction
+
+function! rookie_guid#Generate() abort
+    let l:final_guid = rookie_guid#New()
 
     let l:save_reg = @z
     let @z = l:final_guid
