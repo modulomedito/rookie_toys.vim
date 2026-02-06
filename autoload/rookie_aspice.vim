@@ -36,9 +36,9 @@ function! rookie_aspice#Jump() abort
     let l:item = b:rookie_jump_data[l:idx]
     let l:origin_win = win_getid()
 
-    " Check if we already have a valid preview window
-    if exists('b:rookie_preview_winid') && win_id2win(b:rookie_preview_winid) > 0
-        call win_gotoid(b:rookie_preview_winid)
+    " Check if we already have a valid shared preview window
+    if exists('t:rookie_aspice_preview_winid') && win_id2win(t:rookie_aspice_preview_winid) > 0
+        call win_gotoid(t:rookie_aspice_preview_winid)
         execute 'edit ' . fnameescape(l:item.filename)
         call cursor(l:item.lnum, l:item.col)
         normal! zz
@@ -78,7 +78,7 @@ function! rookie_aspice#Jump() abort
     normal! zz
 
     call win_gotoid(l:origin_win)
-    let b:rookie_preview_winid = l:preview_win
+    let t:rookie_aspice_preview_winid = l:preview_win
 endfunction
 
 function! s:SetupBuffer(title, items) abort
@@ -207,16 +207,16 @@ function! rookie_aspice#CloseTraceability() abort
         if index(l:titles, l:title) >= 0
             let l:winid = win_getid(l:winnr)
             call add(l:wins_to_close, l:winid)
-
-            " Check for preview window associated with this buffer
-            let l:preview_winid = getbufvar(winbufnr(l:winnr), 'rookie_preview_winid', -1)
-            if l:preview_winid != -1 && win_id2win(l:preview_winid) > 0
-                if index(l:wins_to_close, l:preview_winid) == -1
-                    call add(l:wins_to_close, l:preview_winid)
-                endif
-            endif
         endif
     endfor
+
+    " Check for shared preview window
+    if exists('t:rookie_aspice_preview_winid') && win_id2win(t:rookie_aspice_preview_winid) > 0
+        if index(l:wins_to_close, t:rookie_aspice_preview_winid) == -1
+            call add(l:wins_to_close, t:rookie_aspice_preview_winid)
+        endif
+        unlet t:rookie_aspice_preview_winid
+    endif
 
     " Close the windows
     for l:winid in l:wins_to_close
