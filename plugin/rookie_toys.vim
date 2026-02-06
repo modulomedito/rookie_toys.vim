@@ -46,6 +46,9 @@ command! -nargs=0 -bar RookieRooterEnable let g:rookie_rooter_enable = 1 | call 
 command! -nargs=0 -bar RookieRooterToggle let g:rookie_rooter_enable = get(g:, 'rookie_rooter_enable', 1) ? 0 : 1 | if g:rookie_rooter_enable | call rookie_rooter#Setup() | else | call rookie_rooter#Disable() | endif
 command! -nargs=0 -bar RookieRooterHere call rookie_rooter#RootHere()
 
+command! -nargs=0 -bar RookieGuidGenerate call rookie_guid#Insert()
+command! -nargs=0 -bar RookieGuidSearch call rookie_guid#Search()
+
 if exists('g:rookie_git_fetch_interval_s')
     call rookie_git#AutoFetch()
 endif
