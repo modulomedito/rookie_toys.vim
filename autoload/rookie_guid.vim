@@ -38,9 +38,9 @@ endfunction
 
 function! rookie_guid#QuickfixTextFunc(info) abort
     if a:info.quickfix
-        let l:qflist = getqflist(0, {'id': a:info.id, 'items': 1}).items
+        let l:qflist = getqflist({'id': a:info.id, 'items': 1}).items
     else
-        let l:qflist = getloclist(0, {'id': a:info.id, 'items': 1}).items
+        let l:qflist = getloclist(a:info.winid, {'id': a:info.id, 'items': 1}).items
     endif
 
     let l:lines = []
