@@ -36,6 +36,16 @@ function! rookie_aspice#Jump() abort
     let l:item = b:rookie_jump_data[l:idx]
     let l:origin_win = win_getid()
 
+    " Check if we already have a valid preview window
+    if exists('b:rookie_preview_winid') && win_id2win(b:rookie_preview_winid) > 0
+        call win_gotoid(b:rookie_preview_winid)
+        execute 'edit ' . fnameescape(l:item.filename)
+        call cursor(l:item.lnum, l:item.col)
+        normal! zz
+        call win_gotoid(l:origin_win)
+        return
+    endif
+
     " Attempt to go to the window above
     wincmd k
 
@@ -61,12 +71,14 @@ function! rookie_aspice#Jump() abort
 
     " Split vertically on the right
     vertical rightbelow split
+    let l:preview_win = win_getid()
 
     execute 'edit ' . fnameescape(l:item.filename)
     call cursor(l:item.lnum, l:item.col)
     normal! zz
 
     call win_gotoid(l:origin_win)
+    let b:rookie_preview_winid = l:preview_win
 endfunction
 
 function! s:SetupBuffer(title, items) abort
