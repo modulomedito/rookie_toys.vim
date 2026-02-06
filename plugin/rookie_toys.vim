@@ -48,6 +48,7 @@ command! -nargs=0 -bar RookieRooterHere call rookie_rooter#RootHere()
 
 command! -nargs=0 -bar RookieGuidGenerate call rookie_guid#Insert()
 command! -nargs=0 -bar RookieGuidSearch call rookie_guid#Search()
+command! -nargs=0 -bar RookieGuidList call rookie_guid#List()
 
 if exists('g:rookie_git_fetch_interval_s')
     call rookie_git#AutoFetch()
