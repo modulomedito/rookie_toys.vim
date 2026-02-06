@@ -34,6 +34,7 @@ function! rookie_aspice#Jump() abort
         return
     endif
     let l:item = b:rookie_jump_data[l:idx]
+    let l:origin_win = win_getid()
 
     " Attempt to go to the window above
     wincmd k
@@ -58,9 +59,14 @@ function! rookie_aspice#Jump() abort
         endif
     endif
 
+    " Split vertically on the right
+    vertical rightbelow split
+
     execute 'edit ' . fnameescape(l:item.filename)
     call cursor(l:item.lnum, l:item.col)
     normal! zz
+
+    call win_gotoid(l:origin_win)
 endfunction
 
 function! s:SetupBuffer(title, items) abort
