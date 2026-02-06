@@ -77,11 +77,11 @@ function! s:SetupBuffer(title, items) abort
              let l:fname = fnamemodify(l:item.filename, ':t')
         endif
 
-        if len(l:fname) > 32
-            let l:fname = strpart(l:fname, 0, 32)
+        if len(l:fname) > 16
+            let l:fname = strpart(l:fname, 0, 16)
         endif
 
-        call add(l:lines, printf('%-32s|%d col %d| %s', l:fname, l:item.lnum, l:item.col, l:item.text))
+        call add(l:lines, printf('%-16s|%d col %d| %s', l:fname, l:item.lnum, l:item.col, l:item.text))
         call add(l:jump_data, l:item)
     endfor
 
@@ -166,8 +166,8 @@ function! rookie_aspice#ShowTraceability() abort
 
     " Resize windows
     let l:total_width = &columns
-    let l:req_width = float2nr(l:total_width * 0.2)
-    let l:sat_width = float2nr(l:total_width * 0.4)
+    let l:req_width = float2nr(l:total_width * 0.24)
+    let l:sat_width = float2nr(l:total_width * 0.38)
 
     call win_gotoid(l:req_win)
     execute 'vertical resize ' . l:req_width
