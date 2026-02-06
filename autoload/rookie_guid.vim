@@ -22,15 +22,18 @@ function! rookie_guid#Generate() abort
             for i in range(12) | let l:guid .= printf('%X', rand() % 16) | endfor
         endif
     endif
-    return '{' . l:guid . '}'
+    let l:final_guid = '{' . l:guid . '}'
+
+    let l:save_reg = @z
+    let @z = l:final_guid
+    normal! "zp
+    let @z = l:save_reg
+
+    return l:final_guid
 endfunction
 
 function! rookie_guid#Insert() abort
-    let l:guid = rookie_guid#Generate()
-    let l:save_reg = @"
-    let @" = l:guid
-    normal! p
-    let @" = l:save_reg
+    call rookie_guid#Generate()
 endfunction
 
 function! rookie_guid#Search() abort
@@ -40,10 +43,10 @@ function! rookie_guid#Search() abort
         echoerr 'rg (ripgrep) is not installed or not in PATH.'
         return
     endif
-    
+
     let l:cmd = 'rg --vimgrep --no-heading --smart-case --hidden "' . l:pattern . '" .'
     let l:output = system(l:cmd)
-    
+
     if empty(l:output)
         echom 'No GUIDs found.'
         cclose
