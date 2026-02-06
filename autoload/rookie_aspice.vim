@@ -70,7 +70,10 @@ function! rookie_aspice#Jump() abort
     endif
 
     " Split vertically on the right
-    vertical rightbelow split
+    let l:save_splitright = &splitright
+    set splitright
+    vsplit
+    let &splitright = l:save_splitright
     let l:preview_win = win_getid()
 
     execute 'edit ' . fnameescape(l:item.filename)
