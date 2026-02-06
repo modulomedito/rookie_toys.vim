@@ -64,7 +64,7 @@ function! rookie_aspice#Jump() abort
 endfunction
 
 function! s:SetupBuffer(title, items) abort
-    setlocal buftype=nofile bufhidden=wipe swapfile=off
+    setlocal buftype=nofile bufhidden=wipe noswapfile
     setlocal filetype=qf
     let w:quickfix_title = a:title
 
