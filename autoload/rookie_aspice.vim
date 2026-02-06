@@ -196,3 +196,32 @@ function! rookie_aspice#ShowTraceability() abort
     " Ensure we are at Requirement window initially? Or maybe the first one.
     call win_gotoid(l:req_win)
 endfunction
+
+function! rookie_aspice#CloseTraceability() abort
+    let l:wins_to_close = []
+    let l:titles = ['Requirement', 'SatisfiedBy', 'Implementation']
+
+    " Find all windows with the specific titles
+    for l:winnr in range(1, winnr('$'))
+        let l:title = getwinvar(l:winnr, 'quickfix_title', '')
+        if index(l:titles, l:title) >= 0
+            let l:winid = win_getid(l:winnr)
+            call add(l:wins_to_close, l:winid)
+
+            " Check for preview window associated with this buffer
+            let l:preview_winid = getbufvar(winbufnr(l:winnr), 'rookie_preview_winid', -1)
+            if l:preview_winid != -1 && win_id2win(l:preview_winid) > 0
+                if index(l:wins_to_close, l:preview_winid) == -1
+                    call add(l:wins_to_close, l:preview_winid)
+                endif
+            endif
+        endif
+    endfor
+
+    " Close the windows
+    for l:winid in l:wins_to_close
+        if win_id2win(l:winid) > 0
+            execute win_id2win(l:winid) . 'close'
+        endif
+    endfor
+endfunction
