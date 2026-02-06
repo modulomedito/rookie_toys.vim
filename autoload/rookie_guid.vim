@@ -36,31 +36,106 @@ function! rookie_guid#Insert() abort
     call rookie_guid#Generate()
 endfunction
 
+function! rookie_guid#QuickfixTextFunc(info) abort
+    if a:info.quickfix
+        let l:qflist = getqflist(0, {'id': a:info.id, 'items': 1}).items
+    else
+        let l:qflist = getloclist(0, {'id': a:info.id, 'items': 1}).items
+    endif
+
+    let l:lines = []
+    for l:idx in range(a:info.start_idx - 1, a:info.end_idx - 1)
+        let l:item = l:qflist[l:idx]
+        if l:item.valid
+            let l:fname = ''
+            if l:item.bufnr > 0
+                 let l:fname = fnamemodify(bufname(l:item.bufnr), ':t')
+            elseif has_key(l:item, 'filename')
+                 let l:fname = fnamemodify(l:item.filename, ':t')
+            endif
+
+            if len(l:fname) > 32
+                let l:fname = strpart(l:fname, 0, 32)
+            endif
+
+            call add(l:lines, printf('%-32s|%d col %d| %s', l:fname, l:item.lnum, l:item.col, l:item.text))
+        else
+            call add(l:lines, l:item.text)
+        endif
+    endfor
+    return l:lines
+endfunction
+
+function! rookie_guid#ParseAndSetQf(cmd, title) abort
+    let l:output = system(a:cmd)
+
+    if empty(l:output)
+        return 0
+    endif
+
+    let l:items = []
+    let l:lines = split(l:output, "\n")
+
+    " Check if bufadd exists (Vim 8.1+)
+    let l:has_bufadd = exists('*bufadd')
+
+    for l:line in l:lines
+        " rg --vimgrep format: file:line:col:text
+        let l:parts = matchlist(l:line, '^\(.\+\):\(\d\+\):\(\d\+\):\(.*\)$')
+        if !empty(l:parts)
+            let l:file = l:parts[1]
+            let l:lnum = str2nr(l:parts[2])
+            let l:col = str2nr(l:parts[3])
+            let l:text = l:parts[4]
+
+            let l:bufnr = 0
+            if l:has_bufadd
+                let l:bufnr = bufadd(l:file)
+            endif
+
+            call add(l:items, {
+                \ 'filename': l:file,
+                \ 'lnum': l:lnum,
+                \ 'col': l:col,
+                \ 'text': l:text,
+                \ 'bufnr': l:bufnr
+                \ })
+        endif
+    endfor
+
+    if empty(l:items)
+        return 0
+    endif
+
+    " Use quickfixtextfunc if available (Vim 8.2.0869+)
+    let l:opts = {'title': a:title, 'items': l:items}
+    if has('patch-8.2.0869') || has('nvim')
+         let l:opts.quickfixtextfunc = 'rookie_guid#QuickfixTextFunc'
+    endif
+
+    call setqflist([], 'r', l:opts)
+    copen
+    redraw!
+    return 1
+endfunction
+
 function! rookie_guid#List() abort
     let l:pattern = '[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}'
-    " Use rg to search in current directory
     if !executable('rg')
         echoerr 'rg (ripgrep) is not installed or not in PATH.'
         return
     endif
 
     let l:cmd = 'rg --vimgrep --no-heading --smart-case --hidden "' . l:pattern . '" .'
-    let l:output = system(l:cmd)
-
-    if empty(l:output)
+    if !rookie_guid#ParseAndSetQf(l:cmd, 'GUID List')
         echom 'No GUIDs found.'
         cclose
-    else
-        cgetexpr l:output
-        copen
-        redraw!
     endif
 endfunction
 
 function! rookie_guid#Search() abort
     let l:line = getline('.')
     let l:col = col('.')
-    " Vim regex for GUID: 8 hex - 4 hex - 4 hex - 4 hex - 12 hex
     let l:vim_pattern = '\c[0-9A-Fa-f]\{8}-\([0-9A-Fa-f]\{4}-\)\{3}[0-9A-Fa-f]\{12}'
 
     let l:start_pos = 0
@@ -73,10 +148,6 @@ function! rookie_guid#Search() abort
         endif
         let l:match_end = matchend(l:line, l:vim_pattern, l:start_pos)
 
-        " Check if cursor is within this match (1-based col vs 0-based match)
-        " If cursor is on the character after the match, it's usually considered 'at the end' of the word,
-        " but strictly being 'on' the guid means within [start+1, end].
-        " Let's be generous: if it touches the GUID.
         if l:col >= (l:match_start + 1) && l:col <= l:match_end
             let l:found_guid = strpart(l:line, l:match_start, l:match_end - l:match_start)
             break
@@ -95,15 +166,8 @@ function! rookie_guid#Search() abort
         return
     endif
 
-    " Use fixed string search (-F) for the specific GUID
     let l:cmd = 'rg --vimgrep --no-heading --smart-case --hidden -F "' . l:found_guid . '" .'
-    let l:output = system(l:cmd)
-
-    if empty(l:output)
+    if !rookie_guid#ParseAndSetQf(l:cmd, 'GUID Search: ' . l:found_guid)
         echom 'GUID not found in other files.'
-    else
-        cgetexpr l:output
-        copen
-        redraw!
     endif
 endfunction
