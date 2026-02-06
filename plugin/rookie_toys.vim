@@ -50,6 +50,8 @@ command! -nargs=0 -bar RookieGuidGenerate call rookie_guid#Insert()
 command! -nargs=0 -bar RookieGuidSearch call rookie_guid#Search()
 command! -nargs=0 -bar RookieGuidList call rookie_guid#List()
 
+command! -nargs=0 -bar RookieAspiceShowTraceability call rookie_aspice#ShowTraceability()
+
 if exists('g:rookie_git_fetch_interval_s')
     call rookie_git#AutoFetch()
 endif
