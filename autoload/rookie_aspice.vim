@@ -92,6 +92,25 @@ function! s:SetupBuffer(title, items) abort
     let l:lines = []
     let l:jump_data = []
 
+    let l:max_len = 0
+    for l:item in a:items
+        let l:fname = ''
+        if has_key(l:item, 'display_name')
+            let l:fname = l:item.display_name
+        elseif has_key(l:item, 'filename')
+             let l:fname = fnamemodify(l:item.filename, ':t')
+        endif
+        if len(l:fname) > l:max_len
+            let l:max_len = len(l:fname)
+        endif
+    endfor
+
+    if l:max_len < 5
+        let l:max_len = 5
+    endif
+
+    let l:fmt = '%-' . l:max_len . 's|%d col %d| %s'
+
     for l:item in a:items
         let l:fname = ''
         if has_key(l:item, 'display_name')
@@ -100,11 +119,7 @@ function! s:SetupBuffer(title, items) abort
              let l:fname = fnamemodify(l:item.filename, ':t')
         endif
 
-        if len(l:fname) > 16
-            let l:fname = strpart(l:fname, 0, 16)
-        endif
-
-        call add(l:lines, printf('%-16s|%d col %d| %s', l:fname, l:item.lnum, l:item.col, l:item.text))
+        call add(l:lines, printf(l:fmt, l:fname, l:item.lnum, l:item.col, l:item.text))
         call add(l:jump_data, l:item)
     endfor
 
