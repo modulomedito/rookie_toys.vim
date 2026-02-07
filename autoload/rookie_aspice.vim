@@ -163,7 +163,7 @@ function! rookie_aspice#ShowTraceability() abort
                 call add(l:req_items, l:item)
             elseif l:text =~ '^\s*-'
                 call add(l:sat_items, l:item)
-            elseif l:text =~ '^\s*\/\/\/'
+            elseif l:text =~ '^\s*\/\/'
                 call add(l:imp_items, l:item)
             endif
         endif
