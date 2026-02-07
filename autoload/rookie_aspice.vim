@@ -206,14 +206,13 @@ function! rookie_aspice#ShowTraceability() abort
 
     " Resize windows
     let l:total_width = &columns
-    let l:req_width = float2nr(l:total_width * 0.24)
-    let l:sat_width = float2nr(l:total_width * 0.38)
+    let l:width = float2nr(l:total_width / 3.0)
 
     call win_gotoid(l:req_win)
-    execute 'vertical resize ' . l:req_width
+    execute 'vertical resize ' . l:width
 
     call win_gotoid(l:sat_win)
-    execute 'vertical resize ' . l:sat_width
+    execute 'vertical resize ' . l:width
 
     " Ensure we are at Requirement window initially? Or maybe the first one.
     call win_gotoid(l:req_win)
