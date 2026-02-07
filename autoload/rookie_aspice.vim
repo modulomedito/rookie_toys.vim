@@ -245,4 +245,14 @@ function! rookie_aspice#CloseTraceability() abort
             execute win_id2win(l:winid) . 'close'
         endif
     endfor
+
+    " Move cursor to a suitable window (not nerdtree, not qf if possible)
+    if &filetype == 'nerdtree'
+        for l:winnr in range(1, winnr('$'))
+            if getwinvar(l:winnr, '&filetype') != 'nerdtree'
+                execute l:winnr . 'wincmd w'
+                break
+            endif
+        endfor
+    endif
 endfunction
