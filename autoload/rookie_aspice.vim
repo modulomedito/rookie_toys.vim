@@ -94,7 +94,9 @@ function! s:SetupBuffer(title, items) abort
 
     for l:item in a:items
         let l:fname = ''
-        if has_key(l:item, 'filename')
+        if has_key(l:item, 'display_name')
+            let l:fname = l:item.display_name
+        elseif has_key(l:item, 'filename')
              let l:fname = fnamemodify(l:item.filename, ':t')
         endif
 
@@ -159,9 +161,11 @@ function! rookie_aspice#ShowTraceability() abort
                 \ 'text': l:text
                 \ }
 
-            if l:text =~ '^\s*#\+'
+            if l:file =~ 'sys02'
+                let l:item.display_name = 'sys02'
                 call add(l:req_items, l:item)
-            elseif l:text =~ '^\s*-'
+            elseif l:file =~ 'swe01'
+                let l:item.display_name = 'swe01'
                 call add(l:sat_items, l:item)
             elseif l:text =~ '^\s*\/\/'
                 call add(l:imp_items, l:item)
