@@ -174,36 +174,26 @@ function! rookie_git#OpenCommitDiff(...) abort
     call setqflist([], 'r', {'title': l:title, 'items': l:qf_list})
 
     let l:height = float2nr(&lines * 0.5)
-    if !l:qf_exists
-        execute 'botright copen ' . l:height
-        if l:is_origin_gitgraph
-            call win_gotoid(l:origin_win)
-        endif
-    else
-        " Refresh existing quickfix window but don't steal focus if triggered from git graph
-        if l:is_origin_gitgraph
-             let l:qf_winid = win_getid(l:qf_winnr)
-             if l:qf_winid > 0
-                call win_execute(l:qf_winid, 'resize ' . l:height)
-             endif
-        else
-            execute 'botright copen ' . l:height
-        endif
+
+    " Open Quickfix window at bottom (or switch to it if already open)
+    execute 'botright copen ' . l:height
+
+    " Now we are in Quickfix buffer. Set variables and mappings directly.
+    let b:rookie_diff_current_sha = l:commit
+    let b:rookie_diff_target_sha = l:commit . '~1'
+    nnoremap <buffer> <CR> :call rookie_git#ShowDiffFromQuickfix()<CR>
+
+    " Select first item
+    normal! gg
+
+    " Trigger diff for the first item (this will open diff windows)
+    if !empty(l:qf_list)
+        call rookie_git#ShowDiffFromQuickfix()
     endif
 
-    " Set up mappings and buffer variables in the quickfix window
-    let l:qf_winid = 0
-    for w in range(1, winnr('$'))
-        if getwinvar(w, '&filetype') == 'qf' && getwinvar(w, 'quickfix_title') == l:title
-            let l:qf_winid = win_getid(w)
-            break
-        endif
-    endfor
-
-    if l:qf_winid > 0
-        call win_execute(l:qf_winid, 'let b:rookie_diff_current_sha = "' . l:commit . '"')
-        call win_execute(l:qf_winid, 'let b:rookie_diff_target_sha = "' . l:commit . '~1"')
-        call win_execute(l:qf_winid, 'nnoremap <buffer> <CR> :call rookie_git#ShowDiffFromQuickfix()<CR>')
+    " Restore focus to Git Graph if that's where we started
+    if l:is_origin_gitgraph
+        call win_gotoid(l:origin_win)
     endif
 
     " Restore equalalways & GitGraph width
