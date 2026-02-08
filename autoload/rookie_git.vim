@@ -147,6 +147,20 @@ function! rookie_git#OpenCommitDiff(...) abort
         return
     endif
 
+    " Save GitGraph info & equalalways to prevent resize
+    let l:gg_winid = 0
+    let l:gg_width = 0
+    for w in range(1, winnr('$'))
+        if getbufvar(winbufnr(w), 'is_rookie_gitgraph', 0)
+            let l:gg_winid = win_getid(w)
+            let l:gg_width = winwidth(w)
+            break
+        endif
+    endfor
+
+    let l:save_ea = &equalalways
+    set noequalalways
+
     let l:title = 'Diff: ' . l:commit
     let l:qf_list = []
 
@@ -188,6 +202,12 @@ function! rookie_git#OpenCommitDiff(...) abort
         call win_execute(l:qf_winid, 'let b:rookie_diff_target_sha = "' . l:commit . '~1"')
         call win_execute(l:qf_winid, 'nnoremap <buffer> <CR> :call rookie_git#ShowDiffFromQuickfix()<CR>')
     endif
+
+    " Restore equalalways & GitGraph width
+    let &equalalways = l:save_ea
+    if l:gg_winid > 0 && win_id2win(l:gg_winid) > 0 && l:gg_width > 0
+        call win_execute(l:gg_winid, 'vertical resize ' . l:gg_width)
+    endif
 endfunction
 
 function! rookie_git#ShowDiffFromQuickfix() abort
@@ -215,7 +235,17 @@ function! rookie_git#ShowDiffFromQuickfix() abort
     let l:current_sha = b:rookie_diff_current_sha
     let l:target_sha = b:rookie_diff_target_sha
 
-    " Save 'equalalways' and disable it to prevent resizing of other windows (like Git Graph)
+    " Save GitGraph info & equalalways to prevent resize
+    let l:gg_winid = 0
+    let l:gg_width = 0
+    for w in range(1, winnr('$'))
+        if getbufvar(winbufnr(w), 'is_rookie_gitgraph', 0)
+            let l:gg_winid = win_getid(w)
+            let l:gg_width = winwidth(w)
+            break
+        endif
+    endfor
+
     let l:save_ea = &equalalways
     set noequalalways
 
@@ -283,6 +313,9 @@ function! rookie_git#ShowDiffFromQuickfix() abort
 
     " Restore 'equalalways'
     let &equalalways = l:save_ea
+    if l:gg_winid > 0 && win_id2win(l:gg_winid) > 0 && l:gg_width > 0
+        call win_execute(l:gg_winid, 'vertical resize ' . l:gg_width)
+    endif
 
     " Adjust cursor to start
     normal! gg
