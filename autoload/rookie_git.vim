@@ -215,6 +215,10 @@ function! rookie_git#ShowDiffFromQuickfix() abort
     let l:current_sha = b:rookie_diff_current_sha
     let l:target_sha = b:rookie_diff_target_sha
 
+    " Save 'equalalways' and disable it to prevent resizing of other windows (like Git Graph)
+    let l:save_ea = &equalalways
+    set noequalalways
+
     " Close previous diff windows if they exist
     if exists('t:rookie_diff_wins')
         for l:winid in t:rookie_diff_wins
@@ -276,6 +280,9 @@ function! rookie_git#ShowDiffFromQuickfix() abort
         call setline(1, ["File does not exist in " . l:current_sha])
     endif
     diffthis
+
+    " Restore 'equalalways'
+    let &equalalways = l:save_ea
 
     " Adjust cursor to start
     normal! gg
