@@ -19,6 +19,8 @@ function! s:UpdateGraphCallback(bufnr, cmd) abort
         call win_execute(l:winid, 'setlocal nomodifiable')
         call win_execute(l:winid, 'normal! gg')
         call win_execute(l:winid, 'call rookie_gitgraph#HighlightRefs()')
+        call win_execute(l:winid, 'call search("HEAD ->")')
+        call win_execute(l:winid, 'normal! zz')
     else
         call setbufvar(a:bufnr, '&modifiable', 0)
     endif
