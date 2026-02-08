@@ -282,3 +282,49 @@ function! rookie_git#ShowDiffFromQuickfix() abort
     call win_gotoid(l:win_target)
     normal! gg
 endfunction
+
+function! rookie_git#DiffFileNavigate(direction) abort
+    let l:origin_win = win_getid()
+    let l:qf_winid = 0
+
+    " Find diff quickfix window
+    for w in range(1, winnr('$'))
+        if getwinvar(w, '&filetype') == 'qf' && getwinvar(w, 'quickfix_title') =~# '^Diff: '
+            let l:qf_winid = win_getid(w)
+            break
+        endif
+    endfor
+
+    if l:qf_winid == 0
+        echo "No Diff quickfix window found."
+        return
+    endif
+
+    call win_gotoid(l:qf_winid)
+
+    let l:cur_line = line('.')
+    let l:last_line = line('$')
+
+    if a:direction > 0
+        if l:cur_line < l:last_line
+            normal! j
+        else
+            echo "Already at last file."
+            call win_gotoid(l:origin_win)
+            return
+        endif
+    else
+        if l:cur_line > 1
+            normal! k
+        else
+            echo "Already at first file."
+            call win_gotoid(l:origin_win)
+            return
+        endif
+    endif
+
+    call rookie_git#ShowDiffFromQuickfix()
+
+    " Return to original window (e.g., git graph)
+    call win_gotoid(l:origin_win)
+endfunction
