@@ -176,12 +176,12 @@ function! rookie_git#OpenCommitDiff(...) abort
     let l:height = float2nr(&lines * 0.5)
     if !l:qf_exists
         execute 'botright copen ' . l:height
+        if l:is_origin_gitgraph
+            call win_gotoid(l:origin_win)
+        endif
     else
         " Refresh existing quickfix window but don't steal focus if triggered from git graph
-        " If the current buffer is git graph, we want to keep focus there
-        if &filetype == 'git' && get(b:, 'is_rookie_gitgraph', 0)
-             let l:cur_win = win_getid()
-             " Resize existing window without switching
+        if l:is_origin_gitgraph
              let l:qf_winid = win_getid(l:qf_winnr)
              if l:qf_winid > 0
                 call win_execute(l:qf_winid, 'resize ' . l:height)
