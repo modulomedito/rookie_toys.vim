@@ -176,41 +176,70 @@ function! rookie_git#ShowDiffFromQuickfix() abort
     let l:current_sha = b:rookie_diff_current_sha
     let l:target_sha = b:rookie_diff_target_sha
 
-    " Move to the window above the quickfix window
-    wincmd k
-
-    " If we are still in quickfix (e.g. it was the only window), create a new one
-    if &filetype == 'qf'
-        new
+    " Close previous diff windows if they exist
+    if exists('t:rookie_diff_wins')
+        for l:winid in t:rookie_diff_wins
+            if win_id2win(l:winid) > 0
+                execute win_id2win(l:winid) . 'close'
+            endif
+        endfor
     endif
+    let t:rookie_diff_wins = []
 
-    " 1. Reset current window to be a fresh buffer (Left/Target side)
-    enew!
+    " 1. Create split on the right of the current window (Quickfix)
+    " We are in Quickfix, so 'vnew' will split it vertically.
+    " However, user wants "right of the quickfix buffer".
+    " If we are at the bottom, 'vertical rightbelow new' should do it.
+
+    vertical rightbelow new
+    let l:win_target = win_getid()
+    call add(t:rookie_diff_wins, l:win_target)
+
     setlocal buftype=nofile bufhidden=wipe noswapfile
 
     let l:title_target = l:filename . ' (' . strpart(l:target_sha, 0, 7) . ')'
-    " Use silent! to avoid errors if buffer name already exists
     silent! execute 'file ' . fnameescape(l:title_target)
 
-    let l:cmd = 'git show ' . shellescape(l:target_sha . ':' . l:filename)
-    let l:content = systemlist(l:cmd)
-    call setline(1, l:content)
+    " Check if file exists in target commit
+    " git cat-file -e SHA:FILE returns 0 if exists, 1 if not
+    let l:check_cmd = 'git cat-file -e ' . shellescape(l:target_sha . ':' . l:filename)
+    call system(l:check_cmd)
+
+    if v:shell_error == 0
+        let l:cmd = 'git show ' . shellescape(l:target_sha . ':' . l:filename)
+        let l:content = systemlist(l:cmd)
+        call setline(1, l:content)
+    else
+        " File doesn't exist in target commit (e.g. Added file)
+        call setline(1, ["File did not exist in " . l:target_sha])
+    endif
     diffthis
 
     " 2. Setup Right (Current)
-    vnew
+    vertical rightbelow new
+    let l:win_current = win_getid()
+    call add(t:rookie_diff_wins, l:win_current)
+
     setlocal buftype=nofile bufhidden=wipe noswapfile
 
     let l:title_current = l:filename . ' (' . strpart(l:current_sha, 0, 7) . ')'
     silent! execute 'file ' . fnameescape(l:title_current)
 
-    let l:cmd = 'git show ' . shellescape(l:current_sha . ':' . l:filename)
-    let l:content = systemlist(l:cmd)
-    call setline(1, l:content)
+    let l:check_cmd = 'git cat-file -e ' . shellescape(l:current_sha . ':' . l:filename)
+    call system(l:check_cmd)
+
+    if v:shell_error == 0
+        let l:cmd = 'git show ' . shellescape(l:current_sha . ':' . l:filename)
+        let l:content = systemlist(l:cmd)
+        call setline(1, l:content)
+    else
+        " File doesn't exist in current commit (e.g. Deleted file)
+        call setline(1, ["File does not exist in " . l:current_sha])
+    endif
     diffthis
 
     " Adjust cursor to start
     normal! gg
-    wincmd h
+    call win_gotoid(l:win_target)
     normal! gg
 endfunction
