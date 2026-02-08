@@ -108,15 +108,15 @@ function! rookie_git#OpenCommitDiff(...) abort
     else
         " Try to extract commit hash from current line if not provided
         let l:line = getline('.')
-        " Match 7-40 hex chars at start of line or after space/pipe/bracket
-        let l:match = matchstr(l:line, '\v(^|[\s|\[])\zs[0-9a-f]{7,40}\ze')
+        " Match 7-40 hex chars bounded by word boundaries
+        let l:match = matchstr(l:line, '\v<[0-9a-fA-F]{7,40}>')
         if !empty(l:match)
             let l:commit = l:match
         endif
     endif
 
     if empty(l:commit)
-        echo "No commit hash found"
+        echo "No commit hash found in line: " . getline('.')
         return
     endif
 
