@@ -154,7 +154,7 @@ function! rookie_git#OpenCommitDiff(...) abort
         call add(l:qf_list, {'filename': l:file, 'text': 'Modified'})
     endfor
 
-    call setqflist(l:qf_list, 'r', {'title': l:title})
+    call setqflist([], 'r', {'title': l:title, 'items': l:qf_list})
 
     if !l:qf_exists
         copen
