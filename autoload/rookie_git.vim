@@ -119,14 +119,14 @@ function! rookie_git#OpenCommitDiff(...) abort
     if a:0 > 0
         let l:target_sha = a:1
     else
-        let l:target_sha = l:current_sha . '^'
+        let l:target_sha = l:current_sha . '~1'
     endif
 
     " Get changed files
     " We use git diff --name-only SHA1 SHA2
-    let l:cmd = 'git diff --name-only ' . l:target_sha . ' ' . l:current_sha
+    let l:cmd = 'git diff --name-only ' . shellescape(l:target_sha) . ' ' . shellescape(l:current_sha)
     let l:output = system(l:cmd)
-    
+
     if v:shell_error
         " If it failed (e.g. SHA^ not found), try to be helpful
         echom "Git diff failed (maybe parent commit doesn't exist?): " . substitute(l:output, '\n', ' ', 'g')
@@ -163,7 +163,7 @@ function! rookie_git#ShowDiffFromQuickfix() abort
 
     let l:item = l:list[l:qf_idx]
     let l:filename = bufname(l:item.bufnr)
-    
+
     if empty(l:filename)
         return
     endif
@@ -178,37 +178,37 @@ function! rookie_git#ShowDiffFromQuickfix() abort
 
     " Move to the window above the quickfix window
     wincmd k
-    
+
     " If we are still in quickfix (e.g. it was the only window), create a new one
     if &filetype == 'qf'
         new
     endif
-    
+
     " 1. Reset current window to be a fresh buffer (Left/Target side)
     enew!
     setlocal buftype=nofile bufhidden=wipe noswapfile
-    
+
     let l:title_target = l:filename . ' (' . strpart(l:target_sha, 0, 7) . ')'
     " Use silent! to avoid errors if buffer name already exists
     silent! execute 'file ' . fnameescape(l:title_target)
-    
-    let l:cmd = 'git show ' . l:target_sha . ':' . l:filename
+
+    let l:cmd = 'git show ' . shellescape(l:target_sha . ':' . l:filename)
     let l:content = systemlist(l:cmd)
     call setline(1, l:content)
     diffthis
-    
+
     " 2. Setup Right (Current)
     vnew
     setlocal buftype=nofile bufhidden=wipe noswapfile
-    
+
     let l:title_current = l:filename . ' (' . strpart(l:current_sha, 0, 7) . ')'
     silent! execute 'file ' . fnameescape(l:title_current)
-    
-    let l:cmd = 'git show ' . l:current_sha . ':' . l:filename
+
+    let l:cmd = 'git show ' . shellescape(l:current_sha . ':' . l:filename)
     let l:content = systemlist(l:cmd)
     call setline(1, l:content)
     diffthis
-    
+
     " Adjust cursor to start
     normal! gg
     wincmd h
