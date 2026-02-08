@@ -157,7 +157,7 @@ function! rookie_git#OpenCommitDiff(...) abort
     call setqflist([], 'r', {'title': l:title, 'items': l:qf_list})
 
     if !l:qf_exists
-        copen
+        botright copen
     else
         " Refresh existing quickfix window but don't steal focus if triggered from git graph
         " If the current buffer is git graph, we want to keep focus there
@@ -167,7 +167,7 @@ function! rookie_git#OpenCommitDiff(...) abort
              " Force redraw of qf buffer if needed, usually setqflist is enough
              call win_gotoid(l:cur_win)
         else
-            copen
+            botright copen
         endif
     endif
 
