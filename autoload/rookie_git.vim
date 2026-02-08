@@ -139,17 +139,22 @@ function! rookie_git#OpenCommitDiff(...) abort
         endtry
     endif
 
-    let l:cmd = 'git -C ' . shellescape(l:dir) . ' show --stat --oneline ' . shellescape(l:commit)
-    let l:output = systemlist(l:cmd)
+    let l:cmd = 'git -C ' . shellescape(l:dir) . ' diff-tree --no-commit-id --name-only -r ' . shellescape(l:commit)
+    let l:files = systemlist(l:cmd)
 
     if v:shell_error
-        echo "Error getting commit diff: " . join(l:output, "\n")
+        echo "Error getting commit files: " . join(l:files, "\n")
         return
     endif
 
     let l:title = 'Diff: ' . l:commit
-    
-    call setqflist([], 'r', {'title': l:title, 'lines': l:output})
+    let l:qf_list = []
+
+    for l:file in l:files
+        call add(l:qf_list, {'filename': l:file, 'text': 'Modified'})
+    endfor
+
+    call setqflist(l:qf_list, 'r', {'title': l:title})
 
     if !l:qf_exists
         copen
@@ -157,11 +162,6 @@ function! rookie_git#OpenCommitDiff(...) abort
         " Refresh existing quickfix window but don't steal focus if triggered from git graph
         " If the current buffer is git graph, we want to keep focus there
         if &filetype == 'git' && get(b:, 'is_rookie_gitgraph', 0)
-            " We are in git graph, just update list (done above) and ensure it's open/refreshed
-            " If we want to ensure it's visible without jumping to it:
-             call setqflist([], 'r', {'title': l:title, 'lines': l:output})
-             " If it was closed for some reason, open it back up without focus?
-             " copen will focus it. To avoid focus steal we can jump back.
              let l:cur_win = win_getid()
              execute l:qf_winnr . 'wincmd w'
              " Force redraw of qf buffer if needed, usually setqflist is enough
@@ -169,6 +169,21 @@ function! rookie_git#OpenCommitDiff(...) abort
         else
             copen
         endif
+    endif
+
+    " Set up mappings and buffer variables in the quickfix window
+    let l:qf_winid = 0
+    for w in range(1, winnr('$'))
+        if getwinvar(w, '&filetype') == 'qf' && getwinvar(w, 'quickfix_title') == l:title
+            let l:qf_winid = win_getid(w)
+            break
+        endif
+    endfor
+
+    if l:qf_winid > 0
+        call win_execute(l:qf_winid, 'let b:rookie_diff_current_sha = "' . l:commit . '"')
+        call win_execute(l:qf_winid, 'let b:rookie_diff_target_sha = "' . l:commit . '~1"')
+        call win_execute(l:qf_winid, 'nnoremap <buffer> <CR> :call rookie_git#ShowDiffFromQuickfix()<CR>')
     endif
 endfunction
 
