@@ -103,7 +103,7 @@ endfunction
 
 function! rookie_git#OpenCommitDiff(...) abort
     if &filetype != 'git'
-        echoerr "RookieOpenCommitDiff is only available in git filetype buffers."
+        echoerr "RookieGitOpenCommitDiff is only available in git filetype buffers."
         return
     endif
 
