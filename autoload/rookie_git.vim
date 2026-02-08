@@ -194,9 +194,6 @@ function! rookie_git#ShowDiffFromQuickfix() abort
     let l:current_sha = b:rookie_diff_current_sha
     let l:target_sha = b:rookie_diff_target_sha
 
-    " Save Quickfix window ID
-    let l:qf_winid = win_getid()
-
     " Close previous diff windows if they exist
     if exists('t:rookie_diff_wins')
         for l:winid in t:rookie_diff_wins
@@ -263,7 +260,4 @@ function! rookie_git#ShowDiffFromQuickfix() abort
     normal! gg
     call win_gotoid(l:win_target)
     normal! gg
-
-    " Return to the quickfix window so that subsequent navigation commands work
-    call win_gotoid(l:qf_winid)
 endfunction
