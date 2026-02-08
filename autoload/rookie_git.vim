@@ -156,18 +156,21 @@ function! rookie_git#OpenCommitDiff(...) abort
 
     call setqflist([], 'r', {'title': l:title, 'items': l:qf_list})
 
+    let l:height = float2nr(&lines * 0.5)
     if !l:qf_exists
-        botright copen
+        execute 'botright copen ' . l:height
     else
         " Refresh existing quickfix window but don't steal focus if triggered from git graph
         " If the current buffer is git graph, we want to keep focus there
         if &filetype == 'git' && get(b:, 'is_rookie_gitgraph', 0)
              let l:cur_win = win_getid()
-             execute l:qf_winnr . 'wincmd w'
-             " Force redraw of qf buffer if needed, usually setqflist is enough
-             call win_gotoid(l:cur_win)
+             " Resize existing window without switching
+             let l:qf_winid = win_getid(l:qf_winnr)
+             if l:qf_winid > 0
+                call win_execute(l:qf_winid, 'resize ' . l:height)
+             endif
         else
-            botright copen
+            execute 'botright copen ' . l:height
         endif
     endif
 
