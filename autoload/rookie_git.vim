@@ -348,18 +348,10 @@ function! rookie_git#DiffFileNavigate(direction) abort
     if a:direction > 0
         if l:cur_line < l:last_line
             normal! j
-        else
-            echo "Already at last file."
-            call win_gotoid(l:origin_win)
-            return
         endif
     else
         if l:cur_line > 1
             normal! k
-        else
-            echo "Already at first file."
-            call win_gotoid(l:origin_win)
-            return
         endif
     endif
 
