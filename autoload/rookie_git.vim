@@ -168,6 +168,9 @@ function! rookie_git#ShowDiffFromQuickfix() abort
         return
     endif
 
+    " Convert backslashes to forward slashes for git commands
+    let l:git_filename = substitute(l:filename, '\\', '/', 'g')
+
     if !exists('b:rookie_diff_current_sha') || !exists('b:rookie_diff_target_sha')
         echoerr "SHA information missing in quickfix buffer."
         return
@@ -202,11 +205,11 @@ function! rookie_git#ShowDiffFromQuickfix() abort
 
     " Check if file exists in target commit
     " git cat-file -e SHA:FILE returns 0 if exists, 1 if not
-    let l:check_cmd = 'git cat-file -e ' . shellescape(l:target_sha . ':' . l:filename)
+    let l:check_cmd = 'git cat-file -e ' . shellescape(l:target_sha . ':' . l:git_filename)
     call system(l:check_cmd)
 
     if v:shell_error == 0
-        let l:cmd = 'git show ' . shellescape(l:target_sha . ':' . l:filename)
+        let l:cmd = 'git show ' . shellescape(l:target_sha . ':' . l:git_filename)
         let l:content = systemlist(l:cmd)
         call setline(1, l:content)
     else
@@ -225,11 +228,11 @@ function! rookie_git#ShowDiffFromQuickfix() abort
     let l:title_current = l:filename . ' (' . strpart(l:current_sha, 0, 7) . ')'
     silent! execute 'file ' . fnameescape(l:title_current)
 
-    let l:check_cmd = 'git cat-file -e ' . shellescape(l:current_sha . ':' . l:filename)
+    let l:check_cmd = 'git cat-file -e ' . shellescape(l:current_sha . ':' . l:git_filename)
     call system(l:check_cmd)
 
     if v:shell_error == 0
-        let l:cmd = 'git show ' . shellescape(l:current_sha . ':' . l:filename)
+        let l:cmd = 'git show ' . shellescape(l:current_sha . ':' . l:git_filename)
         let l:content = systemlist(l:cmd)
         call setline(1, l:content)
     else
