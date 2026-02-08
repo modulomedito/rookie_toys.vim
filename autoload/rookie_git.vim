@@ -131,6 +131,9 @@ function! rookie_git#OpenCommitDiff(...) abort
         endif
     endfor
 
+    let l:is_origin_gitgraph = (&filetype == 'git' && get(b:, 'is_rookie_gitgraph', 0))
+    let l:origin_win = win_getid()
+
     let l:dir = getcwd()
     if exists('*FugitiveWorkTree')
         try
