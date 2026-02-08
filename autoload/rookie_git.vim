@@ -146,12 +146,27 @@ function! rookie_git#OpenCommitDiff(...) abort
 
     call setqflist(l:qf_list)
     botright copen
+    " Resize quickfix window to 50% of the total height
+    execute 'resize ' . float2nr(&lines * 0.5)
 
     " Store SHAs for the quickfix buffer
     let b:rookie_diff_current_sha = l:current_sha
     let b:rookie_diff_target_sha = l:target_sha
 
     nnoremap <buffer> <CR> :call rookie_git#ShowDiffFromQuickfix()<CR>
+
+    command! -buffer -nargs=0 Cnext try | cnext | catch | endtry | call rookie_git#ShowDiffFromQuickfix()
+    command! -buffer -nargs=0 Cprevious try | cprevious | catch | endtry | call rookie_git#ShowDiffFromQuickfix()
+
+    " Also map <Down> and <Up> to navigate and show diff?
+    " Or maybe just let them use the quickfix normally.
+    " But if they want :cnext behavior, we can override it locally? No.
+
+    " Let's define custom commands that user can map if they want.
+    " Or we can create mappings.
+    nnoremap <buffer> <silent> <Down> :cnext<CR>:call rookie_git#ShowDiffFromQuickfix()<CR>
+    nnoremap <buffer> <silent> <Up> :cprevious<CR>:call rookie_git#ShowDiffFromQuickfix()<CR>
+
 endfunction
 
 function! rookie_git#ShowDiffFromQuickfix() abort
