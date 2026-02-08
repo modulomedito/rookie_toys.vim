@@ -102,71 +102,74 @@ function! rookie_git#StartAutoFetchWatcher() abort
 endfunction
 
 function! rookie_git#OpenCommitDiff(...) abort
-    if &filetype != 'git'
-        echoerr "RookieGitOpenCommitDiff is only available in git filetype buffers."
-        return
-    endif
-
-    let l:line = getline('.')
-    let l:current_sha = matchstr(l:line, '\v[0-9a-f]{7,40}')
-
-    if empty(l:current_sha)
-        echoerr "No git commit SHA found on current line."
-        return
-    endif
-
-    let l:target_sha = ''
+    let l:commit = ''
     if a:0 > 0
-        let l:target_sha = a:1
+        let l:commit = a:1
     else
-        let l:target_sha = l:current_sha . '~1'
+        " Try to extract commit hash from current line if not provided
+        let l:line = getline('.')
+        " Match 7-40 hex chars at start of line or after space/pipe/bracket
+        let l:match = matchstr(l:line, '\v(^|[\s|\[])\zs[0-9a-f]{7,40}\ze')
+        if !empty(l:match)
+            let l:commit = l:match
+        endif
     endif
 
-    " Get changed files
-    " We use git diff --name-only SHA1 SHA2
-    let l:cmd = 'git diff --name-only ' . shellescape(l:target_sha) . ' ' . shellescape(l:current_sha)
-    let l:output = system(l:cmd)
-
-    if v:shell_error
-        " If it failed (e.g. SHA^ not found), try to be helpful
-        echom "Git diff failed (maybe parent commit doesn't exist?): " . substitute(l:output, '\n', ' ', 'g')
+    if empty(l:commit)
+        echo "No commit hash found"
         return
     endif
 
-    let l:files = split(l:output, "\n")
-    if empty(l:files)
-        echom "No files changed between " . l:target_sha . " and " . l:current_sha
-        return
-    endif
-
-    let l:qf_list = []
-    for l:file in l:files
-        call add(l:qf_list, {'filename': l:file, 'text': 'Modified'})
+    " Check if diff quickfix is already open
+    let l:qf_exists = 0
+    let l:qf_winnr = 0
+    for w in range(1, winnr('$'))
+        if getwinvar(w, '&filetype') == 'qf' && getwinvar(w, 'quickfix_title') =~# '^Diff: '
+            let l:qf_exists = 1
+            let l:qf_winnr = w
+            break
+        endif
     endfor
 
-    call setqflist(l:qf_list)
-    botright copen
-    " Resize quickfix window to 50% of the total height
-    execute 'resize ' . float2nr(&lines * 0.5)
+    let l:dir = getcwd()
+    if exists('*FugitiveWorkTree')
+        try
+            let l:dir = FugitiveWorkTree()
+        catch
+        endtry
+    endif
 
-    " Store SHAs for the quickfix buffer
-    let b:rookie_diff_current_sha = l:current_sha
-    let b:rookie_diff_target_sha = l:target_sha
+    let l:cmd = 'git -C ' . shellescape(l:dir) . ' show --stat --oneline ' . shellescape(l:commit)
+    let l:output = systemlist(l:cmd)
 
-    nnoremap <buffer> <CR> :call rookie_git#ShowDiffFromQuickfix()<CR>
+    if v:shell_error
+        echo "Error getting commit diff: " . join(l:output, "\n")
+        return
+    endif
 
-    command! -buffer -nargs=0 Cnext try | cnext | catch | endtry | call rookie_git#ShowDiffFromQuickfix()
-    command! -buffer -nargs=0 Cprevious try | cprevious | catch | endtry | call rookie_git#ShowDiffFromQuickfix()
+    let l:title = 'Diff: ' . l:commit
+    
+    call setqflist([], 'r', {'title': l:title, 'lines': l:output})
 
-    " Also map <Down> and <Up> to navigate and show diff?
-    " Or maybe just let them use the quickfix normally.
-    " But if they want :cnext behavior, we can override it locally? No.
-
-    " Let's define custom commands that user can map if they want.
-    " Or we can create mappings.
-    nnoremap <buffer> <silent> <Down> :cnext<CR>:call rookie_git#ShowDiffFromQuickfix()<CR>
-    nnoremap <buffer> <silent> <Up> :cprevious<CR>:call rookie_git#ShowDiffFromQuickfix()<CR>
-
+    if !l:qf_exists
+        copen
+    else
+        " Refresh existing quickfix window but don't steal focus if triggered from git graph
+        " If the current buffer is git graph, we want to keep focus there
+        if &filetype == 'git' && get(b:, 'is_rookie_gitgraph', 0)
+            " We are in git graph, just update list (done above) and ensure it's open/refreshed
+            " If we want to ensure it's visible without jumping to it:
+             call setqflist([], 'r', {'title': l:title, 'lines': l:output})
+             " If it was closed for some reason, open it back up without focus?
+             " copen will focus it. To avoid focus steal we can jump back.
+             let l:cur_win = win_getid()
+             execute l:qf_winnr . 'wincmd w'
+             " Force redraw of qf buffer if needed, usually setqflist is enough
+             call win_gotoid(l:cur_win)
+        else
+            copen
+        endif
+    endif
 endfunction
 
 function! rookie_git#ShowDiffFromQuickfix() abort

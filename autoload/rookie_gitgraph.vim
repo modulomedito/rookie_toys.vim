@@ -50,6 +50,9 @@ function! rookie_gitgraph#OpenGitGraph(all_branches) abort
 
     let l:bufnr = bufnr('%')
 
+    " Map <CR> to show commit diff
+    nnoremap <buffer> <silent> <CR> :RookieGitOpenCommitDiff<CR>
+
     " Determine git root
     let l:dir = getcwd()
     if exists('*FugitiveWorkTree')
