@@ -37,7 +37,6 @@ function! rookie_git#AsyncFetch(...) abort
     else
         if has('win32') || has('win64')
             if !empty(l:Callback)
-                " Synchronous fallback if callback is required
                 call system('git -C ' . shellescape(l:dir) . ' fetch --all --quiet')
                 call l:Callback()
             else
@@ -106,9 +105,7 @@ function! rookie_git#OpenCommitDiff(...) abort
     if a:0 > 0
         let l:commit = a:1
     else
-        " Try to extract commit hash from current line if not provided
         let l:line = getline('.')
-        " Match 7-40 hex chars bounded by word boundaries
         let l:match = matchstr(l:line, '\v<[0-9a-fA-F]{7,40}>')
         if !empty(l:match)
             let l:commit = l:match
@@ -119,17 +116,6 @@ function! rookie_git#OpenCommitDiff(...) abort
         echo "No commit hash found in line: " . getline('.')
         return
     endif
-
-    " Check if diff quickfix is already open
-    let l:qf_exists = 0
-    let l:qf_winnr = 0
-    for w in range(1, winnr('$'))
-        if getwinvar(w, '&filetype') == 'qf' && getwinvar(w, 'quickfix_title') =~# '^Diff: '
-            let l:qf_exists = 1
-            let l:qf_winnr = w
-            break
-        endif
-    endfor
 
     let l:is_origin_gitgraph = (&filetype == 'git' && get(b:, 'is_rookie_gitgraph', 0))
     let l:origin_win = win_getid()
@@ -150,23 +136,21 @@ function! rookie_git#OpenCommitDiff(...) abort
         return
     endif
 
-    " Save GitGraph info & equalalways to prevent resize
-    let l:gg_winid = 0
-    let l:gg_width = 0
-    for w in range(1, winnr('$'))
-        if getbufvar(winbufnr(w), 'is_rookie_gitgraph', 0)
-            let l:gg_winid = win_getid(w)
-            let l:gg_width = winwidth(w)
-            break
-        endif
-    endfor
+    if !exists('t:rookie_saved_ea')
+        let t:rookie_saved_ea = &equalalways
+        for w in range(1, winnr('$'))
+            if getbufvar(winbufnr(w), 'is_rookie_gitgraph', 0)
+                let t:rookie_saved_gg_winid = win_getid(w)
+                let t:rookie_saved_gg_width = winwidth(w)
+                break
+            endif
+        endfor
+    endif
 
-    let l:save_ea = &equalalways
     set noequalalways
 
     let l:title = 'Diff: ' . l:commit
     let l:qf_list = []
-
     for l:file in l:files
         call add(l:qf_list, {'filename': l:file, 'text': 'Modified'})
     endfor
@@ -174,32 +158,20 @@ function! rookie_git#OpenCommitDiff(...) abort
     call setqflist([], 'r', {'title': l:title, 'items': l:qf_list})
 
     let l:height = float2nr(&lines * 0.5)
-
-    " Open Quickfix window at bottom (or switch to it if already open)
     execute 'botright copen ' . l:height
+    execute 'autocmd WinClosed <buffer> call rookie_git#OnWinClosed(expand("<amatch>"))'
 
-    " Now we are in Quickfix buffer. Set variables and mappings directly.
     let b:rookie_diff_current_sha = l:commit
     let b:rookie_diff_target_sha = l:commit . '~1'
     nnoremap <buffer> <CR> :call rookie_git#ShowDiffFromQuickfix()<CR>
 
-    " Select first item
     normal! gg
-
-    " Trigger diff for the first item (this will open diff windows)
     if !empty(l:qf_list)
         call rookie_git#ShowDiffFromQuickfix()
     endif
 
-    " Restore focus to Git Graph if that's where we started
     if l:is_origin_gitgraph
         call win_gotoid(l:origin_win)
-    endif
-
-    " Restore equalalways & GitGraph width
-    let &equalalways = l:save_ea
-    if l:gg_winid > 0 && win_id2win(l:gg_winid) > 0 && l:gg_width > 0
-        call win_execute(l:gg_winid, 'vertical resize ' . l:gg_width)
     endif
 endfunction
 
@@ -217,7 +189,6 @@ function! rookie_git#ShowDiffFromQuickfix() abort
         return
     endif
 
-    " Convert backslashes to forward slashes for git commands
     let l:git_filename = substitute(l:filename, '\\', '/', 'g')
 
     if !exists('b:rookie_diff_current_sha') || !exists('b:rookie_diff_target_sha')
@@ -228,21 +199,20 @@ function! rookie_git#ShowDiffFromQuickfix() abort
     let l:current_sha = b:rookie_diff_current_sha
     let l:target_sha = b:rookie_diff_target_sha
 
-    " Save GitGraph info & equalalways to prevent resize
-    let l:gg_winid = 0
-    let l:gg_width = 0
-    for w in range(1, winnr('$'))
-        if getbufvar(winbufnr(w), 'is_rookie_gitgraph', 0)
-            let l:gg_winid = win_getid(w)
-            let l:gg_width = winwidth(w)
-            break
-        endif
-    endfor
+    if !exists('t:rookie_saved_ea')
+        let t:rookie_saved_ea = &equalalways
+        for w in range(1, winnr('$'))
+            if getbufvar(winbufnr(w), 'is_rookie_gitgraph', 0)
+                let t:rookie_saved_gg_winid = win_getid(w)
+                let t:rookie_saved_gg_width = winwidth(w)
+                break
+            endif
+        endfor
+    endif
 
-    let l:save_ea = &equalalways
     set noequalalways
 
-    " Close previous diff windows if they exist
+    let t:rookie_programmatic_close = 1
     if exists('t:rookie_diff_wins')
         for l:winid in t:rookie_diff_wins
             if win_id2win(l:winid) > 0
@@ -250,24 +220,18 @@ function! rookie_git#ShowDiffFromQuickfix() abort
             endif
         endfor
     endif
+    unlet t:rookie_programmatic_close
     let t:rookie_diff_wins = []
-
-    " 1. Create split on the right of the current window (Quickfix)
-    " We are in Quickfix, so 'vnew' will split it vertically.
-    " However, user wants "right of the quickfix buffer".
-    " If we are at the bottom, 'vertical rightbelow new' should do it.
 
     vertical rightbelow new
     let l:win_target = win_getid()
     call add(t:rookie_diff_wins, l:win_target)
+    execute 'autocmd WinClosed <buffer> call rookie_git#OnWinClosed(expand("<amatch>"))'
 
     setlocal buftype=nofile bufhidden=wipe noswapfile
-
     let l:title_target = l:filename . ' (' . strpart(l:target_sha, 0, 7) . ')'
     silent! execute 'file ' . fnameescape(l:title_target)
 
-    " Check if file exists in target commit
-    " git cat-file -e SHA:FILE returns 0 if exists, 1 if not
     let l:check_cmd = 'git cat-file -e ' . shellescape(l:target_sha . ':' . l:git_filename)
     call system(l:check_cmd)
 
@@ -276,18 +240,16 @@ function! rookie_git#ShowDiffFromQuickfix() abort
         let l:content = systemlist(l:cmd)
         call setline(1, l:content)
     else
-        " File doesn't exist in target commit (e.g. Added file)
         call setline(1, ["File did not exist in " . l:target_sha])
     endif
     diffthis
 
-    " 2. Setup Right (Current)
     vertical rightbelow new
     let l:win_current = win_getid()
     call add(t:rookie_diff_wins, l:win_current)
+    execute 'autocmd WinClosed <buffer> call rookie_git#OnWinClosed(expand("<amatch>"))'
 
     setlocal buftype=nofile bufhidden=wipe noswapfile
-
     let l:title_current = l:filename . ' (' . strpart(l:current_sha, 0, 7) . ')'
     silent! execute 'file ' . fnameescape(l:title_current)
 
@@ -299,18 +261,10 @@ function! rookie_git#ShowDiffFromQuickfix() abort
         let l:content = systemlist(l:cmd)
         call setline(1, l:content)
     else
-        " File doesn't exist in current commit (e.g. Deleted file)
         call setline(1, ["File does not exist in " . l:current_sha])
     endif
     diffthis
 
-    " Restore 'equalalways'
-    let &equalalways = l:save_ea
-    if l:gg_winid > 0 && win_id2win(l:gg_winid) > 0 && l:gg_width > 0
-        call win_execute(l:gg_winid, 'vertical resize ' . l:gg_width)
-    endif
-
-    " Adjust cursor to start
     normal! gg
     call win_gotoid(l:win_target)
     normal! gg
@@ -320,7 +274,6 @@ function! rookie_git#DiffFileNavigate(direction) abort
     let l:origin_win = win_getid()
     let l:qf_winid = 0
 
-    " Find diff quickfix window
     for w in range(1, winnr('$'))
         if getwinvar(w, '&filetype') == 'qf' && getwinvar(w, 'quickfix_title') =~# '^Diff: '
             let l:qf_winid = win_getid(w)
@@ -349,7 +302,49 @@ function! rookie_git#DiffFileNavigate(direction) abort
     endif
 
     call rookie_git#ShowDiffFromQuickfix()
-
-    " Return to original window (e.g., git graph)
     call win_gotoid(l:origin_win)
+endfunction
+
+function! rookie_git#OnWinClosed(winid) abort
+    if exists('t:rookie_programmatic_close')
+        return
+    endif
+
+    if exists('t:rookie_diff_wins')
+        let l:idx = index(t:rookie_diff_wins, str2nr(a:winid))
+        if l:idx >= 0
+            call remove(t:rookie_diff_wins, l:idx)
+        endif
+    endif
+
+    call timer_start(10, {-> s:CheckAndRestoreState()})
+endfunction
+
+function! s:CheckAndRestoreState() abort
+    let l:has_diff = 0
+    if exists('t:rookie_diff_wins')
+        for l:winid in t:rookie_diff_wins
+            if win_id2win(l:winid) > 0
+                let l:has_diff = 1
+                break
+            endif
+        endfor
+    endif
+
+    if !l:has_diff
+        if exists('t:rookie_saved_ea')
+            let &equalalways = t:rookie_saved_ea
+            unlet t:rookie_saved_ea
+        endif
+
+        if exists('t:rookie_saved_gg_width') && exists('t:rookie_saved_gg_winid')
+             let l:winid = t:rookie_saved_gg_winid
+             let l:width = t:rookie_saved_gg_width
+             if win_id2win(l:winid) > 0
+                 call win_execute(l:winid, 'vertical resize ' . l:width)
+             endif
+             unlet t:rookie_saved_gg_width
+             unlet t:rookie_saved_gg_winid
+        endif
+    endif
 endfunction
