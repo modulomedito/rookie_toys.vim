@@ -222,11 +222,15 @@ function! rookie_git#ShowDiffFromQuickfix() abort
     endif
     unlet t:rookie_programmatic_close
     let t:rookie_diff_wins = []
+    let l:qf_winid = win_getid()
 
     vertical rightbelow new
     let l:win_target = win_getid()
     call add(t:rookie_diff_wins, l:win_target)
     execute 'autocmd WinClosed <buffer> call rookie_git#OnWinClosed(expand("<amatch>"))'
+
+    let l:col_width = &columns / 3
+    call win_execute(l:qf_winid, 'vertical resize ' . l:col_width)
 
     setlocal buftype=nofile bufhidden=wipe noswapfile
     let l:title_target = l:filename . ' (' . strpart(l:target_sha, 0, 7) . ')'
