@@ -93,3 +93,6 @@ augroup END
 
 command! -nargs=0 -bar RookieGitGraphAutoToggle let g:rookie_auto_git_graph_enable = get(g:, 'rookie_auto_git_graph_enable', 0) ? 0 : 1 | echo "Auto Git Graph: " . (g:rookie_auto_git_graph_enable ? "On" : "Off")
 
+" Setup keymaps if enabled
+call rookie_setup#SetupKeymaps()
+
