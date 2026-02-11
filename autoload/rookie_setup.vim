@@ -40,50 +40,7 @@ function! rookie_setup#Setup() abort
     vnoremap <leader>ss :sort<CR>
 
     " Options
-    set autoindent
-    set autoread
-    set background=dark
-    set belloff=all
-    set breakindent
-    set clipboard=unnamed
-    set colorcolumn=81,101
-    set complete=.,w,b,u,t
-    set completeopt=menuone,longest,preview
-    set cursorcolumn
-
-    set expandtab
-    set fileformat=unix
-    set grepformat=%f:%l:%c:%m,%f:%l:%m
-    set guifont=DepartureMono\ Nerd\ Font\ Mono:h11
-    set hlsearch
-    set ignorecase
-    set infercase
-    set iskeyword=@,48-57,_,192-255,-
-    set laststatus=2
-    set list
-    set listchars=tab:-->,trail:~,nbsp:␣
-    set nofoldenable
-    set noswapfile
-    set nowrap
-    set number
-    set path+=**
-    set pumheight=50
-    set relativenumber
-    set shiftwidth=4
-    set shortmess=flnxtocTOCI
-    set signcolumn=yes
-    set smartcase
-    set smarttab
-    set softtabstop=4
-    set statusline=%f:%l:%c\ %m%r%h%w%q%y\ %{FugitiveStatusline()}\ [enc=%{&fileencoding}]\ [%{&ff}]
-    set tabstop=4
-    set termguicolors
-    set textwidth=100
-    let &undodir = expand('$HOME/.vim/undo/')
-    set undofile
-    let &viminfofile = expand('$HOME/.vim/.viminfo')
-    set wildignorecase
-    set wildoptions=pum
+    call rookie_setup#SetupOptions()
 
     " Plugin keymaps
     xnoremap <M-d>   <Plug>(textmanip-duplicate-down)
@@ -119,9 +76,6 @@ function! rookie_setup#SetupKeymaps() abort
         return
     endif
 
-    "===============================================================================
-    " Keys
-    "===============================================================================
     let g:mapleader = ' '
     let g:maplocalleader = ' '
     cnoremap <C-v> <C-r>*
@@ -189,4 +143,85 @@ function! rookie_setup#SetupKeymaps() abort
         \:G fetch
         \<Bar>call timer_start(1500, {-> execute('RookieGitGraph')})
         \<Bar>G<CR>
+endfunction
+
+function! rookie_setup#SetupOptions() abort
+    if !get(g:, 'rookie_toys_setup_option_enable', 0)
+        return
+    endif
+
+    "===============================================================================
+    " Options
+    "===============================================================================
+    set ambiwidth=double
+    set autoindent
+    set autoread
+    set background=dark
+    set belloff=all
+    set breakindent
+    set clipboard=unnamed
+    set cmdheight=2
+    set colorcolumn=81,101,121
+    set complete=.,w,b,u,t
+    set completeopt=menuone,noselect,popup
+    set cursorcolumn
+    set cursorline
+    set expandtab
+    set fileformat=unix
+    set formatoptions+=mB
+    set grepformat=%f:%l:%c:%m,%f:%l:%m
+    set guifont=Cascadia\ Code:h9
+    set guioptions+=k
+    set guioptions-=L
+    set guioptions-=T
+    set guioptions-=e
+    set guioptions-=m
+    set guioptions-=r
+    set hlsearch
+    set ignorecase
+    set infercase
+    set iskeyword=@,48-57,_,192-255,-
+    set laststatus=2
+    set list
+    set listchars=tab:-->,trail:~,nbsp:␣
+    set modeline
+    set modelines=5
+    set nobackup
+    set nofoldenable
+    set noswapfile
+    set nowrap
+    set nowritebackup
+    set number
+    set path+=**
+    set pumheight=50
+    set relativenumber
+    set sessionoptions+=tabpages,globals
+    set shiftwidth=4
+    set shortmess=flnxtocTOI
+    set signcolumn=yes
+    set smartcase
+    set smarttab
+    set softtabstop=4
+    set splitbelow
+    set splitright
+    set statusline+=\ %{FugitiveStatusline()}
+    set statusline=%f:%l:%c\ %m%r%h%w%q%y\ [enc=%{&fileencoding}]\ [%{&ff}]
+    set tabstop=4
+    set termguicolors
+    set textwidth=100
+    set undofile
+    set wildcharm=<Tab>
+    set wildignorecase
+    set wildoptions=pum
+    if has('unix')
+        set undodir=expand('$HOME/.vim/undo/')
+        set viminfofile=$HOME/.vim/.viminfo
+    else
+        set undodir=expand('$HOME/vimfiles/undo/')
+        set viminfofile=$HOME/vimfiles/_viminfo
+    endif
+    if has('gui_running')
+        set columns=107
+        set lines=25
+    endif
 endfunction

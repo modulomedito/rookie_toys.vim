@@ -73,6 +73,10 @@ if !exists('g:rookie_toys_setup_keymap_enable')
     let g:rookie_toys_setup_keymap_enable = 0
 endif
 
+if !exists('g:rookie_toys_setup_option_enable')
+    let g:rookie_toys_setup_option_enable = 0
+endif
+
 if !exists('g:rookie_toys_syntax_highlight_enable')
     let g:rookie_toys_syntax_highlight_enable = 1
 endif
@@ -95,4 +99,7 @@ command! -nargs=0 -bar RookieGitGraphAutoToggle let g:rookie_auto_git_graph_enab
 
 " Setup keymaps if enabled
 call rookie_setup#SetupKeymaps()
+
+" Setup options if enabled
+call rookie_setup#SetupOptions()
 
