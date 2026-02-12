@@ -179,7 +179,7 @@ function! rookie_aspice#Setup() abort
         return
     endif
 
-    nnoremap <silent> <C-CR> :call rookie_aspice#JumpToDefinition()<CR>
+    nnoremap <silent> <C-h> :call rookie_aspice#JumpToDefinition()<CR>
 endfunction
 
 function! rookie_aspice#ShowTraceability() abort
