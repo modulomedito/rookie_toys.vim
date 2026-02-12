@@ -82,6 +82,10 @@ if !exists('g:rookie_toys_setup_option_enable')
     let g:rookie_toys_setup_option_enable = 0
 endif
 
+if !exists('g:rookie_rg_default_setup')
+    let g:rookie_rg_default_setup = 0
+endif
+
 if !exists('g:rookie_toys_syntax_highlight_enable')
     let g:rookie_toys_syntax_highlight_enable = 1
 endif
@@ -107,4 +111,7 @@ call rookie_setup#SetupKeymaps()
 
 " Setup options if enabled
 call rookie_setup#SetupOptions()
+
+" Setup rg if enabled
+call rookie_rg#Setup()
 

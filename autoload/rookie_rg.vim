@@ -66,6 +66,10 @@ function! rookie_rg#ClearHighlight() abort
 endfunction
 
 function! rookie_rg#Setup() abort
+    if !get(g:, 'rookie_rg_default_setup', 0)
+        return
+    endif
+
     if executable('rg')
         set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case\ --hidden
         set grepformat=%f:%l:%c:%m
