@@ -132,6 +132,56 @@ function! s:SetupBuffer(title, items) abort
     setlocal syntax=qf
 endfunction
 
+function! rookie_aspice#JumpToDefinition() abort
+    let l:guid = s:GetGuidUnderCursor()
+    if empty(l:guid)
+        echoerr 'No GUID found under cursor.'
+        return
+    endif
+
+    if !executable('rg')
+        echoerr 'rg (ripgrep) is not installed or not in PATH.'
+        return
+    endif
+
+    " Pattern: ### \S*\{GUID\}
+    let l:pattern = '### \S*\{' . l:guid . '\}'
+    let l:cmd = 'rg --vimgrep --no-heading --smart-case --hidden "' . l:pattern . '" .'
+    let l:output = system(l:cmd)
+
+    if empty(l:output)
+        echom 'Definition not found for GUID: ' . l:guid
+        return
+    endif
+
+    let l:lines = split(l:output, "\n")
+    if empty(l:lines)
+        return
+    endif
+
+    " Jump to the first match
+    let l:line = l:lines[0]
+    let l:parts = matchlist(l:line, '^\(.\+\):\(\d\+\):\(\d\+\):\(.*\)$')
+    if !empty(l:parts)
+        let l:file = l:parts[1]
+        let l:lnum = l:parts[2]
+        let l:col = l:parts[3]
+
+        execute 'edit ' . fnameescape(l:file)
+        call cursor(l:lnum, l:col)
+        normal! zz
+        echo 'Jumped to definition.'
+    endif
+endfunction
+
+function! rookie_aspice#Setup() abort
+    if !get(g:, 'rookie_aspice_default_setup', 0)
+        return
+    endif
+
+    nnoremap <silent> <C-CR> :call rookie_aspice#JumpToDefinition()<CR>
+endfunction
+
 function! rookie_aspice#ShowTraceability() abort
     let l:guid = s:GetGuidUnderCursor()
     if empty(l:guid)
@@ -256,3 +306,4 @@ function! rookie_aspice#CloseTraceability() abort
         endfor
     endif
 endfunction
+

@@ -74,17 +74,29 @@ if !exists('g:rookie_auto_git_graph_enable')
     let g:rookie_auto_git_graph_enable = 0
 endif
 
+" Setup keymaps if enabled
 if !exists('g:rookie_toys_setup_keymap_enable')
     let g:rookie_toys_setup_keymap_enable = 0
 endif
+call rookie_setup#SetupKeymaps()
 
+" Setup options if enabled
 if !exists('g:rookie_toys_setup_option_enable')
     let g:rookie_toys_setup_option_enable = 0
 endif
+call rookie_setup#SetupOptions()
 
+" Setup rg if enabled
 if !exists('g:rookie_rg_default_setup')
     let g:rookie_rg_default_setup = 0
 endif
+call rookie_rg#Setup()
+
+" Setup aspice if enabled
+if !exists('g:rookie_aspice_default_setup')
+    let g:rookie_aspice_default_setup = 0
+endif
+call rookie_aspice#Setup()
 
 if !exists('g:rookie_toys_syntax_highlight_enable')
     let g:rookie_toys_syntax_highlight_enable = 1
@@ -105,13 +117,3 @@ augroup RookieAutoGitGraph
 augroup END
 
 command! -nargs=0 -bar RookieGitGraphAutoToggle let g:rookie_auto_git_graph_enable = get(g:, 'rookie_auto_git_graph_enable', 0) ? 0 : 1 | echo "Auto Git Graph: " . (g:rookie_auto_git_graph_enable ? "On" : "Off")
-
-" Setup keymaps if enabled
-call rookie_setup#SetupKeymaps()
-
-" Setup options if enabled
-call rookie_setup#SetupOptions()
-
-" Setup rg if enabled
-call rookie_rg#Setup()
-
