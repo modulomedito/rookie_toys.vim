@@ -122,8 +122,16 @@ function! rookie_far#Do() abort
         endif
     endfor
 
+    let l:original_buf = bufnr('%')
+    let l:save_view = winsaveview()
+    
     try
         execute l:cmd
+        if bufnr('%') != l:original_buf
+             execute 'buffer ' . l:original_buf
+        endif
+        call winrestview(l:save_view)
+        
         cclose
         echo "RookieFar: Replacement complete. Use :RookieFarUndo to undo."
     catch
