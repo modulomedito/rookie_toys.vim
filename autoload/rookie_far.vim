@@ -122,13 +122,30 @@ function! rookie_far#Do() abort
         endif
     endfor
 
+    let l:original_win = winnr()
     let l:original_buf = bufnr('%')
     let l:save_view = winsaveview()
     
+    " If we are in quickfix window, try to find the target window (previous window)
+    if &buftype == 'quickfix'
+        wincmd p
+        let l:original_win = winnr()
+        let l:original_buf = bufnr('%')
+        let l:save_view = winsaveview()
+    endif
+
     try
         execute l:cmd
+        
+        " Ensure we are in the original window (or a non-quickfix window)
+        if &buftype == 'quickfix'
+            wincmd p
+        endif
+        
         if bufnr('%') != l:original_buf
-             execute 'buffer ' . l:original_buf
+             if bufexists(l:original_buf)
+                 execute 'buffer ' . l:original_buf
+             endif
         endif
         call winrestview(l:save_view)
         
