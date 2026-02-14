@@ -3,6 +3,7 @@ scriptencoding utf-8
 let s:last_pattern = ''
 let s:last_replace = ''
 let s:last_flags = {}
+let s:last_changed_files = []
 
 " Parse arguments: handles -c, -w, -r flags
 function! s:ParseArgs(args)
@@ -110,13 +111,46 @@ function! rookie_far#Do() abort
     
     let l:cmd = 'cfdo %s/' . l:safe_pattern . '/' . l:safe_replace . '/ge | update'
     
+    " Save files for Undo
+    let s:last_changed_files = []
+    let l:qf_list = getqflist()
+    let l:seen_buffers = {}
+    for l:item in l:qf_list
+        if has_key(l:item, 'bufnr') && l:item.bufnr > 0 && !has_key(l:seen_buffers, l:item.bufnr)
+            let l:seen_buffers[l:item.bufnr] = 1
+            call add(s:last_changed_files, fnamemodify(bufname(l:item.bufnr), ':p'))
+        endif
+    endfor
+
     try
         execute l:cmd
         cclose
-        echo "RookieFar: Replacement complete."
+        echo "RookieFar: Replacement complete. Use :RookieFarUndo to undo."
     catch
         echoerr "RookieFar: Replacement failed: " . v:exception
     endtry
+endfunction
+
+function! rookie_far#Undo() abort
+    if empty(s:last_changed_files)
+        echo "RookieFar: Nothing to undo."
+        return
+    endif
+    
+    for l:file in s:last_changed_files
+        if filereadable(l:file)
+            execute 'edit ' . fnameescape(l:file)
+            try
+                execute 'undo'
+                execute 'update'
+            catch
+                echoerr "RookieFar: Failed to undo in " . l:file . ": " . v:exception
+            endtry
+        endif
+    endfor
+    
+    echo "RookieFar: Undo complete."
+    let s:last_changed_files = [] 
 endfunction
 
 function! s:RunSearch(pattern, file_mask, flags, replace_with)

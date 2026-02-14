@@ -64,6 +64,7 @@ command! -nargs=0 -bar RookieRgClearHighlight call rookie_rg#ClearHighlight()
 command! -nargs=+ -complete=file RookieFarReplace call rookie_far#Replace(<f-args>)
 command! -nargs=+ -complete=file RookieFarFind call rookie_far#Find(<f-args>)
 command! -nargs=0 RookieFarDo call rookie_far#Do()
+command! -nargs=0 RookieFarUndo call rookie_far#Undo()
 
 if exists('g:rookie_git_fetch_interval_s')
     call rookie_git#AutoFetch()
