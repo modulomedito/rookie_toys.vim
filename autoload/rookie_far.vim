@@ -55,13 +55,16 @@ endfunction
 function! s:RunSearch(pattern, file_mask)
     let l:pattern = a:pattern
     let l:rg_opts = '--vimgrep --no-heading --hidden'
+    let l:search_flag = ''
     
     if l:pattern =~# '\\C'
         let l:rg_opts .= ' -s'
         let l:pattern = substitute(l:pattern, '\\C', '', 'g')
+        let l:search_flag = '\C'
     elseif l:pattern =~# '\\c'
         let l:rg_opts .= ' -i'
         let l:pattern = substitute(l:pattern, '\\c', '', 'g')
+        let l:search_flag = '\c'
     else
         let l:rg_opts .= ' --smart-case'
     endif
@@ -89,8 +92,16 @@ function! s:RunSearch(pattern, file_mask)
     let l:qf_list = getqflist()
     if len(l:qf_list) > 0
         let l:ctx = s:ComputeFileMapping(l:qf_list)
+        let l:ctx.pattern = l:pattern
         call setqflist([], 'r', {'context': l:ctx, 'quickfixtextfunc': 'rookie_far#QuickfixTextFunc'})
         copen
+        
+        " Set search register for highlighting
+        " Use \V to avoid magic characters interpretation if it was simple string, 
+        " but since user can input regex for rg, assuming it is compatible with vim regex is risky.
+        " However, standard practice for simple grep is usually just setting it.
+        " Let's prepend the case flag if it was specified.
+        let @/ = l:search_flag . l:pattern
     else
         cclose
         echo "RookieFar: No matches found."
@@ -152,6 +163,7 @@ function! rookie_far#QuickfixTextFunc(info) abort
     
     let l:ctx = get(l:qflist, 'context', {})
     let l:mapping = get(l:ctx, 'file_mapping', {})
+    let l:pattern = get(l:ctx, 'pattern', '')
     let l:items = l:qflist.items
     let l:start_idx = a:info.start_idx - 1
     let l:end_idx = a:info.end_idx - 1
@@ -167,8 +179,8 @@ function! rookie_far#QuickfixTextFunc(info) abort
                 let l:fname = get(l:mapping, l:full_path, fnamemodify(l:full_path, ':t'))
             endif
             
-            " Format: fname|lnum col| text
-            let l:text = printf('%s|%d col %d| %s', l:fname, l:item.lnum, l:item.col, l:item.text)
+            " Format: fname|lnum col| text (old: pattern)
+            let l:text = printf('%s|%d col %d| %s (old: %s)', l:fname, l:item.lnum, l:item.col, l:item.text, l:pattern)
         else
             let l:text = l:item.text
         endif
