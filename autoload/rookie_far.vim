@@ -37,7 +37,7 @@ function! rookie_far#Find(...) abort
     let l:parsed = s:ParseArgs(a:000)
     let l:pattern = get(l:parsed.args, 0, '')
     let l:file_mask = get(l:parsed.args, 1, '')
-    call s:RunSearch(l:pattern, l:file_mask, l:parsed.flags)
+    call s:RunSearch(l:pattern, l:file_mask, l:parsed.flags, '')
 endfunction
 
 " Find and prepare for Replace
@@ -51,7 +51,7 @@ function! rookie_far#Replace(...) abort
     let s:last_replace = l:replace_with
     let s:last_flags = l:parsed.flags
     
-    call s:RunSearch(l:pattern, l:file_mask, l:parsed.flags)
+    call s:RunSearch(l:pattern, l:file_mask, l:parsed.flags, l:replace_with)
     
     if len(getqflist()) > 0
         echo "RookieFar: Found matches. Run :RookieFarDo to execute replacement."
@@ -119,7 +119,7 @@ function! rookie_far#Do() abort
     endtry
 endfunction
 
-function! s:RunSearch(pattern, file_mask, flags)
+function! s:RunSearch(pattern, file_mask, flags, replace_with)
     let l:pattern = a:pattern
     let l:rg_opts = '--vimgrep --no-heading --hidden'
     let l:search_flag = ''
@@ -175,6 +175,7 @@ function! s:RunSearch(pattern, file_mask, flags)
     if len(l:qf_list) > 0
         let l:ctx = s:ComputeFileMapping(l:qf_list)
         let l:ctx.pattern = l:pattern
+        let l:ctx.replace_with = a:replace_with
         call setqflist([], 'r', {'context': l:ctx, 'quickfixtextfunc': 'rookie_far#QuickfixTextFunc'})
         copen
         
@@ -254,6 +255,7 @@ function! rookie_far#QuickfixTextFunc(info) abort
     let l:ctx = get(l:qflist, 'context', {})
     let l:mapping = get(l:ctx, 'file_mapping', {})
     let l:pattern = get(l:ctx, 'pattern', '')
+    let l:replace_with = get(l:ctx, 'replace_with', '')
     let l:items = l:qflist.items
     let l:start_idx = a:info.start_idx - 1
     let l:end_idx = a:info.end_idx - 1
@@ -269,8 +271,14 @@ function! rookie_far#QuickfixTextFunc(info) abort
                 let l:fname = get(l:mapping, l:full_path, fnamemodify(l:full_path, ':t'))
             endif
             
-            " Format: fname|lnum col| text (old: pattern)
-            let l:text = printf('%s|%d col %d| %s (old: %s)', l:fname, l:item.lnum, l:item.col, l:item.text, l:pattern)
+            " Format: fname|lnum col| text [NEW: replace]
+            let l:suffix = ''
+            if !empty(l:replace_with)
+                let l:suffix = ' [NEW: ' . l:replace_with . ']'
+            else
+                let l:suffix = ' (old: ' . l:pattern . ')'
+            endif
+            let l:text = printf('%s|%d col %d| %s%s', l:fname, l:item.lnum, l:item.col, l:item.text, l:suffix)
         else
             let l:text = l:item.text
         endif
