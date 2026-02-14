@@ -61,6 +61,10 @@ command! -nargs=0 -bar RookieRgGlobalGrep call rookie_rg#GlobalGrep()
 command! -nargs=0 -range -bar RookieRgVisualGrep call rookie_rg#VisualGrep()
 command! -nargs=0 -bar RookieRgClearHighlight call rookie_rg#ClearHighlight()
 
+command! -nargs=+ -complete=file RookieFarReplace call rookie_far#Replace(<f-args>)
+command! -nargs=+ -complete=file RookieFarFind call rookie_far#Find(<f-args>)
+command! -nargs=0 RookieFarDo call rookie_far#Do()
+
 if exists('g:rookie_git_fetch_interval_s')
     call rookie_git#AutoFetch()
 endif
