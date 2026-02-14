@@ -2,26 +2,56 @@ scriptencoding utf-8
 
 let s:last_pattern = ''
 let s:last_replace = ''
-let s:last_flags = ''
+let s:last_flags = {}
+
+" Parse arguments: handles -c, -w, -r flags
+function! s:ParseArgs(args)
+    let l:flags = {'c': 0, 'w': 0, 'r': 0}
+    let l:positional = []
+    let l:stop_flags = 0
+    
+    for l:arg in a:args
+        if l:stop_flags
+            call add(l:positional, l:arg)
+            continue
+        endif
+        
+        if l:arg == '--'
+            let l:stop_flags = 1
+            continue
+        endif
+        
+        if l:arg =~# '^-' && len(l:arg) > 1
+            if l:arg =~# 'c' | let l:flags.c = 1 | endif
+            if l:arg =~# 'w' | let l:flags.w = 1 | endif
+            if l:arg =~# 'r' | let l:flags.r = 1 | endif
+        else
+            call add(l:positional, l:arg)
+        endif
+    endfor
+    return {'flags': l:flags, 'args': l:positional}
+endfunction
 
 " Find only
 function! rookie_far#Find(...) abort
-    let l:pattern = get(a:000, 0, '')
-    let l:file_mask = get(a:000, 1, '')
-    call s:RunSearch(l:pattern, l:file_mask)
+    let l:parsed = s:ParseArgs(a:000)
+    let l:pattern = get(l:parsed.args, 0, '')
+    let l:file_mask = get(l:parsed.args, 1, '')
+    call s:RunSearch(l:pattern, l:file_mask, l:parsed.flags)
 endfunction
 
 " Find and prepare for Replace
 function! rookie_far#Replace(...) abort
-    let l:pattern = get(a:000, 0, '')
-    let l:replace_with = get(a:000, 1, '')
-    let l:file_mask = get(a:000, 2, '')
+    let l:parsed = s:ParseArgs(a:000)
+    let l:pattern = get(l:parsed.args, 0, '')
+    let l:replace_with = get(l:parsed.args, 1, '')
+    let l:file_mask = get(l:parsed.args, 2, '')
 
     let s:last_pattern = l:pattern
     let s:last_replace = l:replace_with
-    let s:last_flags = 'g' 
+    let s:last_flags = l:parsed.flags
     
-    call s:RunSearch(l:pattern, l:file_mask)
+    call s:RunSearch(l:pattern, l:file_mask, l:parsed.flags)
     
     if len(getqflist()) > 0
         echo "RookieFar: Found matches. Run :RookieFarDo to execute replacement."
@@ -37,36 +67,88 @@ function! rookie_far#Do() abort
     
     let l:pattern = s:last_pattern
     let l:replace = s:last_replace
-    let l:flags = s:last_flags . 'e' 
+    let l:flags = s:last_flags
     
-    let l:safe_pattern = substitute(l:pattern, '/', '\\/', 'g')
+    " Construct Vim pattern based on flags
+    let l:vim_pattern = ''
+    
+    " Regex vs Literal
+    if l:flags.r
+        let l:vim_pattern .= '\v'
+    else
+        let l:vim_pattern .= '\V'
+    endif
+    
+    " Whole Word
+    if l:flags.w
+        let l:vim_pattern .= '\<' . l:pattern . '\>'
+    else
+        let l:vim_pattern .= l:pattern
+    endif
+    
+    " Case Sensitivity
+    if l:flags.c
+        let l:vim_pattern .= '\C'
+    else
+        " Use \c only if pattern doesn't contain uppercase (smart case behavior mimic)
+        " Or just rely on user setting? 
+        " User requirement: if -c then sensitive. Implicitly if not -c, then ignore/smart.
+        " Safest to force \c if not sensitive to ensure matches are found if rg found them case-insensitively.
+        " But if rg used smart case and found "Foo" because pattern was "Foo", 
+        " we should probably respect that.
+        " Let's check for uppercase if not strict.
+        if l:pattern =~# '[A-Z]'
+             let l:vim_pattern .= '\C'
+        else
+             let l:vim_pattern .= '\c'
+        endif
+    endif
+
+    " Escape delimiter / for substitute command
+    let l:safe_pattern = substitute(l:vim_pattern, '/', '\\/', 'g')
     let l:safe_replace = substitute(l:replace, '/', '\\/', 'g')
     
-    let l:cmd = 'cfdo %s/' . l:safe_pattern . '/' . l:safe_replace . '/' . l:flags . ' | update'
+    let l:cmd = 'cfdo %s/' . l:safe_pattern . '/' . l:safe_replace . '/ge | update'
     
     try
         execute l:cmd
+        cclose
         echo "RookieFar: Replacement complete."
     catch
         echoerr "RookieFar: Replacement failed: " . v:exception
     endtry
 endfunction
 
-function! s:RunSearch(pattern, file_mask)
+function! s:RunSearch(pattern, file_mask, flags)
     let l:pattern = a:pattern
     let l:rg_opts = '--vimgrep --no-heading --hidden'
     let l:search_flag = ''
     
-    if l:pattern =~# '\\C'
+    " Case Sensitive
+    if a:flags.c
         let l:rg_opts .= ' -s'
-        let l:pattern = substitute(l:pattern, '\\C', '', 'g')
-        let l:search_flag = '\C'
-    elseif l:pattern =~# '\\c'
-        let l:rg_opts .= ' -i'
-        let l:pattern = substitute(l:pattern, '\\c', '', 'g')
-        let l:search_flag = '\c'
+        let l:search_flag .= '\C'
     else
         let l:rg_opts .= ' --smart-case'
+        " For highlighting:
+        if l:pattern =~# '[A-Z]'
+            let l:search_flag .= '\C'
+        else
+            let l:search_flag .= '\c'
+        endif
+    endif
+    
+    " Whole Word
+    if a:flags.w
+        let l:rg_opts .= ' -w'
+    endif
+    
+    " Regex vs Fixed String
+    if !a:flags.r
+        let l:rg_opts .= ' -F'
+        let l:search_flag = '\V' . l:search_flag
+    else
+        let l:search_flag = '\v' . l:search_flag
     endif
     
     let l:cmd = 'rg ' . l:rg_opts . ' -e ' . shellescape(l:pattern)
@@ -97,11 +179,19 @@ function! s:RunSearch(pattern, file_mask)
         copen
         
         " Set search register for highlighting
-        " Use \V to avoid magic characters interpretation if it was simple string, 
-        " but since user can input regex for rg, assuming it is compatible with vim regex is risky.
-        " However, standard practice for simple grep is usually just setting it.
-        " Let's prepend the case flag if it was specified.
-        let @/ = l:search_flag . l:pattern
+        " Combine regex mode prefix, case flag, and pattern
+        if a:flags.w
+             " Vim highlighting for whole word
+             if a:flags.r
+                 let @/ = l:search_flag . '\<' . l:pattern . '\>'
+             else
+                 " Literal whole word search in vim is tricky with \V
+                 " \V\<pattern\> works
+                 let @/ = l:search_flag . '\<' . l:pattern . '\>'
+             endif
+        else
+             let @/ = l:search_flag . l:pattern
+        endif
     else
         cclose
         echo "RookieFar: No matches found."
