@@ -40,12 +40,26 @@ function! s:StartScroll(dir) abort
     if l:target_top > l:last_line
         let l:target_top = l:last_line
     endif
-
+    
     " Calculate target lnum to maintain relative position
     " rel_pos = lnum - topline
     " new_lnum = new_topline + rel_pos
     let l:rel_pos = l:start_lnum - l:start_top
     let l:target_lnum = l:target_top + l:rel_pos
+    
+    " Special case for scrolling up when near the top
+    if a:dir < 0 && l:target_top == 1
+        " If we hit the top, ensure we can reach line 1
+        if l:target_lnum > 1 && l:start_lnum > 1
+             " If we are not at line 1, but target is still > 1, let's try to move further up if possible, 
+             " or just set target to 1 if the distance is small enough or simply to ensure we hit the top.
+             " However, simply forcing it to 1 might be too aggressive if we are far away.
+             " But user complained "cursor cannot go to the first line". 
+             " If topline is 1, and we scroll up, we probably want to reach line 1.
+             let l:target_lnum = max([1, l:target_lnum - (l:dist/2)])
+             if l:target_lnum < 1 | let l:target_lnum = 1 | endif
+        endif
+    endif
 
     " Clamp target lnum
     if l:target_lnum < 1
