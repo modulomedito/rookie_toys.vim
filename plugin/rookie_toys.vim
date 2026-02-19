@@ -68,6 +68,8 @@ command! -nargs=0 RookieFarUndo call rookie_far#Undo()
 
 command! -nargs=0 RookieSmoothScrollHalfPageUp call rookie_smooth#HalfPageUp()
 command! -nargs=0 RookieSmoothScrollHalfPageDown call rookie_smooth#HalfPageDown()
+command! -nargs=0 RookieSmoothScrollPageUp call rookie_smooth#PageUp()
+command! -nargs=0 RookieSmoothScrollPageDown call rookie_smooth#PageDown()
 
 if exists('g:rookie_git_fetch_interval_s')
     call rookie_git#AutoFetch()

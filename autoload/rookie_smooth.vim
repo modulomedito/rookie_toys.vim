@@ -6,14 +6,22 @@ let s:duration = 0.3 " seconds
 let s:interval = 10 " milliseconds
 
 function! rookie_smooth#HalfPageDown() abort
-    call s:StartScroll(1)
+    call s:StartScroll(1, 0.5)
 endfunction
 
 function! rookie_smooth#HalfPageUp() abort
-    call s:StartScroll(-1)
+    call s:StartScroll(-1, 0.5)
 endfunction
 
-function! s:StartScroll(dir) abort
+function! rookie_smooth#PageDown() abort
+    call s:StartScroll(1, 1.0)
+endfunction
+
+function! rookie_smooth#PageUp() abort
+    call s:StartScroll(-1, 1.0)
+endfunction
+
+function! s:StartScroll(dir, scale) abort
     " Stop existing animation
     if s:timer_id != -1
         call timer_stop(s:timer_id)
@@ -22,7 +30,7 @@ function! s:StartScroll(dir) abort
 
     let l:view = winsaveview()
     let l:height = winheight(0)
-    let l:dist = l:height / 2
+    let l:dist = float2nr(l:height * a:scale)
 
     " Calculate targets
     " We want to maintain relative cursor position if possible
@@ -40,21 +48,21 @@ function! s:StartScroll(dir) abort
     if l:target_top > l:last_line
         let l:target_top = l:last_line
     endif
-    
+
     " Calculate target lnum to maintain relative position
     " rel_pos = lnum - topline
     " new_lnum = new_topline + rel_pos
     let l:rel_pos = l:start_lnum - l:start_top
     let l:target_lnum = l:target_top + l:rel_pos
-    
+
     " Special case for scrolling up when near the top
     if a:dir < 0 && l:target_top == 1
         " If we hit the top, ensure we can reach line 1
         if l:target_lnum > 1 && l:start_lnum > 1
-             " If we are not at line 1, but target is still > 1, let's try to move further up if possible, 
+             " If we are not at line 1, but target is still > 1, let's try to move further up if possible,
              " or just set target to 1 if the distance is small enough or simply to ensure we hit the top.
              " However, simply forcing it to 1 might be too aggressive if we are far away.
-             " But user complained "cursor cannot go to the first line". 
+             " But user complained "cursor cannot go to the first line".
              " If topline is 1, and we scroll up, we probably want to reach line 1.
              let l:target_lnum = max([1, l:target_lnum - (l:dist/2)])
              if l:target_lnum < 1 | let l:target_lnum = 1 | endif
