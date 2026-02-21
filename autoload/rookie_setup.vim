@@ -112,69 +112,69 @@ function! rookie_setup#SetupOptions() abort
 endfunction
 
 function! rookie_setup#SetupKeymaps() abort
-    " let g:mapleader = ' '
-    " let g:maplocalleader = ' '
-    cnoremap <C-v> <C-r>*
-    nnoremap * *Nzz
-    nnoremap <C-j> :m .+1<CR>==
-    nnoremap <C-k> :m .-2<CR>==
-    nnoremap <C-p> :find *
-    nnoremap <F2> :%s/\C\<<C-r><C-w>\>/<C-r><C-w>/g<Left><Left>
-    nnoremap <M-Down> :m .+1<CR>==
-    nnoremap <M-Up> :m .-2<CR>==
-    nnoremap <M-i> :b<Space><Tab>
-    nnoremap <M-j> :m .+1<CR>==
-    nnoremap <M-k> :m .-2<CR>==
-    nnoremap <M-u> :b<Space><Tab><S-Tab><S-Tab>
-    nnoremap <silent> + :vertical resize +2<CR>
-    nnoremap <silent> <C-M-PageDown> :tabmove +1<CR>
-    nnoremap <silent> <C-M-PageUp> :tabmove -1<CR>
-    nnoremap <silent> <C-S-Tab> gT
-    nnoremap <silent> <C-S-t> :tabnew<CR>
-    nnoremap <silent> <C-Tab> gt
-    nnoremap <silent> <C-q> :q<CR>
-    nnoremap <silent> <C-s> m6:%s/\s\+$//e<Bar>w<CR>`6zz:noh<CR>
-    nnoremap <silent> <C-w>i gt
-    nnoremap <silent> <C-w>u gT
-    nnoremap <silent> <F10> :cnext<CR>
-    nnoremap <silent> <F11> :cclose<CR>
-    nnoremap <silent> <F8> :copen<CR>
-    nnoremap <silent> <F9> :cprevious<CR>
-    nnoremap <silent> <leader>clr :%bd<bar>e #<bar>normal `<CR>
-    nnoremap <silent> <leader>vim :vs $MYVIMRC<CR>
-    nnoremap <silent> _ :vertical resize -2<CR>
-    nnoremap K i<CR><Esc>
-    nnoremap O O<Space><BS><Esc>
-    nnoremap gd <C-]>
-    nnoremap go "0yi):!start <C-r>0<CR>
-    nnoremap j gj
-    nnoremap k gk
-    nnoremap o o<Space><BS><Esc>
-    noremap <leader>P "0P
-    noremap <leader>p "0p
-    noremap H g^
-    noremap L g_
-    vnoremap / "-y/<C-r>-<CR>N
-    vnoremap <C-j> :m '><+1<CR>gv=gv
-    vnoremap <C-k> :m '<-2<CR>gv=gv
-    vnoremap <F2> "-y:%s/<C-r>-\C/<C-r>-/g<Left><Left>
-    vnoremap <M-Down> :m '><+1<CR>gv=gv
-    vnoremap <M-Up> :m '<-2<CR>gv=gv
-    vnoremap <M-j> :m '><+1<CR>gv=gv
-    vnoremap <M-k> :m '<-2<CR>gv=gv
-    vnoremap <leader>ss :sort<CR>
-    vnoremap <silent> <C-b> "-di**<C-r>-**<Esc>
-    vnoremap p pgv<Esc>
-    vnoremap y ygv<Esc>
-    nnoremap <silent> <leader>obs
-        \ :wa<CR>
-        \:silent !git pull<CR>
-        \:silent !git add .<CR>
-        \:silent !git commit -m "update by vim"<CR>
-        \:silent !git push<CR>
-        \:G fetch
-        \<Bar>call timer_start(1500, {-> execute('RookieGitGraph')})
-        \<Bar>G<CR>
+    let g:mapleader = ' '
+    let g:maplocalleader = ' '
+    execute 'cnoremap <C-v> <C-r>*'
+    execute 'nnoremap * *Nzz'
+    execute 'nnoremap <C-j> :m .+1<CR>=='
+    execute 'nnoremap <C-k> :m .-2<CR>=='
+    execute 'nnoremap <C-p> :find *'
+    execute 'nnoremap <F2> :%s/\C\<<C-r><C-w>\>/<C-r><C-w>/g<Left><Left>'
+    execute 'nnoremap <M-Down> :m .+1<CR>=='
+    execute 'nnoremap <M-Up> :m .-2<CR>=='
+    execute 'nnoremap <M-i> :b<Space><Tab>'
+    execute 'nnoremap <M-j> :m .+1<CR>=='
+    execute 'nnoremap <M-k> :m .-2<CR>=='
+    execute 'nnoremap <M-u> :b<Space><Tab><S-Tab><S-Tab>'
+    execute 'nnoremap <silent> + :vertical resize +2<CR>'
+    execute 'nnoremap <silent> <C-M-PageDown> :tabmove +1<CR>'
+    execute 'nnoremap <silent> <C-M-PageUp> :tabmove -1<CR>'
+    execute 'nnoremap <silent> <C-S-Tab> gT'
+    execute 'nnoremap <silent> <C-S-t> :tabnew<CR>'
+    execute 'nnoremap <silent> <C-Tab> gt'
+    execute 'nnoremap <silent> <C-q> :q<CR>'
+    execute 'nnoremap <silent> <C-s> m6:%s/\s\+$//e<Bar>w<CR>`6zz:noh<CR>'
+    execute 'nnoremap <silent> <C-w>i gt'
+    execute 'nnoremap <silent> <C-w>u gT'
+    execute 'nnoremap <silent> <F10> :cnext<CR>'
+    execute 'nnoremap <silent> <F11> :cclose<CR>'
+    execute 'nnoremap <silent> <F8> :copen<CR>'
+    execute 'nnoremap <silent> <F9> :cprevious<CR>'
+    execute 'nnoremap <silent> <leader>clr :%bd<bar>e #<bar>normal `<CR>'
+    execute 'nnoremap <silent> <leader>vim :vs $MYVIMRC<CR>'
+    execute 'nnoremap <silent> _ :vertical resize -2<CR>'
+    execute 'nnoremap K i<CR><Esc>'
+    execute 'nnoremap O O<Space><BS><Esc>'
+    execute 'nnoremap gd <C-]>'
+    execute 'nnoremap go "0yi):!start <C-r>0<CR>'
+    execute 'nnoremap j gj'
+    execute 'nnoremap k gk'
+    execute 'nnoremap o o<Space><BS><Esc>'
+    execute 'noremap <leader>P "0P'
+    execute 'noremap <leader>p "0p'
+    execute 'noremap H g^'
+    execute 'noremap L g_'
+    execute 'vnoremap / "-y/<C-r>-<CR>N'
+    execute 'vnoremap <C-j> :m ''><+1<CR>gv=gv'
+    execute 'vnoremap <C-k> :m ''<-2<CR>gv=gv'
+    execute 'vnoremap <F2> "-y:%s/<C-r>-\C/<C-r>-/g<Left><Left>'
+    execute 'vnoremap <M-Down> :m ''><+1<CR>gv=gv'
+    execute 'vnoremap <M-Up> :m ''<-2<CR>gv=gv'
+    execute 'vnoremap <M-j> :m ''><+1<CR>gv=gv'
+    execute 'vnoremap <M-k> :m ''<-2<CR>gv=gv'
+    execute 'vnoremap <leader>ss :sort<CR>'
+    execute 'vnoremap <silent> <C-b> "-di**<C-r>-**<Esc>'
+    execute 'vnoremap p pgv<Esc>'
+    execute 'vnoremap y ygv<Esc>'
+    execute 'nnoremap <silent> <leader>obs '
+        \ . ':wa<CR>'
+        \ . ':silent !git pull<CR>'
+        \ . ':silent !git add .<CR>'
+        \ . ':silent !git commit -m "update by vim"<CR>'
+        \ . ':silent !git push<CR>'
+        \ . ':G fetch'
+        \ . '<Bar>call timer_start(1500, {-> execute(''RookieGitGraph'')})'
+        \ . '<Bar>G<CR>'
 endfunction
 
 function! rookie_setup#SetupAbbr() abort
