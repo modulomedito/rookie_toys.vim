@@ -1,7 +1,7 @@
 scriptencoding utf-8
 
 function! rookie_plugins#SetupPlugins() abort
-    call plug#begin()
+    " call plug#begin()
     " Plug 'github/copilot.vim'              " Use LLM
     Plug 'SirVer/ultisnips'                 " Snippets
     Plug 'Xuyuanp/nerdtree-git-plugin'      " Nerdtree git icon
@@ -30,5 +30,5 @@ function! rookie_plugins#SetupPlugins() abort
     Plug 'vim-airline/vim-airline'          " Vim bottom status line
     Plug 'vim-airline/vim-airline-themes'   " Vim bottom status line
     Plug 'vim-scripts/DrawIt'               " Draw ASCII art
-    call plug#end()
+    " call plug#end()
 endfunction
