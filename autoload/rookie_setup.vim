@@ -20,7 +20,7 @@ function! rookie_setup#Setup() abort
 
     " Execute setup
     if get(g:, 'rookie_toys_setup_enable', 0)
-        finish
+        return
     endif
     if get(g:, 'rookie_toys_setup_option_enable', 1)
         call rookie_setup#SetupOptions()
