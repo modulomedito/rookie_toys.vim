@@ -11,6 +11,9 @@ function! rookie_setup#Setup() abort
     if !exists('g:rookie_toys_setup_keymap_enable')
         let g:rookie_toys_setup_keymap_enable = 1
     endif
+    if !exists('g:rookie_toys_setup_abbr_enable')
+        let g:rookie_toys_setup_abbr_enable = 1
+    endif
 
     " Execute setup
     if get(g:, 'rookie_toys_setup_enable', 0)
@@ -21,6 +24,9 @@ function! rookie_setup#Setup() abort
     endif
     if get(g:, 'rookie_toys_setup_keymap_enable', 1)
         call rookie_setup#SetupKeymaps()
+    endif
+    if get(g:, 'rookie_toys_setup_abbr_enable', 1)
+        call rookie_setup#SetupAbbr()
     endif
 endfunction
 
@@ -163,4 +169,29 @@ function! rookie_setup#SetupKeymaps() abort
         \:G fetch
         \<Bar>call timer_start(1500, {-> execute('RookieGitGraph')})
         \<Bar>G<CR>
+endfunction
+
+function! rookie_setup#SetupAbbr() abort
+    iab xbar <C-R>=repeat('-',80)<CR><Esc>0
+    iab xbui 🔧 build():[#]<Left><Left><Left><Left>
+    iab xcho 🐳 chore():[#]<Left><Left><Left><Left>
+    iab xdoc 📃 docs():[#]<Left><Left><Left><Left>
+    iab xfea ✨ feat():[#]<Left><Left><Left><Left>
+    iab xfix 🐞 fix():[#]<Left><Left><Left><Left>
+    iab xini 🎉 init():[#]<Left><Left><Left><Left>
+    iab xref 🦄 refactor():[#]<Left><Left><Left><Left>
+    cab Gl call timer_start(1200, {-> execute('RookieGitGraph')})\|G
+    cab GP silent G pull\|GG
+    cab Gp silent G push\|GG
+    cab Gf silent G fetch\|GG
+    cab Gc silent G checkout <C-r><C-w>\|GG
+    cab Gm silent G merge --ff <C-r><C-w>\|GG
+    cab Gr silent G rebase <C-r><C-w>\|GG
+    cab Gsi silent G stash push --include-untracked\|GG
+    cab Gso silent G stash pop\|GG
+    cab Gclr silent G clean -d -f -x
+    cab Gtag silent G tag\|GG<Left><Left><Left>
+    cab Gbdl silent G branch -d\|GG<Left><Left><Left>
+    cab Gbdr silent G push origin --delete\|GG<Left><Left><Left>
+    cab Gnew silent G checkout -b\|GG<Left><Left><Left>
 endfunction
