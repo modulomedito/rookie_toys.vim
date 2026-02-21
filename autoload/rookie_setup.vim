@@ -14,6 +14,9 @@ function! rookie_setup#Setup() abort
     if !exists('g:rookie_toys_setup_abbr_enable')
         let g:rookie_toys_setup_abbr_enable = 1
     endif
+    if !exists('g:rookie_toys_setup_plugin_enable')
+        let g:rookie_toys_setup_plugin_enable = 1
+    endif
 
     " Execute setup
     if get(g:, 'rookie_toys_setup_enable', 0)
@@ -27,6 +30,9 @@ function! rookie_setup#Setup() abort
     endif
     if get(g:, 'rookie_toys_setup_abbr_enable', 1)
         call rookie_setup#SetupAbbr()
+    endif
+    if get(g:, 'rookie_toys_setup_plugin_enable', 1)
+        call rookie_plugins#SetupPlugins()
     endif
 endfunction
 
