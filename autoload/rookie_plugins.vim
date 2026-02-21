@@ -2,7 +2,7 @@ scriptencoding utf-8
 
 function! rookie_plugins#SetupPlugins() abort
     if exists('g:textmanip_enable_mappings')
-        call rookie_plugins#Setup_VimTextmanip()
+        " call rookie_plugins#Setup_VimTextmanip()
     endif
 endfunction
 
