@@ -140,8 +140,8 @@ function! rookie_setup#SetupKeymaps() abort
     nnoremap <silent> <F11> :cclose<CR>
     nnoremap <silent> <F8> :copen<CR>
     nnoremap <silent> <F9> :cprevious<CR>
-    nnoremap <silent> <Space>clr :%bd<bar>e #<bar>normal `<CR>
-    nnoremap <silent> <Space>vim :vs $MYVIMRC<CR>
+    nnoremap <silent> <leader>clr :%bd<bar>e #<bar>normal `<CR>
+    nnoremap <silent> <leader>vim :vs $MYVIMRC<CR>
     nnoremap <silent> _ :vertical resize -2<CR>
     nnoremap K i<CR><Esc>
     nnoremap O O<Space><BS><Esc>
@@ -150,8 +150,8 @@ function! rookie_setup#SetupKeymaps() abort
     nnoremap j gj
     nnoremap k gk
     nnoremap o o<Space><BS><Esc>
-    noremap <Space>P "0P
-    noremap <Space>p "0p
+    noremap <leader>P "0P
+    noremap <leader>p "0p
     noremap H g^
     noremap L g_
     vnoremap / "-y/<C-r>-<CR>N
@@ -162,11 +162,11 @@ function! rookie_setup#SetupKeymaps() abort
     vnoremap <M-Up> :m '<-2<CR>gv=gv
     vnoremap <M-j> :m '><+1<CR>gv=gv
     vnoremap <M-k> :m '<-2<CR>gv=gv
-    vnoremap <Space>ss :sort<CR>
+    vnoremap <leader>ss :sort<CR>
     vnoremap <silent> <C-b> "-di**<C-r>-**<Esc>
     vnoremap p pgv<Esc>
     vnoremap y ygv<Esc>
-    nnoremap <silent> <Space>obs
+    nnoremap <silent> <leader>obs
         \ :wa<CR>
         \:silent !git pull<CR>
         \:silent !git add .<CR>
