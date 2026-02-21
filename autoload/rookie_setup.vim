@@ -112,8 +112,8 @@ function! rookie_setup#SetupOptions() abort
 endfunction
 
 function! rookie_setup#SetupKeymaps() abort
-    let g:mapleader = ' '
-    let g:maplocalleader = ' '
+    let mapleader = ' '
+    let maplocalleader = ' '
     cnoremap <C-v> <C-r>*
     nnoremap * *Nzz
     nnoremap <C-j> :m .+1<CR>==
