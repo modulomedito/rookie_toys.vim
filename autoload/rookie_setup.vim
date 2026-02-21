@@ -25,6 +25,7 @@ function! rookie_setup#Setup() abort
 endfunction
 
 function! rookie_setup#SetupOptions() abort
+    source $VIMRUNTIME/defaults.vim
     set ambiwidth=double
     set autoindent
     set autoread
