@@ -156,7 +156,7 @@ function! rookie_setup#SetupKeymaps() abort
     nnoremap <silent> _ :vertical resize -2<CR>
     nnoremap K i<CR><Esc>
     nnoremap O O<Space><BS><Esc>
-    nnoremap gd <C-]>
+    " nnoremap gd <C-]>
     nnoremap go "0yi):!start <C-r>0<CR>
     nnoremap j gj
     nnoremap k gk
