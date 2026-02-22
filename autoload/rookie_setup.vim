@@ -20,6 +20,9 @@ function! rookie_setup#Setup() abort
     if !exists('g:rookie_toys_setup_autocmd_enable')
         let g:rookie_toys_setup_autocmd_enable = 1
     endif
+    if !exists('g:rookie_toys_setup_user_command_enable')
+        let g:rookie_toys_setup_user_command_enable = 1
+    endif
 
     " Execute setup
     if get(g:, 'rookie_toys_setup_enable', 1)
@@ -37,6 +40,9 @@ function! rookie_setup#Setup() abort
         endif
         if get(g:, 'rookie_toys_setup_autocmd_enable', 1)
             call rookie_setup#SetupAutocmd()
+        endif
+        if get(g:, 'rookie_toys_setup_user_command_enable', 1)
+            call rookie_setup#SetupUserCommand()
         endif
     endif
 endfunction
@@ -255,4 +261,10 @@ function! rookie_setup#SetupAutocmd() abort
     autocmd! FileType vim
         \ setlocal iskeyword-=-
     autocmd! FileType hex setlocal nostartofline | setlocal virtualedit=block
+endfunction
+
+function! rookie_setup#SetupUserCommand() abort
+    command! VSC :silent !trae %:p<CR>
+    command! CommentToSlash :s\/\*\+\s\+\(.*\)\*\/\/\/ \\1/g
+    command! CD :let @+ = 'cd ' . getcwd() | qa
 endfunction
