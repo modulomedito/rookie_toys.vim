@@ -17,6 +17,9 @@ function! rookie_setup#Setup() abort
     if !exists('g:rookie_toys_setup_plugin_enable')
         let g:rookie_toys_setup_plugin_enable = 1
     endif
+    if !exists('g:rookie_toys_setup_autocmd_enable')
+        let g:rookie_toys_setup_autocmd_enable = 1
+    endif
 
     " Execute setup
     if get(g:, 'rookie_toys_setup_enable', 1)
@@ -31,6 +34,9 @@ function! rookie_setup#Setup() abort
         endif
         if get(g:, 'rookie_toys_setup_plugin_enable', 1)
             call rookie_plugins#SetupPlugins()
+        endif
+        if get(g:, 'rookie_toys_setup_autocmd_enable', 1)
+            call rookie_setup#SetupAutocmd()
         endif
     endif
 endfunction
@@ -199,4 +205,54 @@ function! rookie_setup#SetupAbbr() abort
     cab Gbdl silent G branch -d\|GG<Left><Left><Left>
     cab Gbdr silent G push origin --delete\|GG<Left><Left><Left>
     cab Gnew silent G checkout -b\|GG<Left><Left><Left>
+endfunction
+
+function! rookie_setup#SetupAutocmd() abort
+    autocmd! FileType python
+        \ nnoremap <buffer> <leader><F10> :copen <bar> AsyncRun python<Space>%<Tab>
+    autocmd! FileType rust
+        \ nnoremap <buffer> <leader><F10> :copen <bar> AsyncRun cargo<Space>
+        \|nnoremap <buffer> <leader><F9> :RookieRustTestFunctionUnderCursor<CR>
+        \|call CocAction('diagnosticToggle', 0)
+    autocmd! FileType typescript
+        \ nnoremap <buffer> <F10> :copen <bar> AsyncRun npm run build<CR>
+        \|nnoremap <silent><buffer> <S-M-f> <Plug>(coc-format)
+    autocmd! FileType ps1
+        \ setlocal iskeyword+=:
+    autocmd! FileType c
+        \ setlocal iskeyword-=-
+        \|setlocal textwidth=79
+        \|setlocal commentstring=//%s
+        \|nnoremap <silent><buffer> <C-s> :let g:my_pos = getpos('.')<CR>
+        \<Plug>(coc-format)<Bar>m6:%s/\s\+$//e<Bar>w<CR>`6zz:noh<CR>
+        \:if exists('g:my_pos')\|call setpos('.', g:my_pos)\|endif<CR>
+        \:w<CR>
+    autocmd! FileType lsl
+        \ setlocal filetype=c syntax=c
+    autocmd! FileType lua
+        \ nnoremap <silent><buffer> <S-M-f> :call LuaFormat()<CR>
+    autocmd! FileType tex
+        \ setlocal textwidth=80
+    autocmd! FileType help
+        \ nnoremap <buffer> gd <C-]>
+    autocmd! FileType markdown
+        \ setlocal textwidth=79
+        \|setlocal ve=all
+        \|setlocal wrap
+        \|nnoremap <silent><buffer> <S-M-f> :PanguAll<CR>m6:call timer_start(200, {-> execute('CocCommand markdownlint.fixAll')})<CR>
+        \|vnoremap <silent><buffer> <S-M-f> :silent! RookieMarkdownLinter<CR>
+        \|nnoremap <silent><buffer> <leader>fmt :PanguAll<CR>m6:CocCommand markdownlint.fixAll<CR>'6zz
+        \|vnoremap <silent><buffer> <leader>fmt :silent! RookieMarkdownLinter<CR>
+    autocmd! FileType git
+        \ setlocal iskeyword+=- iskeyword+=/
+        \|nnoremap <silent><buffer> <C-l> f)b
+        \|nnoremap <silent><buffer> <C-j> :RookieGitDiffFileNext<CR>
+        \|nnoremap <silent><buffer> <C-k> :RookieGitDiffFilePrevious<CR>
+    autocmd! FileType gitcommit
+        \ setlocal textwidth=100
+        \|nnoremap <silent><buffer> <S-M-f> :PanguAll<CR>
+        \|nnoremap <silent><buffer> <C-q> :q<Bar>call timer_start(1000, {-> execute('RookieGitGraph')})<CR>
+    autocmd! FileType vim
+        \ setlocal iskeyword-=-
+    autocmd! FileType hex setlocal nostartofline | setlocal virtualedit=block
 endfunction
