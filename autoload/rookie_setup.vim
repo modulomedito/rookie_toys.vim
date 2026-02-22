@@ -19,20 +19,19 @@ function! rookie_setup#Setup() abort
     endif
 
     " Execute setup
-    if get(g:, 'rookie_toys_setup_enable', 0)
-        return
-    endif
-    if get(g:, 'rookie_toys_setup_option_enable', 1)
-        call rookie_setup#SetupOptions()
-    endif
-    if get(g:, 'rookie_toys_setup_keymap_enable', 1)
-        call rookie_setup#SetupKeymaps()
-    endif
-    if get(g:, 'rookie_toys_setup_abbr_enable', 1)
-        call rookie_setup#SetupAbbr()
-    endif
-    if get(g:, 'rookie_toys_setup_plugin_enable', 1)
-        call rookie_plugins#SetupPlugins()
+    if get(g:, 'rookie_toys_setup_enable', 1)
+        if get(g:, 'rookie_toys_setup_option_enable', 1)
+            call rookie_setup#SetupOptions()
+        endif
+        if get(g:, 'rookie_toys_setup_keymap_enable', 1)
+            call rookie_setup#SetupKeymaps()
+        endif
+        if get(g:, 'rookie_toys_setup_abbr_enable', 1)
+            call rookie_setup#SetupAbbr()
+        endif
+        if get(g:, 'rookie_toys_setup_plugin_enable', 1)
+            call rookie_plugins#SetupPlugins()
+        endif
     endif
 endfunction
 
