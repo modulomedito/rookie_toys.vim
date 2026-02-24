@@ -5,14 +5,14 @@ function! rookie_setup#Setup() abort
     if !exists('g:rookie_toys_setup_enable')
         let g:rookie_toys_setup_enable = 0
     endif
-    if !exists('g:rookie_toys_setup_option_enable')
-        let g:rookie_toys_setup_option_enable = 1
+    if !exists('g:rookie_toys_default_setup_option')
+        let g:rookie_toys_default_setup_option = 1
     endif
     if !exists('g:rookie_toys_setup_keymap_enable')
         let g:rookie_toys_setup_keymap_enable = 1
     endif
-    if !exists('g:rookie_toys_setup_abbr_enable')
-        let g:rookie_toys_setup_abbr_enable = 1
+    if !exists('g:rookie_toys_default_setup_abbr')
+        let g:rookie_toys_default_setup_abbr = 1
     endif
     if !exists('g:rookie_toys_setup_plugin_enable')
         let g:rookie_toys_setup_plugin_enable = 1
@@ -23,8 +23,8 @@ function! rookie_setup#Setup() abort
     if !exists('g:rookie_toys_setup_user_command_enable')
         let g:rookie_toys_setup_user_command_enable = 1
     endif
-    if !exists('g:rookie_toys_setup_rg_enable')
-        let g:rookie_toys_setup_rg_enable = 1
+    if !exists('g:rookie_toys_default_setup_rg')
+        let g:rookie_toys_default_setup_rg = 1
     endif
     if !exists('g:rookie_toys_syntax_highlight_enable')
         let g:rookie_toys_syntax_highlight_enable = 1
@@ -34,9 +34,6 @@ function! rookie_setup#Setup() abort
     if get(g:, 'rookie_toys_setup_enable', 1)
         if get(g:, 'rookie_toys_setup_keymap_enable', 1)
             call rookie_setup#SetupKeymaps()
-        endif
-        if get(g:, 'rookie_toys_setup_abbr_enable', 1)
-            call rookie_setup#SetupAbbr()
         endif
         if get(g:, 'rookie_toys_setup_plugin_enable', 1)
             call rookie_plugins#SetupPlugins()
@@ -49,11 +46,14 @@ function! rookie_setup#Setup() abort
         endif
     endif
 
-    if get(g:, 'rookie_toys_setup_option_enable', 1)
+    if get(g:, 'rookie_toys_default_setup_option', 1)
         call rookie_setup#SetupOptions()
     endif
-    if get(g:, 'rookie_toys_setup_rg_enable', 1)
+    if get(g:, 'rookie_toys_default_setup_rg', 1)
         call rookie_rg#Setup()
+    endif
+    if get(g:, 'rookie_toys_default_setup_abbr', 1)
+        call rookie_setup#SetupAbbr()
     endif
 endfunction
 
