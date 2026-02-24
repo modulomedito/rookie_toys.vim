@@ -88,21 +88,11 @@ call rookie_setup#Setup()
 "     let g:rookie_auto_git_graph_enable = 0
 " endif
 
-" " Setup rg if enabled
-" if !exists('g:rookie_rg_default_setup')
-"     let g:rookie_rg_default_setup = 0
-" endif
-" call rookie_rg#Setup()
-
 " " Setup aspice if enabled
 " if !exists('g:rookie_aspice_default_setup')
 "     let g:rookie_aspice_default_setup = 0
 " endif
 " call rookie_aspice#Setup()
-
-" if !exists('g:rookie_toys_syntax_highlight_enable')
-"     let g:rookie_toys_syntax_highlight_enable = 1
-" endif
 
 " augroup RookieSyntax
 "     autocmd!

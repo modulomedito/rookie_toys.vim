@@ -23,6 +23,12 @@ function! rookie_setup#Setup() abort
     if !exists('g:rookie_toys_setup_user_command_enable')
         let g:rookie_toys_setup_user_command_enable = 1
     endif
+    if !exists('g:rookie_toys_setup_rg_enable')
+        let g:rookie_toys_setup_rg_enable = 1
+    endif
+    if !exists('g:rookie_toys_syntax_highlight_enable')
+        let g:rookie_toys_syntax_highlight_enable = 1
+    endif
 
     " Execute setup
     if get(g:, 'rookie_toys_setup_enable', 1)
@@ -43,6 +49,9 @@ function! rookie_setup#Setup() abort
         endif
         if get(g:, 'rookie_toys_setup_user_command_enable', 1)
             call rookie_setup#SetupUserCommand()
+        endif
+        if get(g:, 'rookie_toys_setup_rg_enable', 1)
+            call rookie_rg#Setup()
         endif
     endif
 endfunction
