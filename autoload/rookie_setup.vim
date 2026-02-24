@@ -32,9 +32,6 @@ function! rookie_setup#Setup() abort
 
     " Execute setup
     if get(g:, 'rookie_toys_setup_enable', 1)
-        if get(g:, 'rookie_toys_setup_option_enable', 1)
-            call rookie_setup#SetupOptions()
-        endif
         if get(g:, 'rookie_toys_setup_keymap_enable', 1)
             call rookie_setup#SetupKeymaps()
         endif
@@ -50,9 +47,13 @@ function! rookie_setup#Setup() abort
         if get(g:, 'rookie_toys_setup_user_command_enable', 1)
             call rookie_setup#SetupUserCommand()
         endif
-        if get(g:, 'rookie_toys_setup_rg_enable', 1)
-            call rookie_rg#Setup()
-        endif
+    endif
+
+    if get(g:, 'rookie_toys_setup_option_enable', 1)
+        call rookie_setup#SetupOptions()
+    endif
+    if get(g:, 'rookie_toys_setup_rg_enable', 1)
+        call rookie_rg#Setup()
     endif
 endfunction
 
