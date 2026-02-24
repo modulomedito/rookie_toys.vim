@@ -94,11 +94,6 @@ call rookie_setup#Setup()
 " endif
 " call rookie_aspice#Setup()
 
-" augroup RookieSyntax
-"     autocmd!
-"     autocmd FileType * call rookie_syntax#Setup()
-" augroup END
-
 " augroup RookieAutoGitGraph
 "     autocmd!
 "     autocmd FocusGained,BufEnter,BufWinEnter * call rookie_gitgraph#CheckGitAndRun()

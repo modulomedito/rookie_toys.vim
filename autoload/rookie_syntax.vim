@@ -20,10 +20,6 @@ endfunction
 
 " Main setup function called on FileType event
 function! rookie_syntax#Setup() abort
-    if !get(g:, 'rookie_toys_syntax_highlight_enable', 1)
-        return
-    endif
-
     let l:ft = &filetype
     if empty(l:ft)
         return

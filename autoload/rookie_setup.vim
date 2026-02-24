@@ -26,8 +26,8 @@ function! rookie_setup#Setup() abort
     if !exists('g:rookie_toys_default_setup_rg')
         let g:rookie_toys_default_setup_rg = 1
     endif
-    if !exists('g:rookie_toys_syntax_highlight_enable')
-        let g:rookie_toys_syntax_highlight_enable = 1
+    if !exists('g:rookie_toys_default_setup_syntax')
+        let g:rookie_toys_default_setup_syntax = 1
     endif
 
     " Execute setup
@@ -54,6 +54,9 @@ function! rookie_setup#Setup() abort
     endif
     if get(g:, 'rookie_toys_default_setup_abbr', 1)
         call rookie_setup#SetupAbbr()
+    endif
+    if get(g:, 'rookie_toys_default_setup_syntax', 1)
+        call rookie_setup#SetupSyntax()
     endif
 endfunction
 
@@ -277,4 +280,11 @@ function! rookie_setup#SetupUserCommand() abort
     command! VSC :silent !trae %:p<CR>
     command! CommentToSlash :s\/\*\+\s\+\(.*\)\*\/\/\/ \\1/g
     command! CD :let @+ = 'cd ' . getcwd() | qa
+endfunction
+
+function! rookie_setup#SetupSyntax() abort
+    augroup RookieSyntax
+        autocmd!
+        autocmd FileType * call rookie_syntax#Setup()
+    augroup END
 endfunction
