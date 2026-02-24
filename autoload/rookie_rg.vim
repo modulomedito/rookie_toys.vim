@@ -74,6 +74,7 @@ function! rookie_rg#Setup() abort
         set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case\ --hidden
         set grepformat=%f:%l:%c:%m
 
+        let g:mapleader = ' '
         nnoremap <leader>gg :call rookie_rg#GlobalGrep()<CR>n
         vnoremap <leader>gg :<C-u>call rookie_rg#VisualGrep()<CR>n
         nnoremap <leader>gf :call rookie_rg#LiveGrep()<CR>
