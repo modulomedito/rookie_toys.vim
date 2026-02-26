@@ -67,7 +67,7 @@ function! rookie_tag#SearchTags() abort
             copen
         endif
     else
-        echomsg 'No matching lines found.'
+        echomsg ' -------> No matching lines found.'
     endif
 endfunction
 
@@ -112,7 +112,7 @@ function! rookie_tag#SearchGlobalTags() abort
             echomsg 'Results sent to quickfix (deduped rows).'
         endif
     else
-        echomsg 'No matching lines found.'
+        echomsg ' -------> No matching lines found.'
     endif
 endfunction
 
