@@ -2,60 +2,57 @@ scriptencoding utf-8
 
 function! rookie_setup#Setup() abort
     " Default
-    if !exists('g:rookie_toys_setup_enable')
-        let g:rookie_toys_setup_enable = 0
+    if !exists('g:rookie_toys_default_setup_all')
+        let g:rookie_toys_default_setup_all = 0
     endif
     if !exists('g:rookie_toys_default_setup_option')
-        let g:rookie_toys_default_setup_option = 1
+        let g:rookie_toys_default_setup_option = 0
     endif
-    if !exists('g:rookie_toys_setup_keymap_enable')
-        let g:rookie_toys_setup_keymap_enable = 1
+    if !exists('g:rookie_toys_default_setup_keymap')
+        let g:rookie_toys_default_setup_keymap = 0
     endif
     if !exists('g:rookie_toys_default_setup_abbr')
-        let g:rookie_toys_default_setup_abbr = 1
+        let g:rookie_toys_default_setup_abbr = 0
     endif
-    if !exists('g:rookie_toys_setup_plugin_enable')
-        let g:rookie_toys_setup_plugin_enable = 1
+    if !exists('g:rookie_toys_default_setup_plugin')
+        let g:rookie_toys_default_setup_plugin = 0
     endif
-    if !exists('g:rookie_toys_setup_autocmd_enable')
-        let g:rookie_toys_setup_autocmd_enable = 1
+    if !exists('g:rookie_toys_default_setup_autocmd')
+        let g:rookie_toys_default_setup_autocmd = 0
     endif
-    if !exists('g:rookie_toys_setup_user_command_enable')
-        let g:rookie_toys_setup_user_command_enable = 1
+    if !exists('g:rookie_toys_default_setup_user_command')
+        let g:rookie_toys_default_setup_user_command = 0
     endif
     if !exists('g:rookie_toys_default_setup_rg')
-        let g:rookie_toys_default_setup_rg = 1
+        let g:rookie_toys_default_setup_rg = 0
     endif
     if !exists('g:rookie_toys_default_setup_syntax')
-        let g:rookie_toys_default_setup_syntax = 1
+        let g:rookie_toys_default_setup_syntax = 0
     endif
 
     " Execute setup
-    if get(g:, 'rookie_toys_setup_enable', 1)
-        if get(g:, 'rookie_toys_setup_keymap_enable', 1)
-            call rookie_setup#SetupKeymaps()
-        endif
-        if get(g:, 'rookie_toys_setup_plugin_enable', 1)
-            call rookie_plugins#SetupPlugins()
-        endif
-        if get(g:, 'rookie_toys_setup_autocmd_enable', 1)
-            call rookie_setup#SetupAutocmd()
-        endif
-        if get(g:, 'rookie_toys_setup_user_command_enable', 1)
-            call rookie_setup#SetupUserCommand()
-        endif
+    if g:rookie_toys_default_setup_keymap || g:rookie_toys_default_setup_all
+        call rookie_setup#SetupKeymaps()
     endif
-
-    if get(g:, 'rookie_toys_default_setup_option', 1)
+    if g:rookie_toys_default_setup_plugin || g:rookie_toys_default_setup_all
+        call rookie_plugins#SetupPlugins()
+    endif
+    if g:rookie_toys_default_setup_autocmd || g:rookie_toys_default_setup_all
+        call rookie_setup#SetupAutocmd()
+    endif
+    if g:rookie_toys_default_setup_user_command || g:rookie_toys_default_setup_all
+        call rookie_setup#SetupUserCommand()
+    endif
+    if g:rookie_toys_default_setup_option || g:rookie_toys_default_setup_all
         call rookie_setup#SetupOptions()
     endif
-    if get(g:, 'rookie_toys_default_setup_rg', 1)
+    if g:rookie_toys_default_setup_rg || g:rookie_toys_default_setup_all
         call rookie_rg#Setup()
     endif
-    if get(g:, 'rookie_toys_default_setup_abbr', 1)
+    if g:rookie_toys_default_setup_abbr || g:rookie_toys_default_setup_all
         call rookie_setup#SetupAbbr()
     endif
-    if get(g:, 'rookie_toys_default_setup_syntax', 1)
+    if g:rookie_toys_default_setup_syntax || g:rookie_toys_default_setup_all
         call rookie_setup#SetupSyntax()
     endif
 endfunction
