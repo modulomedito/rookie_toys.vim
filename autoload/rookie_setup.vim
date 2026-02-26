@@ -29,6 +29,9 @@ function! rookie_setup#Setup() abort
     if !exists('g:rookie_toys_default_setup_syntax')
         let g:rookie_toys_default_setup_syntax = 0
     endif
+    if !exists('g:rookie_toys_default_setup_rookie_toys')
+        let g:rookie_toys_default_setup_rookie_toys = 0
+    endif
 
     " Execute setup
     if g:rookie_toys_default_setup_keymap || g:rookie_toys_default_setup_all
@@ -54,6 +57,9 @@ function! rookie_setup#Setup() abort
     endif
     if g:rookie_toys_default_setup_syntax || g:rookie_toys_default_setup_all
         call rookie_setup#SetupSyntax()
+    endif
+    if g:rookie_toys_default_setup_rookie_toys || g:rookie_toys_default_setup_all
+        call rookie_setup#SetupRookieToys()
     endif
 endfunction
 
@@ -271,6 +277,51 @@ function! rookie_setup#SetupAutocmd() abort
     autocmd! FileType vim
         \ setlocal iskeyword-=-
     autocmd! FileType hex setlocal nostartofline | setlocal virtualedit=block
+endfunction
+
+function! rookie_setup#SetupRookieToys() abort
+    command! CC RookieClangdGenerate | CocRestart
+    command! GD RookieGitDiff
+    command! GG RookieGitGraph
+    command! GGL RookieGitGraphLocal
+    let g:rookie_rooter_patterns = [
+        \ '.clang-format',
+        \ '.cproject',
+        \ '.git',
+        \ '.project',
+        \ 'Cargo.toml',
+        \ 'Makefile',
+        \ 'compile_commands.json',
+        \ ]
+    nnoremap <leader>FA :RookieTagAddFileName<CR>
+    nnoremap <leader>FF :RookieTagSearchFileName<CR>
+    nnoremap <leader>diff :RookieGitOpenCommitDiff<CR>
+    nnoremap <leader>fa :RookieTagUpdate<CR>
+    nnoremap <leader>ff :RookieTagSearch<CR>
+    nnoremap <leader>fg :RookieTagSearchGlobal<CR>
+    nnoremap <leader>ida :RookieGuidGenerate<CR>
+    nnoremap <leader>ids :RookieGuidSearch<CR>
+    nnoremap <leader>pa :RookieProjectAdd<CR>
+    nnoremap <leader>pdel :RookieProjectRemove<CR>
+    nnoremap <leader>pj :RookieProjectList<CR>
+    nnoremap <leader>prn :RookieProjectRename<CR>
+    nnoremap <leader>retab :RookieRetab<CR>
+    nnoremap <silent> <leader><C-l> :RookieSlugifyLine<CR>
+    nnoremap <silent> <leader>dl :RookieGitDiffJumpToChange<CR>
+    nnoremap <silent> <leader>hh :RookieToggleHeaderSource<CR>
+    nnoremap <silent> <leader>rrt :RookieRooterHere<CR>
+    nnoremap <unique><silent> <C-d> <cmd>RookieSmoothScrollHalfPageDown<CR>
+    nnoremap <unique><silent> <C-f> <cmd>RookieSmoothScrollHalfPageUp<CR>
+    vnoremap <unique><silent> <C-d> <cmd>RookieSmoothScrollHalfPageDown<CR>
+    vnoremap <unique><silent> <C-f> <cmd>RookieSmoothScrollHalfPageUp<CR>
+    nnoremap <leader><F3> :RookieFarDo<CR>
+    nnoremap <leader><F2> *:RookieFarReplace -c -w
+        \ <C-r><C-w> <C-r><C-w> **/*.[ch]
+        \<Left><Left><Left><Left><Left><Left><Left><Left><Left><Left>
+    vnoremap <leader><F2> "-y/<C-r>-<CR>N
+        \"-y:RookieFarReplace -c
+        \ <C-r>- <C-r>- **/*.[ch]
+        \<Left><Left><Left><Left><Left><Left><Left><Left><Left><Left>
 endfunction
 
 function! rookie_setup#SetupUserCommand() abort
