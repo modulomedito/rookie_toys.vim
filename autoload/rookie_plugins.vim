@@ -7,6 +7,9 @@ function! rookie_plugins#SetupPlugins() abort
     if !exists('g:rookie_toys_default_setup_nerdtree')
         let g:rookie_toys_default_setup_nerdtree = 0
     endif
+    if !exists('g:rookie_toys_default_setup_vimtextmanip')
+        let g:rookie_toys_default_setup_vimtextmanip = 0
+    endif
     " if exists('g:textmanip_enable_mappings')
     "     call rookie_plugins#Setup_VimTextmanip()
     " endif
@@ -46,6 +49,9 @@ function! rookie_plugins#SetupPlugins() abort
 
     if g:rookie_toys_default_setup_nerdtree
         call rookie_plugins#Setup_Nerdtree()
+    endif
+    if g:rookie_toys_default_setup_vimtextmanip
+        call rookie_plugins#Setup_VimTextmanip()
     endif
 endfunction
 
