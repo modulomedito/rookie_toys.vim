@@ -117,8 +117,8 @@ function! rookie_rg#Setup() abort
         set grepformat=%f:%l:%c:%m
 
         let mapleader = ''
-        nnoremap <leader>gg :call rookie_rg#GlobalGrep()<CR>
-        vnoremap <leader>gg :<C-u>call rookie_rg#VisualGrep()<CR>n
+        nnoremap <leader>gg :call rookie_rg#GlobalGrep()<CR>nN
+        vnoremap <leader>gg :<C-u>call rookie_rg#VisualGrep()<CR>nN
         nnoremap <leader>gf :call rookie_rg#LiveGrep()<CR>
     endif
 endfunction
