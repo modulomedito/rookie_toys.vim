@@ -16,7 +16,7 @@ function! s:GetVisualSelection()
 endfunction
 
 function! s:ExecuteGrep(args)
-    let l:grep_cmd = 'silent! grep ' . a:args . ' .'
+    let l:grep_cmd = 'silent! grep! ' . a:args . ' .'
     execute l:grep_cmd
     if len(getqflist()) > 0
         copen
@@ -49,6 +49,13 @@ function! rookie_rg#GlobalGrep() abort
 
     let l:curr_buf = bufnr('%')
     let l:curr_lnum = line('.')
+    let l:curr_col = col('.')
+    let l:line_text = getline('.')
+    let l:word_pat = '\V\<' . escape(word, '\') . '\>'
+    let l:match = matchstrpos(l:line_text, l:word_pat, l:curr_col - 1)
+    if l:match[1] >= 0
+        let l:curr_col = l:match[1] + 1
+    endif
 
     call s:ExecuteGrep('-w ' . shellescape(word))
     let @/ = '\V' . word
@@ -59,12 +66,28 @@ function! rookie_rg#GlobalGrep() abort
     endif
 
     let l:idx = -1
+    let l:best_idx = -1
+    let l:best_dist = -1
     for i in range(len(l:qflist))
-        if l:qflist[i].bufnr == l:curr_buf && l:qflist[i].lnum == l:curr_lnum
+        if l:qflist[i].bufnr != l:curr_buf || l:qflist[i].lnum != l:curr_lnum
+            continue
+        endif
+
+        if get(l:qflist[i], 'col', -1) == l:curr_col
             let l:idx = i
             break
         endif
+
+        let l:dist = abs(get(l:qflist[i], 'col', 0) - l:curr_col)
+        if l:best_dist < 0 || l:dist < l:best_dist
+            let l:best_dist = l:dist
+            let l:best_idx = i
+        endif
     endfor
+
+    if l:idx < 0 && l:best_idx >= 0
+        let l:idx = l:best_idx
+    endif
 
     if l:idx > 0
         let l:item = remove(l:qflist, l:idx)
