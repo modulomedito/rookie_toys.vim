@@ -71,30 +71,8 @@ command! -nargs=0 RookieSmoothScrollHalfPageUp call rookie_smooth#HalfPageUp()
 command! -nargs=0 RookieSmoothScrollHalfPageDown call rookie_smooth#HalfPageDown()
 command! -nargs=0 RookieSmoothScrollPageUp call rookie_smooth#PageUp()
 command! -nargs=0 RookieSmoothScrollPageDown call rookie_smooth#PageDown()
+" rookie_c
+command! -nargs=0 -range -bar RookieCCommentToSlash <line1>,<line2>call rookie_c#CommentToSlash()
 
 " Setup
 call rookie_setup#Setup()
-
-" if exists('g:rookie_git_fetch_interval_s')
-"     call rookie_git#AutoFetch()
-" endif
-" call rookie_git#StartAutoFetchWatcher()
-
-" if get(g:, 'rookie_rooter_auto_setup', 1)
-"     call rookie_rooter#Setup()
-" endif
-
-" if !exists('g:rookie_auto_git_graph_enable')
-"     let g:rookie_auto_git_graph_enable = 0
-" endif
-
-" augroup RookieAutoGitGraph
-"     autocmd!
-"     autocmd FocusGained,BufEnter,BufWinEnter * call rookie_gitgraph#CheckGitAndRun()
-"     autocmd ShellCmdPost * call rookie_gitgraph#CheckGitAndRun()
-"     autocmd User FugitiveChanged call rookie_gitgraph#CheckGitAndRun()
-"     autocmd DirChanged * let g:rookie_last_git_state = rookie_gitgraph#GetGitState()
-"     autocmd FileType gitcommit autocmd BufUnload <buffer> call timer_start(1000, {-> rookie_gitgraph#CheckGitAndRun()})
-" augroup END
-
-" command! -nargs=0 -bar RookieGitGraphAutoToggle let g:rookie_auto_git_graph_enable = get(g:, 'rookie_auto_git_graph_enable', 0) ? 0 : 1 | echo "Auto Git Graph: " . (g:rookie_auto_git_graph_enable ? "On" : "Off")
