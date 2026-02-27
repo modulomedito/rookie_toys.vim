@@ -86,6 +86,9 @@ endfunction
 
 " Plug 'preservim/nerdtree'
 function! rookie_plugins#Setup_Nerdtree() abort
+    " Plug 'Xuyuanp/nerdtree-git-plugin'
+    let g:NERDTreeGitStatusUseNerdFonts = 0
+
     let g:NERDTreeWinSize = 40
     function! s:NTChCwd() abort
         let l:node = g:NERDTreeFileNode.GetSelected()
