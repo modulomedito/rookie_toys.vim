@@ -49,6 +49,9 @@ function! rookie_plugins#SetupPlugins() abort
     " if exists('g:loaded_far')
     "     call rookie_plugins#Setup_Far()
     " endif
+    if !exists('g:rookie_toys_default_setup_undotree')
+        let g:rookie_toys_default_setup_undotree = 0
+    endif
 
     if g:rookie_toys_default_setup_nerdtree
         call rookie_plugins#Setup_Nerdtree()
@@ -59,8 +62,12 @@ function! rookie_plugins#SetupPlugins() abort
     if g:rookie_toys_default_setup_vimtextmanip
         call rookie_plugins#Setup_VimTextmanip()
     endif
+    if g:rookie_toys_default_setup_undotree
+        call rookie_plugins#Setup_Undotree()
+    endif
 endfunction
 
+" Plug 't9md/vim-textmanip'
 function! rookie_plugins#Setup_VimTextmanip() abort
     xnoremap <M-d>   <Plug>(textmanip-duplicate-down)
     nnoremap <M-d>   <Plug>(textmanip-duplicate-down)
@@ -76,6 +83,23 @@ function! rookie_plugins#Setup_VimTextmanip() abort
     xnoremap <Down>  <Plug>(textmanip-move-down-r)
     xnoremap <Left>  <Plug>(textmanip-move-left-r)
     xnoremap <Right> <Plug>(textmanip-move-right-r)
+endfunction
+
+" Plug 'mbbill/undotree'
+function! rookie_plugins#Setup_Undotree() abort
+    nnoremap <leader>u :UndotreeToggle<CR>
+    if has("persistent_undo")
+        if has('win32') || has('win64')
+            let target_path = expand('~/vimfiles/undo')
+        else
+            let target_path = expand('~/.vim/undo')
+        endif
+        if !isdirectory(target_path)
+            call mkdir(target_path, "p", 0700)
+        endif
+        let &undodir = target_path
+        set undofile
+    endif
 endfunction
 
 " Plug 'skywind3000/asyncrun.vim'
