@@ -52,6 +52,9 @@ function! rookie_plugins#SetupPlugins() abort
     if !exists('g:rookie_toys_default_setup_undotree')
         let g:rookie_toys_default_setup_undotree = 0
     endif
+    if !exists('g:rookie_toys_default_setup_ultisnips')
+        let g:rookie_toys_default_setup_ultisnips = 0
+    endif
 
     if g:rookie_toys_default_setup_nerdtree
         call rookie_plugins#Setup_Nerdtree()
@@ -64,6 +67,9 @@ function! rookie_plugins#SetupPlugins() abort
     endif
     if g:rookie_toys_default_setup_undotree
         call rookie_plugins#Setup_Undotree()
+    endif
+    if g:rookie_toys_default_setup_ultisnips
+        call rookie_plugins#Setup_UltiSnips()
     endif
 endfunction
 
@@ -321,4 +327,17 @@ function! rookie_plugins#Setup_Far() abort
     "                       \<Left><Left><Left><Left><Left><Left><Left><Left><Left><Left>
     " vnoremap <leader><F2> "-y:Far <C-r>-\C <C-r>- **/*.[ch]
     "                       \<Left><Left><Left><Left><Left><Left><Left><Left><Left><Left>
+endfunction
+
+" Plug 'SirVer/ultisnips'
+function! rookie_plugins#Setup_UltiSnips() abort
+    let g:UltiSnipsExpandTrigger = "<tab>"
+    let g:UltiSnipsJumpForwardTrigger = "<c-j>"
+    let g:UltiSnipsJumpBackwardTrigger = "<c-k>"
+    let g:UltiSnipsListSnippets = "<c-l>"
+    if has('unix')
+        let g:UltiSnipsSnippetDirectories = ['ultisnips', '~/.vim/ultisnips']
+    else
+        let g:UltiSnipsSnippetDirectories = ['ultisnips', '$HOME/vimfiles/ultisnips']
+    endif
 endfunction
