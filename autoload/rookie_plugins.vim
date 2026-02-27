@@ -1,48 +1,48 @@
 scriptencoding utf-8
 
 function! rookie_plugins#SetupPlugins() abort
-    if exists('g:asyncrun_exit')
-        call rookie_plugins#Setup_AsyncRun()
-    endif
+    " if exists('g:asyncrun_exit')
+    "     call rookie_plugins#Setup_AsyncRun()
+    " endif
     if !exists('g:rookie_toys_default_setup_nerdtree')
         let g:rookie_toys_default_setup_nerdtree = 0
     endif
-    if exists('g:textmanip_enable_mappings')
-        call rookie_plugins#Setup_VimTextmanip()
-    endif
-    if exists('g:coc_status')
-        call rookie_plugins#Setup_Coc()
-    endif
-    if exists('g:rookie_toys')
-        call rookie_plugins#Setup_RookieToys()
-    endif
-    if exists('g:UltiSnipsExpandTrigger')
-        call rookie_plugins#Setup_UltiSnips()
-    endif
-    if exists('g:NERDTreeGitStatusUseNerdFonts')
-        call rookie_plugins#Setup_NerdtreeGitPlugin()
-    endif
-    if exists('g:UndotreeWinSize')
-        call rookie_plugins#Setup_Undotree()
-    endif
-    if exists('g:loaded_vim_highlighter')
-        call rookie_plugins#Setup_Highlighter()
-    endif
-    if exists('g:EasyAlign')
-        call rookie_plugins#Setup_EasyAlign()
-    endif
-    if exists('g:rooter_patterns')
-        call rookie_plugins#Setup_Rooter()
-    endif
-    if exists('g:cpp_member_variable_highlight')
-        call rookie_plugins#Setup_CppEnhancedHighlight()
-    endif
-    if exists('g:loaded_copilot')
-        call rookie_plugins#Setup_Copilot()
-    endif
-    if exists('g:loaded_far')
-        call rookie_plugins#Setup_Far()
-    endif
+    " if exists('g:textmanip_enable_mappings')
+    "     call rookie_plugins#Setup_VimTextmanip()
+    " endif
+    " if exists('g:coc_status')
+    "     call rookie_plugins#Setup_Coc()
+    " endif
+    " if exists('g:rookie_toys')
+    "     call rookie_plugins#Setup_RookieToys()
+    " endif
+    " if exists('g:UltiSnipsExpandTrigger')
+    "     call rookie_plugins#Setup_UltiSnips()
+    " endif
+    " if exists('g:NERDTreeGitStatusUseNerdFonts')
+    "     call rookie_plugins#Setup_NerdtreeGitPlugin()
+    " endif
+    " if exists('g:UndotreeWinSize')
+    "     call rookie_plugins#Setup_Undotree()
+    " endif
+    " if exists('g:loaded_vim_highlighter')
+    "     call rookie_plugins#Setup_Highlighter()
+    " endif
+    " if exists('g:EasyAlign')
+    "     call rookie_plugins#Setup_EasyAlign()
+    " endif
+    " if exists('g:rooter_patterns')
+    "     call rookie_plugins#Setup_Rooter()
+    " endif
+    " if exists('g:cpp_member_variable_highlight')
+    "     call rookie_plugins#Setup_CppEnhancedHighlight()
+    " endif
+    " if exists('g:loaded_copilot')
+    "     call rookie_plugins#Setup_Copilot()
+    " endif
+    " if exists('g:loaded_far')
+    "     call rookie_plugins#Setup_Far()
+    " endif
 
     if g:rookie_toys_default_setup_nerdtree
         call rookie_plugins#Setup_Nerdtree()
