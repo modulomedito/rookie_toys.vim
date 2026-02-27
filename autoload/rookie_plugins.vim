@@ -43,9 +43,15 @@ function! rookie_plugins#SetupPlugins() abort
     " if exists('g:rooter_patterns')
     "     call rookie_plugins#Setup_Rooter()
     " endif
+    if !exists('g:rookie_toys_default_setup_cppenhancedhighlight')
+        let g:rookie_toys_default_setup_cppenhancedhighlight = 0
+    endif
     " if exists('g:cpp_member_variable_highlight')
     "     call rookie_plugins#Setup_CppEnhancedHighlight()
     " endif
+    if !exists('g:rookie_toys_default_setup_copilot')
+        let g:rookie_toys_default_setup_copilot = 0
+    endif
     " if exists('g:loaded_copilot')
     "     call rookie_plugins#Setup_Copilot()
     " endif
@@ -79,6 +85,12 @@ function! rookie_plugins#SetupPlugins() abort
     endif
     if g:rookie_toys_default_setup_easyalign
         call rookie_plugins#Setup_EasyAlign()
+    endif
+    if g:rookie_toys_default_setup_copilot
+        call rookie_plugins#Setup_Copilot()
+    endif
+    if g:rookie_toys_default_setup_cppenhancedhighlight
+        call rookie_plugins#Setup_CppEnhancedHighlight()
     endif
 endfunction
 
