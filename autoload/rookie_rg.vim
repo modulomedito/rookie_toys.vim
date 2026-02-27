@@ -46,8 +46,31 @@ function! rookie_rg#GlobalGrep() abort
     if word == ''
         return
     endif
+
+    let l:curr_buf = bufnr('%')
+    let l:curr_lnum = line('.')
+
     call s:ExecuteGrep('-w ' . shellescape(word))
     let @/ = '\V' . word
+
+    let l:qflist = getqflist()
+    if empty(l:qflist)
+        return
+    endif
+
+    let l:idx = -1
+    for i in range(len(l:qflist))
+        if l:qflist[i].bufnr == l:curr_buf && l:qflist[i].lnum == l:curr_lnum
+            let l:idx = i
+            break
+        endif
+    endfor
+
+    if l:idx > 0
+        let l:item = remove(l:qflist, l:idx)
+        call insert(l:qflist, l:item, 0)
+        call setqflist(l:qflist)
+    endif
 endfunction
 
 function! rookie_rg#VisualGrep() abort
