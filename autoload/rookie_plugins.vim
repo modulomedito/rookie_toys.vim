@@ -1,6 +1,9 @@
 scriptencoding utf-8
 
 function! rookie_plugins#SetupPlugins() abort
+    if !exists('g:rookie_toys_default_setup_asyncrun')
+        let g:rookie_toys_default_setup_asyncrun = 0
+    endif
     " if exists('g:asyncrun_exit')
     "     call rookie_plugins#Setup_AsyncRun()
     " endif
@@ -10,9 +13,6 @@ function! rookie_plugins#SetupPlugins() abort
     if !exists('g:rookie_toys_default_setup_vimtextmanip')
         let g:rookie_toys_default_setup_vimtextmanip = 0
     endif
-    " if exists('g:textmanip_enable_mappings')
-    "     call rookie_plugins#Setup_VimTextmanip()
-    " endif
     if !exists('g:rookie_toys_default_setup_coc')
         let g:rookie_toys_default_setup_coc = 0
     endif
@@ -34,6 +34,9 @@ function! rookie_plugins#SetupPlugins() abort
     " if exists('g:loaded_vim_highlighter')
     "     call rookie_plugins#Setup_Highlighter()
     " endif
+    if !exists('g:rookie_toys_default_setup_easyalign')
+        let g:rookie_toys_default_setup_easyalign = 0
+    endif
     " if exists('g:EasyAlign')
     "     call rookie_plugins#Setup_EasyAlign()
     " endif
@@ -70,6 +73,12 @@ function! rookie_plugins#SetupPlugins() abort
     endif
     if g:rookie_toys_default_setup_ultisnips
         call rookie_plugins#Setup_UltiSnips()
+    endif
+    if g:rookie_toys_default_setup_asyncrun
+        call rookie_plugins#Setup_AsyncRun()
+    endif
+    if g:rookie_toys_default_setup_easyalign
+        call rookie_plugins#Setup_EasyAlign()
     endif
 endfunction
 
