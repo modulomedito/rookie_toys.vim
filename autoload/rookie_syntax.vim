@@ -70,7 +70,7 @@ endfunction
 function! rookie_syntax#CTypeHighlight() abort
     silent! syntax clear RookieCType
     syntax match RookieCType /\v<%(u?int(8|16|32|64)|sint(8|16|32|64)|[A-Z][A-Za-z0-9_]*Type|[A-Z][A-Za-z0-9_]*_t)>/
-    highlight link RookieCType Type
+    highlight link RookieCType Keyword
 endfunction
 
 " Register the built-in Doxygen extension
