@@ -4,8 +4,8 @@ function! rookie_plugins#SetupPlugins() abort
     if exists('g:asyncrun_exit')
         call rookie_plugins#Setup_AsyncRun()
     endif
-    if exists('g:NERDTreeWinSize')
-        call rookie_plugins#Setup_Nerdtree()
+    if !exists('g:rookie_toys_default_setup_nerdtree')
+        let g:rookie_toys_default_setup_nerdtree = 0
     endif
     if exists('g:textmanip_enable_mappings')
         call rookie_plugins#Setup_VimTextmanip()
@@ -42,6 +42,10 @@ function! rookie_plugins#SetupPlugins() abort
     endif
     if exists('g:loaded_far')
         call rookie_plugins#Setup_Far()
+    endif
+
+    if g:rookie_toys_default_setup_nerdtree
+        call rookie_plugins#Setup_Nerdtree()
     endif
 endfunction
 
