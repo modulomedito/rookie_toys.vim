@@ -36,7 +36,7 @@ function! rookie_gitgraph#OpenGitGraph(all_branches) abort
 
     " Open new buffer on the right
     rightbelow vnew
-    execute 'vertical resize ' . float2nr(&columns * 2.0 / 3.0)
+    execute 'vertical resize ' . float2nr(&columns * 1.0 / 2.0)
 
     let b:is_rookie_gitgraph = 1
     setlocal filetype=git
