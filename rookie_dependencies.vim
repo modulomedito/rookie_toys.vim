@@ -16,6 +16,7 @@ Plug 'modulomedito/far.vim'             " Find and replace
 Plug 'neoclide/coc.nvim', {'branch': 'release'} " LSP
 Plug 'octol/vim-cpp-enhanced-highlight' " C language syntax highlight enhance
 Plug 'preservim/nerdtree'               " File browser
+Plug 'rhysd/vim-clang-format'           " Clang format
 Plug 'skywind3000/asyncrun.vim'         " Asynchronously run
 Plug 't9md/vim-textmanip'               " Text movement
 Plug 'tpope/vim-commentary'             " Comment out
