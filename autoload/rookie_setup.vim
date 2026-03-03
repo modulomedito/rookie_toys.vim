@@ -253,10 +253,6 @@ function! rookie_setup#SetupAutocmd() abort
     autocmd! FileType c
         \ setlocal iskeyword-=-
         \|setlocal commentstring=//%s
-        \|nnoremap <silent><buffer> <C-s> :let g:my_pos = getpos('.')<CR>
-        \<Plug>(coc-format)<Bar>m6:%s/\s\+$//e<Bar>w<CR>`6zz:noh<CR>
-        \:if exists('g:my_pos')\|call setpos('.', g:my_pos)\|endif<CR>
-        \:w<CR>
     autocmd! FileType lsl
         \ setlocal filetype=c syntax=c
     autocmd! FileType lua
