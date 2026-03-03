@@ -69,7 +69,7 @@ endfunction
 
 function! rookie_syntax#CTypeHighlight() abort
     silent! syntax clear RookieCType
-    syntax match RookieCType /\v<%(u?int(8|16|32|64)|sint(8|16|32|64)|[A-Z][A-Za-z0-9_]*Type|[A-Z][A-Za-z0-9_]*_t|[a-z0-9_]+_+[A-Z][a-zA-Z0-9]*|[A-Z][a-z0-9]+[a-zA-Z0-9]*)>/
+    syntax match RookieCType /\v<%(u?int(8|16|32|64)|sint(8|16|32|64)|[A-Z][A-Za-z0-9_]*Type|[A-Z][A-Za-z0-9_]*_t|[a-z0-9_]+_+[A-Z][a-zA-Z0-9]*|[A-Z][a-z0-9]+[a-zA-Z0-9]*|[A-Z][a-zA-Z0-9_]*[0-9][a-zA-Z0-9_]*[a-z][a-zA-Z0-9_]*)>/
     highlight link RookieCType Keyword
 endfunction
 
