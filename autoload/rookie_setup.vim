@@ -230,6 +230,14 @@ function! rookie_setup#SetupAbbr() abort
     cab Gnew silent G checkout -b\|GG<Left><Left><Left>
 endfunction
 
+" autocmd! FileType c
+"     \ setlocal iskeyword-=-
+"     \|setlocal textwidth=79
+"     \|setlocal commentstring=//%s
+"     \|nnoremap <silent><buffer> <C-s> :let g:my_pos = getpos('.')<CR>
+"     \<Plug>(coc-format)<Bar>m6:%s/\s\+$//e<Bar>w<CR>`6zz:noh<CR>
+"     \:if exists('g:my_pos')\|call setpos('.', g:my_pos)\|endif<CR>
+"     \:w<CR>
 function! rookie_setup#SetupAutocmd() abort
     autocmd! FileType python
         \ nnoremap <buffer> <leader><F10> :copen <bar> AsyncRun python<Space>%<Tab>
@@ -244,7 +252,6 @@ function! rookie_setup#SetupAutocmd() abort
         \ setlocal iskeyword+=:
     autocmd! FileType c
         \ setlocal iskeyword-=-
-        \|setlocal textwidth=79
         \|setlocal commentstring=//%s
         \|nnoremap <silent><buffer> <C-s> :let g:my_pos = getpos('.')<CR>
         \<Plug>(coc-format)<Bar>m6:%s/\s\+$//e<Bar>w<CR>`6zz:noh<CR>
