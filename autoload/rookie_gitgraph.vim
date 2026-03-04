@@ -1,5 +1,107 @@
 scriptencoding utf-8
 
+function! s:ProcessAnsi(lines) abort
+    let l:clean_lines = []
+    let l:matches = []
+
+    let l:color_map = {
+        \ '31': 'RookieGitGraphColorRed',
+        \ '32': 'RookieGitGraphColorGreen',
+        \ '33': 'RookieGitGraphColorYellow',
+        \ '34': 'RookieGitGraphColorBlue',
+        \ '35': 'RookieGitGraphColorMagenta',
+        \ '36': 'RookieGitGraphColorCyan',
+        \ '37': 'RookieGitGraphColorWhite',
+        \ '1;31': 'RookieGitGraphColorRed',
+        \ '1;32': 'RookieGitGraphColorGreen',
+        \ '1;33': 'RookieGitGraphColorYellow',
+        \ '1;34': 'RookieGitGraphColorBlue',
+        \ '1;35': 'RookieGitGraphColorMagenta',
+        \ '1;36': 'RookieGitGraphColorCyan',
+        \ '1;37': 'RookieGitGraphColorWhite',
+        \ }
+
+    let l:idx = 1
+    for l:line in a:lines
+        let l:new_line = ''
+        let l:line_matches = []
+        let l:current_hl = ''
+        let l:col = 1
+
+        let l:remaining = l:line
+        while !empty(l:remaining)
+            let l:start = match(l:remaining, '\e\[[0-9;]*m')
+
+            if l:start == -1
+                let l:text = l:remaining
+                let l:new_line .= l:text
+                if !empty(l:current_hl)
+                    call add(l:line_matches, [l:current_hl, l:idx, l:col, len(l:text)])
+                endif
+                break
+            endif
+
+            if l:start > 0
+                let l:text = strpart(l:remaining, 0, l:start)
+                let l:new_line .= l:text
+                if !empty(l:current_hl)
+                    call add(l:line_matches, [l:current_hl, l:idx, l:col, len(l:text)])
+                endif
+                let l:col += len(l:text)
+            endif
+
+            let l:match_str = matchstr(l:remaining, '^\e\[[0-9;]*m', l:start)
+            let l:code = matchstr(l:match_str, '\e\[\zs[0-9;]*\ze')
+            " Remove trailing m if caught by regex above or simplify
+            let l:code = substitute(l:code, 'm$', '', '')
+
+            if has_key(l:color_map, l:code)
+                let l:current_hl = l:color_map[l:code]
+            elseif l:code ==# '0' || l:code ==# ''
+                let l:current_hl = ''
+            else
+                " Try to handle codes like 31;1 or 1;31 more robustly
+                let l:parts = split(l:code, ';')
+                call sort(l:parts)
+                let l:sorted_code = join(l:parts, ';')
+                if has_key(l:color_map, l:sorted_code)
+                    let l:current_hl = l:color_map[l:sorted_code]
+                endif
+            endif
+
+            let l:remaining = strpart(l:remaining, l:start + len(l:match_str))
+        endwhile
+
+        " Post-processing: Replace * with ●
+        let l:star_idx = match(l:new_line, '^\([|\\/ ]*\)\zs\*')
+        if l:star_idx != -1
+            let l:before = strpart(l:new_line, 0, l:star_idx)
+            let l:after = strpart(l:new_line, l:star_idx + 1)
+            let l:new_line = l:before . '●' . l:after
+
+            " Adjust matches
+            for l:m in l:line_matches
+                let l:m_col = l:m[2]
+                let l:m_len = l:m[3]
+                let l:m_end = l:m_col + l:m_len
+                let l:star_col = l:star_idx + 1
+
+                if l:m_col > l:star_col
+                    let l:m[2] += 2
+                elseif l:m_col <= l:star_col && l:m_end > l:star_col
+                    let l:m[3] += 2
+                endif
+            endfor
+        endif
+
+        call add(l:clean_lines, l:new_line)
+        call extend(l:matches, l:line_matches)
+        let l:idx += 1
+    endfor
+
+    return [l:clean_lines, l:matches]
+endfunction
+
 function! s:UpdateGraphCallback(bufnr, cmd) abort
     if !bufexists(a:bufnr)
         return
@@ -7,17 +109,38 @@ function! s:UpdateGraphCallback(bufnr, cmd) abort
 
     let l:output = systemlist(a:cmd)
 
+    let [l:clean_lines, l:matches] = s:ProcessAnsi(l:output)
+
     " Update buffer content
     call setbufvar(a:bufnr, '&modifiable', 1)
     call deletebufline(a:bufnr, 1, '$')
-    call setbufline(a:bufnr, 1, l:output)
+    call setbufline(a:bufnr, 1, l:clean_lines)
 
     " Apply highlighting and formatting
     let l:winid = bufwinid(a:bufnr)
     if l:winid != -1
-        call win_execute(l:winid, 'silent! %s/^\([|\\/ ]*\)\*/\1●/e')
         call win_execute(l:winid, 'setlocal nomodifiable')
         call win_execute(l:winid, 'normal! gg')
+        call win_execute(l:winid, 'call clearmatches()')
+
+        " Group matches by highlight group
+        let l:groups = {}
+        for l:m in l:matches
+            let l:grp = l:m[0]
+            if !has_key(l:groups, l:grp)
+                let l:groups[l:grp] = []
+            endif
+            call add(l:groups[l:grp], [l:m[1], l:m[2], l:m[3]])
+        endfor
+
+        for [l:grp, l:pos_list] in items(l:groups)
+            let l:chunk_size = 8
+            for l:i in range(0, len(l:pos_list) - 1, l:chunk_size)
+                let l:chunk = l:pos_list[l:i : l:i + l:chunk_size - 1]
+                call win_execute(l:winid, "call matchaddpos('" . l:grp . "', " . string(l:chunk) . ")")
+            endfor
+        endfor
+
         call win_execute(l:winid, 'call rookie_gitgraph#HighlightRefs()')
         call win_execute(l:winid, 'call search("HEAD ->")')
         call win_execute(l:winid, 'normal! zz')
@@ -63,7 +186,7 @@ function! rookie_gitgraph#OpenGitGraph(all_branches) abort
     endif
 
     " Construct git command
-    let l:cmd = 'git -C ' . shellescape(l:dir) . ' log --graph --decorate '
+    let l:cmd = 'git -C ' . shellescape(l:dir) . ' log --graph --decorate --color=always '
     if a:all_branches
         let l:cmd = l:cmd . '--all '
     endif
@@ -96,18 +219,46 @@ function! rookie_gitgraph#HighlightRefs() abort
     silent! syntax clear RookieGitGraphStarNormal
     silent! syntax clear RookieGitGraphStarOrigin
     silent! syntax clear RookieGitGraphStarHead
+    silent! syntax clear RookieGitGraphColorRed
+    silent! syntax clear RookieGitGraphColorGreen
+    silent! syntax clear RookieGitGraphColorYellow
+    silent! syntax clear RookieGitGraphColorBlue
+    silent! syntax clear RookieGitGraphColorMagenta
+    silent! syntax clear RookieGitGraphColorCyan
+    silent! syntax clear RookieGitGraphColorWhite
+    silent! syntax clear RookieGitGraphHash
+    silent! syntax clear RookieGitGraphDate
+    silent! syntax clear RookieGitGraphAuthor
 
-    highlight RookieGitGraphDecorRegion guifg=#7fbbb3 gui=bold cterm=bold
-    highlight RookieGitGraphBracket guifg=#7fbbb3 gui=bold cterm=bold
-    highlight RookieGitGraphOrigin guifg=orange gui=bold cterm=bold
-    highlight RookieGitGraphHead guifg=red gui=bold cterm=bold
-    highlight RookieGitGraphStarNormal guifg=#7fbbb3 gui=bold cterm=bold
-    highlight RookieGitGraphStarOrigin guifg=orange gui=bold cterm=bold
-    highlight RookieGitGraphStarHead   guifg=red     gui=bold cterm=bold
+    " Gruvbox Colors
+    highlight RookieGitGraphColorRed     guifg=#cc241d ctermfg=124 gui=bold cterm=bold
+    highlight RookieGitGraphColorGreen   guifg=#98971a ctermfg=106 gui=bold cterm=bold
+    highlight RookieGitGraphColorYellow  guifg=#d79921 ctermfg=172 gui=bold cterm=bold
+    highlight RookieGitGraphColorBlue    guifg=#458588 ctermfg=66  gui=bold cterm=bold
+    highlight RookieGitGraphColorMagenta guifg=#b16286 ctermfg=132 gui=bold cterm=bold
+    highlight RookieGitGraphColorCyan    guifg=#689d6a ctermfg=72  gui=bold cterm=bold
+    highlight RookieGitGraphColorWhite   guifg=#928374 ctermfg=246 gui=bold cterm=bold
+
+    highlight RookieGitGraphHash   guifg=#d79921 gui=NONE cterm=NONE
+    highlight RookieGitGraphDate   guifg=#458588 gui=NONE cterm=NONE
+    highlight RookieGitGraphAuthor guifg=#83a598 gui=NONE cterm=NONE
+
+    highlight RookieGitGraphDecorRegion guifg=#689d6a gui=bold cterm=bold
+    highlight RookieGitGraphBracket guifg=#689d6a gui=bold cterm=bold
+    highlight RookieGitGraphOrigin guifg=#d65d0e gui=bold cterm=bold
+    highlight RookieGitGraphHead guifg=#cc241d gui=bold cterm=bold
+    highlight RookieGitGraphStarNormal guifg=#689d6a gui=bold cterm=bold
+    highlight RookieGitGraphStarOrigin guifg=#d65d0e gui=bold cterm=bold
+    highlight RookieGitGraphStarHead   guifg=#cc241d     gui=bold cterm=bold
 
     execute 'syntax region RookieGitGraphDecorRegion matchgroup=RookieGitGraphBracket start=/\v\| *\(/ end=/\v\)\s/ keepend contains=RookieGitGraphOrigin,RookieGitGraphHead'
     execute 'syntax match RookieGitGraphOrigin /\vorigin\/[^, )]+/ contained containedin=RookieGitGraphDecorRegion'
     execute 'syntax match RookieGitGraphHead /\vHEAD(\s*->\s*[^,)]+)?/ contained containedin=RookieGitGraphDecorRegion'
+
+    " Match commit info
+    syntax match RookieGitGraphHash /\v[a-f0-9]{7,}/
+    syntax match RookieGitGraphDate /\v\[[^\]]+\]/
+    syntax match RookieGitGraphAuthor /\v\{[^\}]+\}/
 
     " Match ● based on line content priority (last defined wins)
     " 3. Local/Tag/Decor (#7fbbb3) - Match if line contains '} | ('
