@@ -481,6 +481,60 @@ function! s:ProcessAnsi(lines) abort
         let l:idx += 1
     endfor
 
+    " 11. Complex Merge Pattern Fix
+    " Pattern:
+    "   │├╯
+    "   ●│...
+    "   ├╮│
+    " Replace with:
+    "   │││
+    "   ●││...
+    "   ├┼╯
+    let l:i = 0
+    while l:i < len(l:clean_lines) - 2
+        let l:line1 = l:clean_lines[l:i]
+        let l:line2 = l:clean_lines[l:i+1]
+        let l:line3 = l:clean_lines[l:i+2]
+
+        " Use match() to check patterns
+        " Line 1: Ends with │├╯ (ignoring trailing spaces)
+        if match(l:line1, '│├╯\s*$') != -1
+            " Line 2: Starts with ●│ followed by hex
+            if match(l:line2, '^●│[a-f0-9]') != -1
+                " Line 3: Starts with ├╮│
+                if match(l:line3, '^├╮│') != -1
+                    " Apply replacements
+
+                    " Line 1: Replace │├╯ with │││
+                    let l:clean_lines[l:i] = substitute(l:line1, '│├╯', '│││', '')
+
+                    " Line 2: Insert │ after ●│
+                    " ● (3 bytes) + │ (3 bytes) = 6 bytes
+                    let l:before = strpart(l:line2, 0, 6)
+                    let l:after = strpart(l:line2, 6)
+                    let l:clean_lines[l:i+1] = l:before . '│' . l:after
+
+                    " Update matches for Line 2 (index l:i + 2 because matches are 1-based)
+                    let l:match_line_idx = l:i + 2
+                    let l:insert_pos = 7
+                    let l:diff = 3
+
+                    for l:m in l:matches
+                        if l:m[1] == l:match_line_idx
+                            if l:m[2] >= l:insert_pos
+                                let l:m[2] += l:diff
+                            endif
+                        endif
+                    endfor
+
+                    " Line 3: Replace ├╮│ with ├┼╯
+                    let l:clean_lines[l:i+2] = substitute(l:line3, '├╮│', '├┼╯', '')
+                endif
+            endif
+        endif
+        let l:i += 1
+    endwhile
+
     return [l:clean_lines, l:matches]
 endfunction
 
