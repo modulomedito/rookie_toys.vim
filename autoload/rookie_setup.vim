@@ -227,8 +227,8 @@ function! rookie_setup#SetupAbbr() abort
     cab Gso silent G stash pop\|GG
     cab Gclr silent G clean -d -f -x
     cab Gtag silent G tag\|GG<Left><Left><Left>
-    cab Gbdl silent G branch -d\|GG<Left><Left><Left>
-    cab Gbdr silent G push origin --delete\|GG<Left><Left><Left>
+    cab Gdell silent G branch -d\|GG<Left><Left><Left>
+    cab Gdelr silent G push origin --delete\|GG<Left><Left><Left>
     cab Gnew silent G checkout -b\|GG<Left><Left><Left>
 endfunction
 
