@@ -102,7 +102,7 @@ function! s:ProcessAnsi(lines) abort
         endwhile
 
         " Post-processing: Replace * with ●
-        let l:star_idx = match(l:new_line, '^\([│╲╱|\\/ _]*\)\zs\*')
+        let l:star_idx = match(l:new_line, '^\([│|\\/ _]*\)\zs\*')
         if l:star_idx != -1
             let l:before = strpart(l:new_line, 0, l:star_idx)
             let l:after = strpart(l:new_line, l:star_idx + 1)
@@ -429,14 +429,14 @@ function! s:ProcessAnsi(lines) abort
         " 9. ● <sha> -> ●<sha> (Remove spaces)
         while 1
             " Match spaces between graph chars and hex digit
-            " Graph chars: │ ╲ ╱ ● ├ ╮ ╯ _
+            " Graph chars: │ \ / ● ├ ╮ ╯ _
             " Use \zs to get index of first space
-            let l:idx = match(l:new_line, '[│╲╱●├╮╯_]\zs \+\ze[a-f0-9]')
+            let l:idx = match(l:new_line, '[│\\/●├╮╯_]\zs \+\ze[a-f0-9]')
             if l:idx == -1
                 break
             endif
 
-            let l:spaces = matchstr(l:new_line, '[│╲╱●├╮╯_]\zs \+\ze[a-f0-9]')
+            let l:spaces = matchstr(l:new_line, '[│\\/●├╮╯_]\zs \+\ze[a-f0-9]')
             let l:num_spaces = len(l:spaces)
 
             let l:before = strpart(l:new_line, 0, l:idx)
