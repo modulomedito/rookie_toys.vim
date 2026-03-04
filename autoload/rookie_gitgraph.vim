@@ -342,6 +342,56 @@ function! s:ProcessAnsi(lines) abort
             endwhile
         endwhile
 
+        " 9. ● <sha> -> ●<sha> (Remove spaces)
+        while 1
+            " Match spaces between graph chars and hex digit
+            " Graph chars: │ ╲ ╱ ● ├ ╮ ╯ _
+            " Use \zs to get index of first space
+            let l:idx = match(l:new_line, '[│╲╱●├╮╯_]\zs \+\ze[a-f0-9]')
+            if l:idx == -1
+                break
+            endif
+
+            let l:spaces = matchstr(l:new_line, '[│╲╱●├╮╯_]\zs \+\ze[a-f0-9]')
+            let l:num_spaces = len(l:spaces)
+
+            let l:before = strpart(l:new_line, 0, l:idx)
+            let l:after = strpart(l:new_line, l:idx + l:num_spaces)
+            let l:new_line = l:before . l:after
+
+            let l:space_col_start = l:idx + 1
+            let l:space_col_end = l:space_col_start + l:num_spaces
+
+            let l:i = 0
+            while l:i < len(l:line_matches)
+                let l:m = l:line_matches[l:i]
+                let l:m_col = l:m[2]
+                let l:m_len = l:m[3]
+                let l:m_end = l:m_col + l:m_len
+
+                " Calculate overlap with removed region [space_col_start, space_col_end)
+                let l:overlap_start = (l:m_col > l:space_col_start) ? l:m_col : l:space_col_start
+                let l:overlap_end = (l:m_end < l:space_col_end) ? l:m_end : l:space_col_end
+                let l:overlap_len = l:overlap_end - l:overlap_start
+
+                if l:overlap_len > 0
+                    let l:m[3] -= l:overlap_len
+                endif
+
+                if l:m_col >= l:space_col_end
+                    let l:m[2] -= l:num_spaces
+                elseif l:m_col > l:space_col_start
+                    let l:m[2] = l:space_col_start
+                endif
+
+                if l:m[3] <= 0
+                    call remove(l:line_matches, l:i)
+                    continue
+                endif
+                let l:i += 1
+            endwhile
+        endwhile
+
         call add(l:clean_lines, l:new_line)
         call extend(l:matches, l:line_matches)
         let l:idx += 1
