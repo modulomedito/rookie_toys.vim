@@ -214,6 +214,8 @@ function! rookie_setup#SetupAbbr() abort
     iab xfix 🐞 fix():[#]<Left><Left><Left><Left>
     iab xini 🎉 init():[#]<Left><Left><Left><Left>
     iab xref 🦄 refactor():[#]<Left><Left><Left><Left>
+    iab xrev ↩ revert():[#]<Left><Left><Left><Left>
+    iab xsty 🌈 style():[#]<Left><Left><Left><Left>
     cab Gl call timer_start(1200, {-> execute('RookieGitGraph')})\|G
     cab GP silent G pull\|GG
     cab Gp silent G push\|GG
