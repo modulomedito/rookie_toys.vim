@@ -172,6 +172,40 @@ function! s:ProcessAnsi(lines) abort
             endwhile
         endwhile
 
+        " 8. │ ├╯ -> │├╯ (Remove space)
+        while 1
+            let l:idx = match(l:new_line, '│ ├╯')
+            if l:idx == -1
+                break
+            endif
+
+            let l:before = strpart(l:new_line, 0, l:idx + 3) " Keep │ (3 bytes)
+            let l:after = strpart(l:new_line, l:idx + 4)     " Skip space
+            let l:new_line = l:before . l:after
+
+            let l:space_col = l:idx + 4
+
+            let l:i = 0
+            while l:i < len(l:line_matches)
+                let l:m = l:line_matches[l:i]
+                let l:m_col = l:m[2]
+                let l:m_len = l:m[3]
+                let l:m_end = l:m_col + l:m_len
+
+                if l:m_col > l:space_col
+                    let l:m[2] -= 1
+                elseif l:m_col <= l:space_col && l:m_end > l:space_col
+                    let l:m[3] -= 1
+                endif
+
+                if l:m[3] <= 0
+                    call remove(l:line_matches, l:i)
+                    continue
+                endif
+                let l:i += 1
+            endwhile
+        endwhile
+
         " 5. │ ├╮ -> │├╮ (Remove space)
         while 1
             let l:idx = match(l:new_line, '│ ├╮')
