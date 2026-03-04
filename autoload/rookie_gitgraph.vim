@@ -40,10 +40,14 @@ function! s:ProcessAnsi(lines) abort
                     let l:non_graph_idx = match(l:text, '[^|\\/ _*]')
                     if l:non_graph_idx == -1
                         let l:text = substitute(l:text, '|', '│', 'g')
+                        let l:text = substitute(l:text, '\\', '╲', 'g')
+                        let l:text = substitute(l:text, '/', '╱', 'g')
                     else
                         let l:graph_part = strpart(l:text, 0, l:non_graph_idx)
                         let l:rest_part = strpart(l:text, l:non_graph_idx)
                         let l:graph_part = substitute(l:graph_part, '|', '│', 'g')
+                        let l:graph_part = substitute(l:graph_part, '\\', '╲', 'g')
+                        let l:graph_part = substitute(l:graph_part, '/', '╱', 'g')
                         let l:text = l:graph_part . l:rest_part
                         let l:in_graph = 0
                     endif
@@ -63,10 +67,14 @@ function! s:ProcessAnsi(lines) abort
                     let l:non_graph_idx = match(l:text, '[^|\\/ _*]')
                     if l:non_graph_idx == -1
                         let l:text = substitute(l:text, '|', '│', 'g')
+                        let l:text = substitute(l:text, '\\', '╲', 'g')
+                        let l:text = substitute(l:text, '/', '╱', 'g')
                     else
                         let l:graph_part = strpart(l:text, 0, l:non_graph_idx)
                         let l:rest_part = strpart(l:text, l:non_graph_idx)
                         let l:graph_part = substitute(l:graph_part, '|', '│', 'g')
+                        let l:graph_part = substitute(l:graph_part, '\\', '╲', 'g')
+                        let l:graph_part = substitute(l:graph_part, '/', '╱', 'g')
                         let l:text = l:graph_part . l:rest_part
                         let l:in_graph = 0
                     endif
@@ -102,7 +110,7 @@ function! s:ProcessAnsi(lines) abort
         endwhile
 
         " Post-processing: Replace * with ●
-        let l:star_idx = match(l:new_line, '^\([│|\\/ _]*\)\zs\*')
+        let l:star_idx = match(l:new_line, '^\([│╲╱|\\/ _]*\)\zs\*')
         if l:star_idx != -1
             let l:before = strpart(l:new_line, 0, l:star_idx)
             let l:after = strpart(l:new_line, l:star_idx + 1)
@@ -122,6 +130,183 @@ function! s:ProcessAnsi(lines) abort
                 endif
             endfor
         endif
+
+        " Custom replacements for smoother graph
+        " 1. │╲ -> ├╮
+        let l:new_line = substitute(l:new_line, '│╲', '├╮', 'g')
+
+        " 2. │╱ -> ├╯
+        let l:new_line = substitute(l:new_line, '│╱', '├╯', 'g')
+
+        " 3. │ ● -> │● (Remove space)
+        while 1
+            let l:idx = match(l:new_line, '│ ●')
+            if l:idx == -1
+                break
+            endif
+
+            let l:before = strpart(l:new_line, 0, l:idx + 3) " Keep │ (3 bytes)
+            let l:after = strpart(l:new_line, l:idx + 4)     " Skip space
+            let l:new_line = l:before . l:after
+
+            let l:space_col = l:idx + 4
+
+            let l:i = 0
+            while l:i < len(l:line_matches)
+                let l:m = l:line_matches[l:i]
+                let l:m_col = l:m[2]
+                let l:m_len = l:m[3]
+                let l:m_end = l:m_col + l:m_len
+
+                if l:m_col > l:space_col
+                    let l:m[2] -= 1
+                elseif l:m_col <= l:space_col && l:m_end > l:space_col
+                    let l:m[3] -= 1
+                endif
+
+                if l:m[3] <= 0
+                    call remove(l:line_matches, l:i)
+                    continue
+                endif
+                let l:i += 1
+            endwhile
+        endwhile
+
+        " 5. │ ├╮ -> │├╮ (Remove space)
+        while 1
+            let l:idx = match(l:new_line, '│ ├╮')
+            if l:idx == -1
+                break
+            endif
+
+            let l:before = strpart(l:new_line, 0, l:idx + 3) " Keep │ (3 bytes)
+            let l:after = strpart(l:new_line, l:idx + 4)     " Skip space
+            let l:new_line = l:before . l:after
+
+            let l:space_col = l:idx + 4
+
+            let l:i = 0
+            while l:i < len(l:line_matches)
+                let l:m = l:line_matches[l:i]
+                let l:m_col = l:m[2]
+                let l:m_len = l:m[3]
+                let l:m_end = l:m_col + l:m_len
+
+                if l:m_col > l:space_col
+                    let l:m[2] -= 1
+                elseif l:m_col <= l:space_col && l:m_end > l:space_col
+                    let l:m[3] -= 1
+                endif
+
+                if l:m[3] <= 0
+                    call remove(l:line_matches, l:i)
+                    continue
+                endif
+                let l:i += 1
+            endwhile
+        endwhile
+
+        " 6. │ │● -> ││● (Remove space)
+        while 1
+            let l:idx = match(l:new_line, '│ │●')
+            if l:idx == -1
+                break
+            endif
+
+            let l:before = strpart(l:new_line, 0, l:idx + 3) " Keep │ (3 bytes)
+            let l:after = strpart(l:new_line, l:idx + 4)     " Skip space
+            let l:new_line = l:before . l:after
+
+            let l:space_col = l:idx + 4
+
+            let l:i = 0
+            while l:i < len(l:line_matches)
+                let l:m = l:line_matches[l:i]
+                let l:m_col = l:m[2]
+                let l:m_len = l:m[3]
+                let l:m_end = l:m_col + l:m_len
+
+                if l:m_col > l:space_col
+                    let l:m[2] -= 1
+                elseif l:m_col <= l:space_col && l:m_end > l:space_col
+                    let l:m[3] -= 1
+                endif
+
+                if l:m[3] <= 0
+                    call remove(l:line_matches, l:i)
+                    continue
+                endif
+                let l:i += 1
+            endwhile
+        endwhile
+
+        " 7. ●│ │ -> ●││ (Remove space)
+        while 1
+            let l:idx = match(l:new_line, '●│ │')
+            if l:idx == -1
+                break
+            endif
+
+            let l:before = strpart(l:new_line, 0, l:idx + 6) " Keep ●│ (3+3=6 bytes)
+            let l:after = strpart(l:new_line, l:idx + 7)     " Skip space
+            let l:new_line = l:before . l:after
+
+            let l:space_col = l:idx + 7
+
+            let l:i = 0
+            while l:i < len(l:line_matches)
+                let l:m = l:line_matches[l:i]
+                let l:m_col = l:m[2]
+                let l:m_len = l:m[3]
+                let l:m_end = l:m_col + l:m_len
+
+                if l:m_col > l:space_col
+                    let l:m[2] -= 1
+                elseif l:m_col <= l:space_col && l:m_end > l:space_col
+                    let l:m[3] -= 1
+                endif
+
+                if l:m[3] <= 0
+                    call remove(l:line_matches, l:i)
+                    continue
+                endif
+                let l:i += 1
+            endwhile
+        endwhile
+
+        " 4. ● │ -> ●│ (Remove space)
+        while 1
+            let l:idx = match(l:new_line, '● │')
+            if l:idx == -1
+                break
+            endif
+
+            let l:before = strpart(l:new_line, 0, l:idx + 3) " Keep ● (3 bytes)
+            let l:after = strpart(l:new_line, l:idx + 4)     " Skip space
+            let l:new_line = l:before . l:after
+
+            let l:space_col = l:idx + 4
+
+            let l:i = 0
+            while l:i < len(l:line_matches)
+                let l:m = l:line_matches[l:i]
+                let l:m_col = l:m[2]
+                let l:m_len = l:m[3]
+                let l:m_end = l:m_col + l:m_len
+
+                if l:m_col > l:space_col
+                    let l:m[2] -= 1
+                elseif l:m_col <= l:space_col && l:m_end > l:space_col
+                    let l:m[3] -= 1
+                endif
+
+                if l:m[3] <= 0
+                    call remove(l:line_matches, l:i)
+                    continue
+                endif
+                let l:i += 1
+            endwhile
+        endwhile
 
         call add(l:clean_lines, l:new_line)
         call extend(l:matches, l:line_matches)
