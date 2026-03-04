@@ -29,11 +29,26 @@ function! s:ProcessAnsi(lines) abort
         let l:col = 1
 
         let l:remaining = l:line
+        let l:in_graph = 1
         while !empty(l:remaining)
             let l:start = match(l:remaining, '\e\[[0-9;]*m')
 
             if l:start == -1
                 let l:text = l:remaining
+
+                if l:in_graph
+                    let l:non_graph_idx = match(l:text, '[^|\\/ _*]')
+                    if l:non_graph_idx == -1
+                        let l:text = substitute(l:text, '|', '│', 'g')
+                    else
+                        let l:graph_part = strpart(l:text, 0, l:non_graph_idx)
+                        let l:rest_part = strpart(l:text, l:non_graph_idx)
+                        let l:graph_part = substitute(l:graph_part, '|', '│', 'g')
+                        let l:text = l:graph_part . l:rest_part
+                        let l:in_graph = 0
+                    endif
+                endif
+
                 let l:new_line .= l:text
                 if !empty(l:current_hl)
                     call add(l:line_matches, [l:current_hl, l:idx, l:col, len(l:text)])
@@ -43,6 +58,20 @@ function! s:ProcessAnsi(lines) abort
 
             if l:start > 0
                 let l:text = strpart(l:remaining, 0, l:start)
+
+                if l:in_graph
+                    let l:non_graph_idx = match(l:text, '[^|\\/ _*]')
+                    if l:non_graph_idx == -1
+                        let l:text = substitute(l:text, '|', '│', 'g')
+                    else
+                        let l:graph_part = strpart(l:text, 0, l:non_graph_idx)
+                        let l:rest_part = strpart(l:text, l:non_graph_idx)
+                        let l:graph_part = substitute(l:graph_part, '|', '│', 'g')
+                        let l:text = l:graph_part . l:rest_part
+                        let l:in_graph = 0
+                    endif
+                endif
+
                 let l:new_line .= l:text
                 if !empty(l:current_hl)
                     call add(l:line_matches, [l:current_hl, l:idx, l:col, len(l:text)])
@@ -73,7 +102,7 @@ function! s:ProcessAnsi(lines) abort
         endwhile
 
         " Post-processing: Replace * with ●
-        let l:star_idx = match(l:new_line, '^\([|\\/ ]*\)\zs\*')
+        let l:star_idx = match(l:new_line, '^\([│|\\/ _]*\)\zs\*')
         if l:star_idx != -1
             let l:before = strpart(l:new_line, 0, l:star_idx)
             let l:after = strpart(l:new_line, l:star_idx + 1)
@@ -102,7 +131,48 @@ function! s:ProcessAnsi(lines) abort
     return [l:clean_lines, l:matches]
 endfunction
 
-function! s:UpdateGraphCallback(bufnr, cmd) abort
+function! s:GetGitDir(dir) abort
+    let l:git_dir = system('git -C ' . shellescape(a:dir) . ' rev-parse --git-dir')
+    let l:git_dir = substitute(l:git_dir, '\n$', '', '')
+    if v:shell_error
+        return ''
+    endif
+    " If relative path, resolve to absolute
+    if l:git_dir !~# '^/' && l:git_dir !~# '^[a-zA-Z]:'
+        let l:git_dir = fnamemodify(a:dir . '/' . l:git_dir, ':p')
+        " Remove trailing slash/newline
+        let l:git_dir = substitute(l:git_dir, '[/\\]\+$', '', '')
+    endif
+    return l:git_dir
+endfunction
+
+function! s:IsFetchNeeded(dir) abort
+    let l:git_dir = s:GetGitDir(a:dir)
+    if empty(l:git_dir)
+        return 1
+    endif
+
+    let l:fetch_head = l:git_dir . '/FETCH_HEAD'
+    let l:last_fetch = getftime(l:fetch_head)
+
+    if l:last_fetch == -1
+        return 1
+    endif
+
+    " Default timeout 60 seconds
+    let l:timeout = get(g:, 'rookie_gitgraph_fetch_timeout', 60)
+    let l:now = localtime()
+
+    if (l:now - l:last_fetch) < l:timeout
+        return 0
+    endif
+
+    return 1
+endfunction
+
+function! s:UpdateGraphCallback(bufnr, cmd, ...) abort
+    let l:report_update = get(a:000, 0, 0)
+
     if !bufexists(a:bufnr)
         return
     endif
@@ -110,6 +180,15 @@ function! s:UpdateGraphCallback(bufnr, cmd) abort
     let l:output = systemlist(a:cmd)
 
     let [l:clean_lines, l:matches] = s:ProcessAnsi(l:output)
+
+    " Check if content has changed
+    let l:current_content = getbufline(a:bufnr, 1, '$')
+    if l:clean_lines ==# l:current_content
+        if l:report_update
+             echo "Git graph is up to date."
+        endif
+        return
+    endif
 
     " Update buffer content
     call setbufvar(a:bufnr, '&modifiable', 1)
@@ -122,6 +201,9 @@ function! s:UpdateGraphCallback(bufnr, cmd) abort
         call win_execute(l:winid, 'setlocal nomodifiable')
         call win_execute(l:winid, 'normal! gg')
         call win_execute(l:winid, 'call clearmatches()')
+
+        " Ensure highlight groups are defined before using matchaddpos
+        call win_execute(l:winid, 'call rookie_gitgraph#HighlightRefs()')
 
         " Group matches by highlight group
         let l:groups = {}
@@ -141,9 +223,13 @@ function! s:UpdateGraphCallback(bufnr, cmd) abort
             endfor
         endfor
 
-        call win_execute(l:winid, 'call rookie_gitgraph#HighlightRefs()')
         call win_execute(l:winid, 'call search("HEAD ->")')
         call win_execute(l:winid, 'normal! zz')
+
+        if l:report_update
+            redraw
+            echo "Git graph updated."
+        endif
     else
         call setbufvar(a:bufnr, '&modifiable', 0)
     endif
@@ -168,9 +254,6 @@ function! rookie_gitgraph#OpenGitGraph(all_branches) abort
     setlocal noswapfile
     setlocal modifiable
 
-    call setline(1, 'Fetching updates...')
-    setlocal nomodifiable
-
     let l:bufnr = bufnr('%')
 
     " Map <CR> to show commit diff
@@ -192,19 +275,28 @@ function! rookie_gitgraph#OpenGitGraph(all_branches) abort
     endif
     let l:cmd = l:cmd . '--pretty=format:"%h [%ad] {%an} |%d %s" --date=format-local:"%y-%m-%d %H:%M"'
 
+    " Render immediately
+    call s:UpdateGraphCallback(l:bufnr, l:cmd, 0)
+
     " Async Fetch + Callback
     if get(g:, 'rookie_gitgraph_async_fetch', 1)
-        call rookie_git#AsyncFetch(l:dir, function('s:UpdateGraphCallback', [l:bufnr, l:cmd]))
+        if s:IsFetchNeeded(l:dir)
+            echo "Fetching updates..."
+            call rookie_git#AsyncFetch(l:dir, function('s:UpdateGraphCallback', [l:bufnr, l:cmd, 1]))
+        endif
     else
         " Synchronous fallback
-        if exists(':G')
-            silent! execute 'G fetch'
-        elseif exists(':Git')
-            silent! execute 'Git fetch'
-        else
-            call system('git -C ' . shellescape(l:dir) . ' fetch --all --quiet')
+        if s:IsFetchNeeded(l:dir)
+            echo "Fetching updates..."
+            if exists(':G')
+                silent! execute 'G fetch'
+            elseif exists(':Git')
+                silent! execute 'Git fetch'
+            else
+                call system('git -C ' . shellescape(l:dir) . ' fetch --all --quiet')
+            endif
+            call s:UpdateGraphCallback(l:bufnr, l:cmd, 1)
         endif
-        call s:UpdateGraphCallback(l:bufnr, l:cmd)
     endif
 endfunction
 
