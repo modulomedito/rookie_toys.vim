@@ -1,5 +1,7 @@
 scriptencoding utf-8
 
+let g:rookie_gitgraph_commit_symbol = '*'
+
 function! s:ProcessAnsi(lines) abort
     let l:clean_lines = []
     let l:matches = []
@@ -41,6 +43,7 @@ function! s:ProcessAnsi(lines) abort
                 break
             endif
 
+
             if l:start > 0
                 let l:text = strpart(l:remaining, 0, l:start)
                 let l:new_line .= l:text
@@ -70,27 +73,62 @@ function! s:ProcessAnsi(lines) abort
             let l:remaining = strpart(l:remaining, l:start + len(l:match_str))
         endwhile
 
-        " Post-processing: Replace * with ●
+        " Post-processing: Replace * with custom commit character
         let l:star_idx = match(l:new_line, '^\([|\\/ _]*\)\zs\*')
         if l:star_idx != -1
+            let l:commit_char = get(g:, 'rookie_gitgraph_commit_symbol', '●')
             let l:before = strpart(l:new_line, 0, l:star_idx)
             let l:after = strpart(l:new_line, l:star_idx + 1)
-            let l:new_line = l:before . '●' . l:after
+            let l:new_line = l:before . l:commit_char . l:after
 
-            " Adjust matches
-            for l:m in l:line_matches
-                let l:m_col = l:m[2]
-                let l:m_len = l:m[3]
-                let l:m_end = l:m_col + l:m_len
-                let l:star_col = l:star_idx + 1
+            " Adjust matches if the character length changes (e.g. * is 1 byte, ● is 3 bytes)
+            let l:char_len = len(l:commit_char)
+            let l:diff = l:char_len - 1
 
-                if l:m_col > l:star_col
-                    let l:m[2] += 2
-                elseif l:m_col <= l:star_col && l:m_end > l:star_col
-                    let l:m[3] += 2
-                endif
-            endfor
+            if l:diff != 0
+                for l:m in l:line_matches
+                    let l:m_col = l:m[2]
+                    let l:m_len = l:m[3]
+                    let l:m_end = l:m_col + l:m_len
+                    let l:star_col = l:star_idx + 1
+
+                    if l:m_col > l:star_col
+                        let l:m[2] += l:diff
+                    elseif l:m_col <= l:star_col && l:m_end > l:star_col
+                        let l:m[3] += l:diff
+                    endif
+                endfor
+            endif
         endif
+
+        " Post-processing: Collapse multiple spaces between graph and hash
+        let l:space_match_idx = match(l:new_line, '\s\+[a-f0-9]\{7,\}')
+        if l:space_match_idx != -1
+            let l:spaces = matchstr(l:new_line, '\s\+', l:space_match_idx)
+            if len(l:spaces) > 1
+                let l:before = strpart(l:new_line, 0, l:space_match_idx)
+                let l:rest = strpart(l:new_line, l:space_match_idx + len(l:spaces))
+                let l:new_line = l:before . ' ' . l:rest
+
+                let l:diff = 1 - len(l:spaces)
+                let l:removal_col = l:space_match_idx + 1
+
+                for l:m in l:line_matches
+                    let l:m_col = l:m[2]
+                    let l:m_len = l:m[3]
+                    let l:m_end = l:m_col + l:m_len
+
+                    if l:m_col > l:removal_col
+                         let l:m[2] += l:diff
+                    elseif l:m_col <= l:removal_col && l:m_end > l:removal_col
+                         let l:m[3] += l:diff
+                    endif
+                endfor
+            endif
+        endif
+
+        " Post-processing: Remove trailing spaces from the final line
+        let l:new_line = substitute(l:new_line, '\s\+$', '', '')
 
         call add(l:clean_lines, l:new_line)
         call extend(l:matches, l:line_matches)
@@ -322,13 +360,18 @@ function! rookie_gitgraph#HighlightRefs() abort
     syntax match RookieGitGraphDate /\v\[[^\]]+\]/
     syntax match RookieGitGraphAuthor /\v\{[^\}]+\}/
 
-    " Match ● based on line content priority (last defined wins)
+    " Match commit char based on line content priority (last defined wins)
+    let l:commit_char = get(g:, 'rookie_gitgraph_commit_symbol', '●')
+
+    " Escape the character for regex usage
+    let l:escaped_char = escape(l:commit_char, '\/.*^$[]')
+
     " 3. Local/Tag/Decor (#7fbbb3) - Match if line contains '} | ('
-    syntax match RookieGitGraphStarNormal /●\(.*} | (\)\@=/
+    execute 'syntax match RookieGitGraphStarNormal /' . l:escaped_char . '\(.*} | (\)\@=/'
     " 2. Origin (Orange) - Match if line contains 'origin/'
-    syntax match RookieGitGraphStarOrigin /●\(.*origin\/\)\@=/
+    execute 'syntax match RookieGitGraphStarOrigin /' . l:escaped_char . '\(.*origin\/\)\@=/'
     " 1. HEAD (Red) - Match if line contains 'HEAD' but not 'origin/HEAD'
-    syntax match RookieGitGraphStarHead   /●\(.*\(origin\/\)\@<!HEAD\)\@=/
+    execute 'syntax match RookieGitGraphStarHead   /' . l:escaped_char . '\(.*\(origin\/\)\@<!HEAD\)\@=/'
 endfunction
 
 let g:rookie_last_git_state = ''
