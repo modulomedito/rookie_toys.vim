@@ -175,10 +175,6 @@ function! rookie_aspice#JumpToDefinition() abort
 endfunction
 
 function! rookie_aspice#Setup() abort
-    if !get(g:, 'rookie_aspice_default_setup', 0)
-        return
-    endif
-
     nnoremap <silent> <C-h> :call rookie_aspice#JumpToDefinition()<CR>
 endfunction
 

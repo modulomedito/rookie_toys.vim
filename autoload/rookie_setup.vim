@@ -32,6 +32,9 @@ function! rookie_setup#Setup() abort
     if !exists('g:rookie_toys_default_setup_rookie_toys')
         let g:rookie_toys_default_setup_rookie_toys = 0
     endif
+    if !exists('g:rookie_toys_default_setup_aspice')
+        let g:rookie_toys_default_setup_aspice = 0
+    endif
 
     " Execute setup
     if g:rookie_toys_default_setup_keymap || g:rookie_toys_default_setup_all
@@ -60,6 +63,9 @@ function! rookie_setup#Setup() abort
     endif
     if g:rookie_toys_default_setup_autocmd || g:rookie_toys_default_setup_all
         call rookie_setup#SetupAutocmd()
+    endif
+    if g:rookie_toys_default_setup_aspice || g:rookie_toys_default_setup_all
+        call rookie_aspice#Setup()
     endif
 endfunction
 
