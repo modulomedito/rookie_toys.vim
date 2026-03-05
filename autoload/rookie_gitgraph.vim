@@ -29,26 +29,11 @@ function! s:ProcessAnsi(lines) abort
         let l:col = 1
 
         let l:remaining = l:line
-        let l:in_graph = 1
         while !empty(l:remaining)
             let l:start = match(l:remaining, '\e\[[0-9;]*m')
 
             if l:start == -1
                 let l:text = l:remaining
-
-                if l:in_graph
-                    let l:non_graph_idx = match(l:text, '[^|\\/ _*]')
-                    if l:non_graph_idx == -1
-                        let l:text = substitute(l:text, '|', '│', 'g')
-                    else
-                        let l:graph_part = strpart(l:text, 0, l:non_graph_idx)
-                        let l:rest_part = strpart(l:text, l:non_graph_idx)
-                        let l:graph_part = substitute(l:graph_part, '|', '│', 'g')
-                        let l:text = l:graph_part . l:rest_part
-                        let l:in_graph = 0
-                    endif
-                endif
-
                 let l:new_line .= l:text
                 if !empty(l:current_hl)
                     call add(l:line_matches, [l:current_hl, l:idx, l:col, len(l:text)])
@@ -58,20 +43,6 @@ function! s:ProcessAnsi(lines) abort
 
             if l:start > 0
                 let l:text = strpart(l:remaining, 0, l:start)
-
-                if l:in_graph
-                    let l:non_graph_idx = match(l:text, '[^|\\/ _*]')
-                    if l:non_graph_idx == -1
-                        let l:text = substitute(l:text, '|', '│', 'g')
-                    else
-                        let l:graph_part = strpart(l:text, 0, l:non_graph_idx)
-                        let l:rest_part = strpart(l:text, l:non_graph_idx)
-                        let l:graph_part = substitute(l:graph_part, '|', '│', 'g')
-                        let l:text = l:graph_part . l:rest_part
-                        let l:in_graph = 0
-                    endif
-                endif
-
                 let l:new_line .= l:text
                 if !empty(l:current_hl)
                     call add(l:line_matches, [l:current_hl, l:idx, l:col, len(l:text)])
@@ -81,7 +52,6 @@ function! s:ProcessAnsi(lines) abort
 
             let l:match_str = matchstr(l:remaining, '^\e\[[0-9;]*m', l:start)
             let l:code = matchstr(l:match_str, '\e\[\zs[0-9;]*\ze')
-            " Remove trailing m if caught by regex above or simplify
             let l:code = substitute(l:code, 'm$', '', '')
 
             if has_key(l:color_map, l:code)
@@ -89,7 +59,6 @@ function! s:ProcessAnsi(lines) abort
             elseif l:code ==# '0' || l:code ==# ''
                 let l:current_hl = ''
             else
-                " Try to handle codes like 31;1 or 1;31 more robustly
                 let l:parts = split(l:code, ';')
                 call sort(l:parts)
                 let l:sorted_code = join(l:parts, ';')
@@ -102,7 +71,7 @@ function! s:ProcessAnsi(lines) abort
         endwhile
 
         " Post-processing: Replace * with ●
-        let l:star_idx = match(l:new_line, '^\([│|\\/ _]*\)\zs\*')
+        let l:star_idx = match(l:new_line, '^\([|\\/ _]*\)\zs\*')
         if l:star_idx != -1
             let l:before = strpart(l:new_line, 0, l:star_idx)
             let l:after = strpart(l:new_line, l:star_idx + 1)
@@ -123,417 +92,10 @@ function! s:ProcessAnsi(lines) abort
             endfor
         endif
 
-        " Custom replacements for smoother graph
-        " 1. │\ -> ├╮
-        while 1
-            let l:idx = match(l:new_line, '│\\')
-            if l:idx == -1
-                break
-            endif
-            let l:before = strpart(l:new_line, 0, l:idx)
-            let l:after = strpart(l:new_line, l:idx + 4) " │ (3) + \ (1) = 4
-            let l:new_line = l:before . '├╮' . l:after
-
-            let l:diff = 2 " ├╮ (6) - │\ (4) = 2
-            let l:match_end = l:idx + 4
-
-            let l:i = 0
-            while l:i < len(l:line_matches)
-                let l:m = l:line_matches[l:i]
-                if l:m[2] > l:match_end
-                     let l:m[2] += l:diff
-                endif
-                let l:i += 1
-            endwhile
-        endwhile
-
-        " 2. │/ -> ├╯
-        while 1
-            let l:idx = match(l:new_line, '│/')
-            if l:idx == -1
-                break
-            endif
-            let l:before = strpart(l:new_line, 0, l:idx)
-            let l:after = strpart(l:new_line, l:idx + 4) " │ (3) + / (1) = 4
-            let l:new_line = l:before . '├╯' . l:after
-
-            let l:diff = 2 " ├╯ (6) - │/ (4) = 2
-            let l:match_end = l:idx + 4
-
-            let l:i = 0
-            while l:i < len(l:line_matches)
-                let l:m = l:line_matches[l:i]
-                if l:m[2] > l:match_end
-                     let l:m[2] += l:diff
-                endif
-                let l:i += 1
-            endwhile
-        endwhile
-
-        " 10. ● / -> ●│ (Remove spaces and replace char)
-        while 1
-            let l:idx = match(l:new_line, '●\zs \+\ze/')
-            if l:idx == -1
-                break
-            endif
-
-            let l:spaces = matchstr(l:new_line, '●\zs \+\ze/')
-            let l:num_spaces = len(l:spaces)
-
-            let l:before = strpart(l:new_line, 0, l:idx)
-            let l:after = strpart(l:new_line, l:idx + l:num_spaces + 1) " Skip spaces and / (1 byte)
-            let l:new_line = l:before . '│' . l:after
-
-            let l:space_col_start = l:idx + 1
-            let l:space_col_end = l:space_col_start + l:num_spaces
-
-            " ● (3) + spaces (N) + / (1) -> ● (3) + │ (3)
-            " Removed N + 1 bytes. Added 3 bytes.
-            " Net change: 3 - (N + 1) = 2 - N
-            let l:diff = 2 - l:num_spaces
-
-            let l:i = 0
-            while l:i < len(l:line_matches)
-                let l:m = l:line_matches[l:i]
-                let l:m_col = l:m[2]
-                let l:m_len = l:m[3]
-                let l:m_end = l:m_col + l:m_len
-
-                " Check overlap with spaces (unlikely for colored matches but safe to check)
-                let l:overlap_start = (l:m_col > l:space_col_start) ? l:m_col : l:space_col_start
-                let l:overlap_end = (l:m_end < l:space_col_end) ? l:m_end : l:space_col_end
-                let l:overlap_len = l:overlap_end - l:overlap_start
-
-                if l:overlap_len > 0
-                    let l:m[3] -= l:overlap_len
-                endif
-
-                if l:m_col >= l:space_col_end
-                    let l:m[2] += l:diff
-                elseif l:m_col > l:space_col_start
-                    let l:m[2] = l:space_col_start
-                endif
-
-                if l:m[3] <= 0
-                    call remove(l:line_matches, l:i)
-                    continue
-                endif
-                let l:i += 1
-            endwhile
-        endwhile
-
-        " 3. │ ● -> │● (Remove space)
-        while 1
-            let l:idx = match(l:new_line, '│ ●')
-            if l:idx == -1
-                break
-            endif
-
-            let l:before = strpart(l:new_line, 0, l:idx + 3) " Keep │ (3 bytes)
-            let l:after = strpart(l:new_line, l:idx + 4)     " Skip space
-            let l:new_line = l:before . l:after
-
-            let l:space_col = l:idx + 4
-
-            let l:i = 0
-            while l:i < len(l:line_matches)
-                let l:m = l:line_matches[l:i]
-                let l:m_col = l:m[2]
-                let l:m_len = l:m[3]
-                let l:m_end = l:m_col + l:m_len
-
-                if l:m_col > l:space_col
-                    let l:m[2] -= 1
-                elseif l:m_col <= l:space_col && l:m_end > l:space_col
-                    let l:m[3] -= 1
-                endif
-
-                if l:m[3] <= 0
-                    call remove(l:line_matches, l:i)
-                    continue
-                endif
-                let l:i += 1
-            endwhile
-        endwhile
-
-        " 8. │ ├╯ -> │├╯ (Remove space)
-        while 1
-            let l:idx = match(l:new_line, '│ ├╯')
-            if l:idx == -1
-                break
-            endif
-
-            let l:before = strpart(l:new_line, 0, l:idx + 3) " Keep │ (3 bytes)
-            let l:after = strpart(l:new_line, l:idx + 4)     " Skip space
-            let l:new_line = l:before . l:after
-
-            let l:space_col = l:idx + 4
-
-            let l:i = 0
-            while l:i < len(l:line_matches)
-                let l:m = l:line_matches[l:i]
-                let l:m_col = l:m[2]
-                let l:m_len = l:m[3]
-                let l:m_end = l:m_col + l:m_len
-
-                if l:m_col > l:space_col
-                    let l:m[2] -= 1
-                elseif l:m_col <= l:space_col && l:m_end > l:space_col
-                    let l:m[3] -= 1
-                endif
-
-                if l:m[3] <= 0
-                    call remove(l:line_matches, l:i)
-                    continue
-                endif
-                let l:i += 1
-            endwhile
-        endwhile
-
-        " 5. │ ├╮ -> │├╮ (Remove space)
-        while 1
-            let l:idx = match(l:new_line, '│ ├╮')
-            if l:idx == -1
-                break
-            endif
-
-            let l:before = strpart(l:new_line, 0, l:idx + 3) " Keep │ (3 bytes)
-            let l:after = strpart(l:new_line, l:idx + 4)     " Skip space
-            let l:new_line = l:before . l:after
-
-            let l:space_col = l:idx + 4
-
-            let l:i = 0
-            while l:i < len(l:line_matches)
-                let l:m = l:line_matches[l:i]
-                let l:m_col = l:m[2]
-                let l:m_len = l:m[3]
-                let l:m_end = l:m_col + l:m_len
-
-                if l:m_col > l:space_col
-                    let l:m[2] -= 1
-                elseif l:m_col <= l:space_col && l:m_end > l:space_col
-                    let l:m[3] -= 1
-                endif
-
-                if l:m[3] <= 0
-                    call remove(l:line_matches, l:i)
-                    continue
-                endif
-                let l:i += 1
-            endwhile
-        endwhile
-
-        " 6. │ │● -> ││● (Remove space)
-        while 1
-            let l:idx = match(l:new_line, '│ │●')
-            if l:idx == -1
-                break
-            endif
-
-            let l:before = strpart(l:new_line, 0, l:idx + 3) " Keep │ (3 bytes)
-            let l:after = strpart(l:new_line, l:idx + 4)     " Skip space
-            let l:new_line = l:before . l:after
-
-            let l:space_col = l:idx + 4
-
-            let l:i = 0
-            while l:i < len(l:line_matches)
-                let l:m = l:line_matches[l:i]
-                let l:m_col = l:m[2]
-                let l:m_len = l:m[3]
-                let l:m_end = l:m_col + l:m_len
-
-                if l:m_col > l:space_col
-                    let l:m[2] -= 1
-                elseif l:m_col <= l:space_col && l:m_end > l:space_col
-                    let l:m[3] -= 1
-                endif
-
-                if l:m[3] <= 0
-                    call remove(l:line_matches, l:i)
-                    continue
-                endif
-                let l:i += 1
-            endwhile
-        endwhile
-
-        " 7. ●│ │ -> ●││ (Remove space)
-        while 1
-            let l:idx = match(l:new_line, '●│ │')
-            if l:idx == -1
-                break
-            endif
-
-            let l:before = strpart(l:new_line, 0, l:idx + 6) " Keep ●│ (3+3=6 bytes)
-            let l:after = strpart(l:new_line, l:idx + 7)     " Skip space
-            let l:new_line = l:before . l:after
-
-            let l:space_col = l:idx + 7
-
-            let l:i = 0
-            while l:i < len(l:line_matches)
-                let l:m = l:line_matches[l:i]
-                let l:m_col = l:m[2]
-                let l:m_len = l:m[3]
-                let l:m_end = l:m_col + l:m_len
-
-                if l:m_col > l:space_col
-                    let l:m[2] -= 1
-                elseif l:m_col <= l:space_col && l:m_end > l:space_col
-                    let l:m[3] -= 1
-                endif
-
-                if l:m[3] <= 0
-                    call remove(l:line_matches, l:i)
-                    continue
-                endif
-                let l:i += 1
-            endwhile
-        endwhile
-
-        " 4. ● │ -> ●│ (Remove space)
-        while 1
-            let l:idx = match(l:new_line, '● │')
-            if l:idx == -1
-                break
-            endif
-
-            let l:before = strpart(l:new_line, 0, l:idx + 3) " Keep ● (3 bytes)
-            let l:after = strpart(l:new_line, l:idx + 4)     " Skip space
-            let l:new_line = l:before . l:after
-
-            let l:space_col = l:idx + 4
-
-            let l:i = 0
-            while l:i < len(l:line_matches)
-                let l:m = l:line_matches[l:i]
-                let l:m_col = l:m[2]
-                let l:m_len = l:m[3]
-                let l:m_end = l:m_col + l:m_len
-
-                if l:m_col > l:space_col
-                    let l:m[2] -= 1
-                elseif l:m_col <= l:space_col && l:m_end > l:space_col
-                    let l:m[3] -= 1
-                endif
-
-                if l:m[3] <= 0
-                    call remove(l:line_matches, l:i)
-                    continue
-                endif
-                let l:i += 1
-            endwhile
-        endwhile
-
-        " 9. ● <sha> -> ●<sha> (Remove spaces)
-        while 1
-            " Match spaces between graph chars and hex digit
-            " Graph chars: │ \ / ● ├ ╮ ╯ _
-            " Use \zs to get index of first space
-            let l:idx = match(l:new_line, '[│\\/●├╮╯_]\zs \+\ze[a-f0-9]')
-            if l:idx == -1
-                break
-            endif
-
-            let l:spaces = matchstr(l:new_line, '[│\\/●├╮╯_]\zs \+\ze[a-f0-9]')
-            let l:num_spaces = len(l:spaces)
-
-            let l:before = strpart(l:new_line, 0, l:idx)
-            let l:after = strpart(l:new_line, l:idx + l:num_spaces)
-            let l:new_line = l:before . l:after
-
-            let l:space_col_start = l:idx + 1
-            let l:space_col_end = l:space_col_start + l:num_spaces
-
-            let l:i = 0
-            while l:i < len(l:line_matches)
-                let l:m = l:line_matches[l:i]
-                let l:m_col = l:m[2]
-                let l:m_len = l:m[3]
-                let l:m_end = l:m_col + l:m_len
-
-                " Calculate overlap with removed region [space_col_start, space_col_end)
-                let l:overlap_start = (l:m_col > l:space_col_start) ? l:m_col : l:space_col_start
-                let l:overlap_end = (l:m_end < l:space_col_end) ? l:m_end : l:space_col_end
-                let l:overlap_len = l:overlap_end - l:overlap_start
-
-                if l:overlap_len > 0
-                    let l:m[3] -= l:overlap_len
-                endif
-
-                if l:m_col >= l:space_col_end
-                    let l:m[2] -= l:num_spaces
-                elseif l:m_col > l:space_col_start
-                    let l:m[2] = l:space_col_start
-                endif
-
-                if l:m[3] <= 0
-                    call remove(l:line_matches, l:i)
-                    continue
-                endif
-                let l:i += 1
-            endwhile
-        endwhile
-
         call add(l:clean_lines, l:new_line)
         call extend(l:matches, l:line_matches)
         let l:idx += 1
     endfor
-
-    " 11. Complex Merge Pattern Fix
-    " Pattern:
-    "   │├╯
-    "   ●│...
-    "   ├╮│
-    " Replace with:
-    "   │││
-    "   ●││...
-    "   ├┼╯
-    let l:i = 0
-    while l:i < len(l:clean_lines) - 2
-        let l:line1 = l:clean_lines[l:i]
-        let l:line2 = l:clean_lines[l:i+1]
-        let l:line3 = l:clean_lines[l:i+2]
-
-        " Use match() to check patterns
-        " Line 1: Ends with │├╯ (ignoring trailing spaces)
-        if match(l:line1, '│├╯\s*$') != -1
-            " Line 2: Starts with ●│ followed by hex
-            if match(l:line2, '^●│[a-f0-9]') != -1
-                " Line 3: Starts with ├╮│
-                if match(l:line3, '^├╮│') != -1
-                    " Apply replacements
-
-                    " Line 1: Replace │├╯ with │││
-                    let l:clean_lines[l:i] = substitute(l:line1, '│├╯', '│││', '')
-
-                    " Line 2: Insert │ after ●│
-                    " ● (3 bytes) + │ (3 bytes) = 6 bytes
-                    let l:before = strpart(l:line2, 0, 6)
-                    let l:after = strpart(l:line2, 6)
-                    let l:clean_lines[l:i+1] = l:before . '│' . l:after
-
-                    " Update matches for Line 2 (index l:i + 2 because matches are 1-based)
-                    let l:match_line_idx = l:i + 2
-                    let l:insert_pos = 7
-                    let l:diff = 3
-
-                    for l:m in l:matches
-                        if l:m[1] == l:match_line_idx
-                            if l:m[2] >= l:insert_pos
-                                let l:m[2] += l:diff
-                            endif
-                        endif
-                    endfor
-
-                    " Line 3: Replace ├╮│ with ├┼╯
-                    let l:clean_lines[l:i+2] = substitute(l:line3, '├╮│', '├┼╯', '')
-                endif
-            endif
-        endif
-        let l:i += 1
-    endwhile
 
     return [l:clean_lines, l:matches]
 endfunction
@@ -729,14 +291,15 @@ function! rookie_gitgraph#HighlightRefs() abort
     silent! syntax clear RookieGitGraphDate
     silent! syntax clear RookieGitGraphAuthor
 
-    " Gruvbox Colors
-    highlight RookieGitGraphColorRed     guifg=#cc241d ctermfg=124 gui=bold cterm=bold
-    highlight RookieGitGraphColorGreen   guifg=#98971a ctermfg=106 gui=bold cterm=bold
-    highlight RookieGitGraphColorYellow  guifg=#d79921 ctermfg=172 gui=bold cterm=bold
-    highlight RookieGitGraphColorBlue    guifg=#458588 ctermfg=66  gui=bold cterm=bold
-    highlight RookieGitGraphColorMagenta guifg=#b16286 ctermfg=132 gui=bold cterm=bold
-    highlight RookieGitGraphColorCyan    guifg=#689d6a ctermfg=72  gui=bold cterm=bold
-    highlight RookieGitGraphColorWhite   guifg=#928374 ctermfg=246 gui=bold cterm=bold
+    " VSCode Git Graph Colors
+    highlight RookieGitGraphColorRed     guifg=#db2828 ctermfg=160 gui=bold cterm=bold
+    highlight RookieGitGraphColorGreen   guifg=#1e8e3e ctermfg=28  gui=bold cterm=bold
+    highlight RookieGitGraphColorYellow  guifg=#fbbd08 ctermfg=214 gui=bold cterm=bold
+    highlight RookieGitGraphColorBlue    guifg=#0075ca ctermfg=26  gui=bold cterm=bold
+    highlight RookieGitGraphColorMagenta guifg=#e03997 ctermfg=162 gui=bold cterm=bold
+    highlight RookieGitGraphColorCyan    guifg=#00b5ad ctermfg=37  gui=bold cterm=bold
+    highlight RookieGitGraphColorWhite   guifg=#767676 ctermfg=243 gui=bold cterm=bold
+    highlight RookieGitGraphColorOrange  guifg=#f2711c ctermfg=202 gui=bold cterm=bold
 
     highlight RookieGitGraphHash   guifg=#d79921 gui=NONE cterm=NONE
     highlight RookieGitGraphDate   guifg=#458588 gui=NONE cterm=NONE
