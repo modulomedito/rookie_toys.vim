@@ -68,20 +68,26 @@ function! rookie_nerdtree#CopyNodeContent()
         return
     endif
 
-    if l:node.path.isDirectory
-        echo "Cannot copy content of a directory"
-        return
-    endif
-
     let l:path = l:node.path.str()
-    if !filereadable(l:path)
-        echo "File not readable: " . l:path
+    " Ensure backslashes for Windows path
+    let l:path = substitute(l:path, '/', '\', 'g')
+
+    if !filereadable(l:path) && !isdirectory(l:path)
+        echo "Path not readable: " . l:path
         return
     endif
 
-    let l:content = readfile(l:path)
-    let l:text = join(l:content, "\n")
-    let @+ = l:text
-    let @* = l:text
-    echo "Copied content of " . l:path . " to clipboard"
+    " Escape single quotes for PowerShell
+    let l:ps_path = substitute(l:path, "'", "''", "g")
+
+    " PowerShell command to copy file to clipboard as FileDropList
+    let l:cmd = "powershell -NoProfile -Command \"Add-Type -AssemblyName System.Windows.Forms; $files = New-Object System.Collections.Specialized.StringCollection; $files.Add('" . l:ps_path . "'); [System.Windows.Forms.Clipboard]::SetFileDropList($files)\""
+
+    let l:output = system(l:cmd)
+
+    if v:shell_error == 0
+        echo "Copied file to system clipboard (Explorer compatible): " . l:path
+    else
+        echo "Failed to copy file to clipboard: " . l:output
+    endif
 endfunction
