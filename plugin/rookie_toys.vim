@@ -28,6 +28,7 @@ command! -nargs=0 -range=-1 -bar RookieHexToAscii call rookie_hex#HexToAscii(<co
 command! -nargs=0 -range=% -bar RookieHexChecksum call rookie_hex#UpdateIntelHexChecksum()
 " rookie_nerdtree
 command! -nargs=0 -bar RookieNERDTreeCopy call rookie_nerdtree#CopyNode()
+command! -nargs=0 -bar RookieNERDTreeCopyContent call rookie_nerdtree#CopyNodeContent()
 command! -nargs=0 -bar RookieNERDTreePaste call rookie_nerdtree#PasteNode()
 " rookie_gitgraph
 command! -nargs=0 -bar RookieGitGraph call rookie_gitgraph#OpenGitGraph(1)

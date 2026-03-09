@@ -60,3 +60,28 @@ function! rookie_nerdtree#PasteNode()
         call nerdtree#echoWarning('Could not copy node')
     endtry
 endfunction
+
+function! rookie_nerdtree#CopyNodeContent()
+    let l:node = g:NERDTreeFileNode.GetSelected()
+    if empty(l:node)
+        echo "No node selected"
+        return
+    endif
+
+    if l:node.path.isDirectory
+        echo "Cannot copy content of a directory"
+        return
+    endif
+
+    let l:path = l:node.path.str()
+    if !filereadable(l:path)
+        echo "File not readable: " . l:path
+        return
+    endif
+
+    let l:content = readfile(l:path)
+    let l:text = join(l:content, "\n")
+    let @+ = l:text
+    let @* = l:text
+    echo "Copied content of " . l:path . " to clipboard"
+endfunction

@@ -158,6 +158,7 @@ function! rookie_plugins#Setup_Nerdtree() abort
         \|nnoremap <buffer> <leader>cd :NTChCwd<CR>:NERDTreeCWD<CR>
         \|nnoremap <buffer> <C-S-e> :NERDTreeToggle<CR>
         \|nnoremap <buffer> mc :RookieNERDTreeCopy<CR>
+        \|nnoremap <buffer> mC :RookieNERDTreeCopyContent<CR>
         \|nnoremap <buffer> mP :RookieNERDTreePaste<CR>
     nnoremap <C-S-e> :NERDTreeFocus<CR>
     nnoremap <C-y> :NERDTreeToggle<CR>
