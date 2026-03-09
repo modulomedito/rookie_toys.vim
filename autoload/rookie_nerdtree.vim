@@ -7,14 +7,6 @@ function! rookie_nerdtree#CopyNode()
     let l:path = l:node.path.str()
     let @+ = l:path
     let @* = l:path
-
-    " Copy file to system clipboard (for pasting in Explorer)
-    if has('win32') || has('win64')
-        let l:ps_path = substitute(l:path, "'", "''", 'g')
-        let l:cmd = "powershell -NoProfile -Command \"Add-Type -AssemblyName System.Windows.Forms; $c = New-Object System.Collections.Specialized.StringCollection; $c.Add('" . l:ps_path . "'); [System.Windows.Forms.Clipboard]::SetFileDropList($c)\""
-        call system(l:cmd)
-    endif
-
     echo "Marked for copy to clipboard: " . l:path
 endfunction
 
