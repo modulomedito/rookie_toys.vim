@@ -24,17 +24,6 @@ function! rookie_nerdtree#PasteNode()
         let l:sourcePath = @*
     endif
 
-    " Fallback to system clipboard file drop list on Windows if registers are empty
-    if l:sourcePath ==# "" && (has('win32') || has('win64'))
-        let l:cmd = "powershell -NoProfile -Command \"Add-Type -AssemblyName System.Windows.Forms; if ([System.Windows.Forms.Clipboard]::ContainsFileDropList()) { $files = [System.Windows.Forms.Clipboard]::GetFileDropList(); if ($files.Count -gt 0) { Write-Output $files[0] } }\""
-        let l:sys_path = system(l:cmd)
-        " Trim whitespace/newlines
-        let l:sys_path = substitute(l:sys_path, '^\s*\(.\{-}\)\s*$', '\1', '')
-        if !empty(l:sys_path)
-            let l:sourcePath = l:sys_path
-        endif
-    endif
-
     if l:sourcePath ==# ""
         echo "Clipboard is empty."
         return
