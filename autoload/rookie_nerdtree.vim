@@ -109,6 +109,21 @@ function! s:AddNERDTreeMenuItems()
             \ 'shortcut': 'R',
             \ 'callback': 'rookie_nerdtree#RunExecutableDetached'
             \ })
+        " call NERDTreeAddMenuItem({
+        "     \ 'text': 'copy node path to (c)lipboard',
+        "     \ 'shortcut': 'c',
+        "     \ 'callback': 'rookie_nerdtree#CopyNode'
+        "     \ })
+        call NERDTreeAddMenuItem({
+            \ 'text': 'copy node (C)ontent to clipboard',
+            \ 'shortcut': 'C',
+            \ 'callback': 'rookie_nerdtree#CopyNodeContent'
+            \ })
+        call NERDTreeAddMenuItem({
+            \ 'text': '(P)aste node from clipboard',
+            \ 'shortcut': 'P',
+            \ 'callback': 'rookie_nerdtree#PasteNode'
+            \ })
     endif
 endfunction
 
@@ -143,8 +158,6 @@ function! rookie_nerdtree#Setup() abort
         \|nnoremap <buffer> <leader>cd :NTChCwd<CR>:NERDTreeCWD<CR>
         \|nnoremap <buffer> <C-S-e> :NERDTreeToggle<CR>
         \|nnoremap <buffer> mc :RookieNERDTreeCopy<CR>
-        \|nnoremap <buffer> mC :RookieNERDTreeCopyContent<CR>
-        \|nnoremap <buffer> mP :RookieNERDTreePaste<CR>
     nnoremap <C-S-e> :NERDTreeFocus<CR>
     nnoremap <C-y> :NERDTreeToggle<CR>
     nnoremap <leader>find :NERDTreeFind<CR>
