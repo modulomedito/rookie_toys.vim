@@ -91,3 +91,32 @@ function! rookie_nerdtree#CopyNodeContent()
         echo "Failed to copy file to clipboard: " . l:output
     endif
 endfunction
+
+function! rookie_nerdtree#Setup() abort
+    " Plug 'Xuyuanp/nerdtree-git-plugin'
+    let g:NERDTreeGitStatusUseNerdFonts = 0
+
+    let g:NERDTreeWinSize = 40
+    function! s:NTChCwd() abort
+        let l:node = g:NERDTreeFileNode.GetSelected()
+        if empty(l:node)
+            echo 'select a node first'
+            return
+        endif
+        try
+            call l:node.path.changeToDir()
+        catch /^NERDTree.PathChangeError/
+            echohl WarningMsg | echom 'could not change cwd' | echohl NONE
+        endtry
+    endfunction
+    command! -nargs=0 NTChCwd call <SID>NTChCwd()
+    autocmd! FileType nerdtree nnoremap <buffer> a :call NERDTreeAddNode()<CR>
+        \|nnoremap <buffer> <leader>cd :NTChCwd<CR>:NERDTreeCWD<CR>
+        \|nnoremap <buffer> <C-S-e> :NERDTreeToggle<CR>
+        \|nnoremap <buffer> mc :RookieNERDTreeCopy<CR>
+        \|nnoremap <buffer> mC :RookieNERDTreeCopyContent<CR>
+        \|nnoremap <buffer> mP :RookieNERDTreePaste<CR>
+    nnoremap <C-S-e> :NERDTreeFocus<CR>
+    nnoremap <C-y> :NERDTreeToggle<CR>
+    nnoremap <leader>find :NERDTreeFind<CR>
+endfunction
