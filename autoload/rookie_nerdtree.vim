@@ -92,7 +92,36 @@ function! rookie_nerdtree#CopyNodeContent()
     endif
 endfunction
 
+function! rookie_nerdtree#RunExecutableDetached()
+    let l:node = g:NERDTreeFileNode.GetSelected()
+    if empty(l:node)
+        return
+    endif
+    let l:path = l:node.path.str()
+    let l:cmd = ':silent !start "' . l:path . '"'
+    call feedkeys(l:cmd)
+endfunction
+
+function! s:AddNERDTreeMenuItems()
+    if exists('*NERDTreeAddMenuItem')
+        call NERDTreeAddMenuItem({
+            \ 'text': '(R)un system executable file detach',
+            \ 'shortcut': 'R',
+            \ 'callback': 'rookie_nerdtree#RunExecutableDetached'
+            \ })
+    endif
+endfunction
+
 function! rookie_nerdtree#Setup() abort
+    if exists('g:loaded_nerd_tree')
+        call s:AddNERDTreeMenuItems()
+    else
+        augroup RookieNERDTreeMenu
+            autocmd!
+            autocmd User NERDTreeInit call s:AddNERDTreeMenuItems()
+        augroup END
+    endif
+
     " Plug 'Xuyuanp/nerdtree-git-plugin'
     let g:NERDTreeGitStatusUseNerdFonts = 0
 
