@@ -74,6 +74,8 @@ command! -nargs=0 RookieSmoothScrollPageUp call rookie_smooth#PageUp()
 command! -nargs=0 RookieSmoothScrollPageDown call rookie_smooth#PageDown()
 " rookie_c
 command! -nargs=0 -range -bar RookieCCommentToSlash <line1>,<line2>call rookie_c#CommentToSlash()
+" rookie_ascii
+command! -nargs=0 -range -bar RookieAsciiToHex call rookie_ascii#ToHex()
 
 " Setup
 call rookie_setup#Setup()
