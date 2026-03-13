@@ -220,7 +220,7 @@ function! rookie_plugins#Setup_RookieToys() abort
     nnoremap <leader>pj :RookieProjectList<CR>
     nnoremap <leader>prn :RookieProjectRename<CR>
     nnoremap <leader>retab :RookieRetab<CR>
-    nnoremap <leader>ttt :RookieTabRename<CR>
+    nnoremap <leader>rkt :RookieTabRename<CR>
     nnoremap <silent> <leader><C-l> :RookieSlugifyLine<CR>
     nnoremap <silent> <leader>dl :RookieGitDiffJumpToChange<CR>
     nnoremap <silent> <leader>hh :RookieToggleHeaderSource<CR>
