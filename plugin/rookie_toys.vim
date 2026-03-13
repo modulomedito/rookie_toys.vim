@@ -13,6 +13,8 @@ command! -nargs=0 -bar -range RookieMarkdownLinter call rookie_markdown#Markdown
 command! -nargs=? -bar RookieSlugify echo rookie_markdown#SlugifyString(empty(<q-args>) ? getline('.') : <q-args>)
 command! -nargs=0 -bar RookieSlugifyLine call setline('.', rookie_markdown#SlugifyString(getline('.')))
 command! -nargs=0 -bar RookieSlugifyYank let _slug = rookie_markdown#SlugifyString(getline('.')) | let @" = _slug | if has('clipboard') | let @+ = _slug | endif | echo _slug
+" rookie_tabrename
+command! -nargs=? -bar RookieTabRename call rookie_tabrename#Rename(<f-args>)
 " rookie_tag
 command! -nargs=0 -bar RookieTagUpdate call rookie_tag#UpdateTags()
 command! -nargs=0 -bar RookieTagSearch call rookie_tag#SearchTags()
