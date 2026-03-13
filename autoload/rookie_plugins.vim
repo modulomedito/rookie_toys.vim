@@ -198,47 +198,6 @@ function! rookie_plugins#Setup_Coc() abort
     nnoremap <silent><nowait><expr> <Esc> coc#float#has_scroll() ? coc#float#close_all() : "\<Esc>"
 endfunction
 
-" Plug 'modulomedito/rookie_toys.vim'
-function! rookie_plugins#Setup_RookieToys() abort
-    command! CC RookieClangdGenerate | CocRestart
-    command! GD RookieGitDiff
-    command! GG RookieGitGraph
-    command! GGL RookieGitGraphLocal
-    let g:rookie_rooter_patterns = [
-        \ '.cproject', '.project', '.clang-format', '.git', 'compile_commands.json',
-        \ 'Cargo.toml', 'Makefile']
-    nnoremap <leader>FA :RookieTagAddFileName<CR>
-    nnoremap <leader>FF :RookieTagSearchFileName<CR>
-    nnoremap <leader>diff :RookieGitOpenCommitDiff<CR>
-    nnoremap <leader>fa :RookieTagUpdate<CR>
-    nnoremap <leader>ff :RookieTagSearch<CR>
-    nnoremap <leader>fg :RookieTagSearchGlobal<CR>
-    nnoremap <leader>ida :RookieGuidGenerate<CR>
-    nnoremap <leader>ids :RookieGuidSearch<CR>
-    nnoremap <leader>pa :RookieProjectAdd<CR>
-    nnoremap <leader>pdel :RookieProjectRemove<CR>
-    nnoremap <leader>pj :RookieProjectList<CR>
-    nnoremap <leader>prn :RookieProjectRename<CR>
-    nnoremap <leader>retab :RookieRetab<CR>
-    nnoremap <leader>rkt :RookieTabRename<CR>
-    nnoremap <silent> <leader><C-l> :RookieSlugifyLine<CR>
-    nnoremap <silent> <leader>dl :RookieGitDiffJumpToChange<CR>
-    nnoremap <silent> <leader>hh :RookieToggleHeaderSource<CR>
-    nnoremap <silent> <leader>rrt :RookieRooterHere<CR>
-    nnoremap <unique><silent> <C-d> <cmd>RookieSmoothScrollHalfPageDown<CR>
-    nnoremap <unique><silent> <C-f> <cmd>RookieSmoothScrollHalfPageUp<CR>
-    vnoremap <unique><silent> <C-d> <cmd>RookieSmoothScrollHalfPageDown<CR>
-    vnoremap <unique><silent> <C-f> <cmd>RookieSmoothScrollHalfPageUp<CR>
-    nnoremap <leader><F3> :RookieFarDo<CR>
-    nnoremap <leader><F2> *:RookieFarReplace -c -w
-        \ <C-r><C-w> <C-r><C-w> **/*.[ch]
-        \<Left><Left><Left><Left><Left><Left><Left><Left><Left><Left>
-    vnoremap <leader><F2> "-y/<C-r>-<CR>N
-        \"-y:RookieFarReplace -c
-        \ <C-r>- <C-r>- **/*.[ch]
-        \<Left><Left><Left><Left><Left><Left><Left><Left><Left><Left>
-endfunction
-
 " Plug 'SirVer/ultisnips'
 function! rookie_plugins#Setup_UltiSnips() abort
     let g:UltiSnipsExpandTrigger = "<tab>"

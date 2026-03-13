@@ -318,6 +318,7 @@ function! rookie_setup#SetupRookieToys() abort
     nnoremap <leader>pj :RookieProjectList<CR>
     nnoremap <leader>prn :RookieProjectRename<CR>
     nnoremap <leader>retab :RookieRetab<CR>
+    nnoremap <leader>rrr :RookieTabRename<CR>
     nnoremap <silent> <leader><C-l> :RookieSlugifyLine<CR>
     nnoremap <silent> <leader>dl :RookieGitDiffJumpToChange<CR>
     nnoremap <silent> <leader>hh :RookieToggleHeaderSource<CR>
