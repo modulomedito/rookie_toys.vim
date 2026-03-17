@@ -9,7 +9,9 @@ function! rookie_bufoutline#GetBufferList() abort
         if getbufvar(b, '&buftype') ==# 'quickfix' || getbufvar(b, '&filetype') ==# 'qf'
             continue
         endif
-        if getbufvar(b, '&filetype') ==# 'nerdtree'
+
+        let ft = getbufvar(b, '&filetype')
+        if ft ==# 'nerdtree' || ft ==# 'fugitive' || ft ==# 'git'
             continue
         endif
 
