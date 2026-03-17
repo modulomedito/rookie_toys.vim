@@ -327,10 +327,12 @@ function! rookie_bufoutline#SmartDeleteBuffer() abort
     let qf_list = rookie_bufoutline#GetBufferList()
 
     if len(qf_list) <= 1
-        " If it's the only buffer or no buffers listed, just delete it
+        " If it's the only buffer or no buffers listed, create a new one instead of closing window
+        enew
         if buflisted(cur_buf)
             execute 'bdelete ' . cur_buf
         endif
+        call rookie_bufoutline#Update()
         return
     endif
 
