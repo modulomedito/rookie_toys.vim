@@ -96,12 +96,10 @@ function! rookie_bufoutline#Open() abort
         syn match qfSeparator /^|| / conceal
     endif
 
-    " If we were not in NERDTree, go back to original window
-    if original_win != nerdtree_winnr
-         " If original window number shifted because of lopen, this might be off.
-         " Usually `wincmd p` works if we just jumped once.
-         wincmd p
-    endif
+    " Return focus to the NERDTree window
+    " We are currently in the location list window (opened by lopen)
+    " The previous window was NERDTree.
+    wincmd p
 endfunction
 
 function! rookie_bufoutline#Update() abort
