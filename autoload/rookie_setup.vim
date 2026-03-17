@@ -119,6 +119,7 @@ function! rookie_setup#SetupOptions() abort
     set signcolumn=yes
     set smartcase
     set smarttab
+    set smoothscroll
     set softtabstop=4
     set splitbelow
     set splitright
@@ -217,25 +218,27 @@ function! rookie_setup#SetupAbbr() abort
     iab xcho 🐳 chore():[#]<Left><Left><Left><Left>
     iab xdoc 📃 docs():[#]<Left><Left><Left><Left>
     iab xfea ✨ feat():[#]<Left><Left><Left><Left>
+    " cab Gclr silent G clean -d -f -x
+    cab Gc silent G checkout <C-r><C-w>\|GG
+    cab Gcherry G cherry-pick <C-r><C-w>\|GG
+    cab Gclr silent G clean -d -f
+    cab Gdell silent G branch -d\|GG<Left><Left><Left>
+    cab Gdelr silent G push origin --delete\|GG<Left><Left><Left>
+    cab Gf silent G fetch\|GG
+    cab Gl call timer_start(1200, {-> execute('RookieGitGraph')})\|G
+    cab Gm silent G merge --ff <C-r><C-w>\|GG
+    cab Gnew silent G checkout -b\|GG<Left><Left><Left>
+    cab GP silent G pull\|GG
+    cab Gp silent G push\|GG
+    cab Gr silent G rebase <C-r><C-w>\|GG
+    cab Gstashpo silent G stash pop\|GG
+    cab Gstashpu silent G stash push --include-untracked\|GG
+    cab Gtag silent G tag\|GG<Left><Left><Left>
     iab xfix 🐞 fix():[#]<Left><Left><Left><Left>
     iab xini 🎉 init():[#]<Left><Left><Left><Left>
     iab xref 🦄 refactor():[#]<Left><Left><Left><Left>
     iab xrev ↩ revert():[#]<Left><Left><Left><Left>
     iab xsty 🌈 style():[#]<Left><Left><Left><Left>
-    cab Gl call timer_start(1200, {-> execute('RookieGitGraph')})\|G
-    cab GP silent G pull\|GG
-    cab Gp silent G push\|GG
-    cab Gf silent G fetch\|GG
-    cab Gc silent G checkout <C-r><C-w>\|GG
-    cab Gm silent G merge --ff <C-r><C-w>\|GG
-    cab Gr silent G rebase <C-r><C-w>\|GG
-    cab Gsi silent G stash push --include-untracked\|GG
-    cab Gso silent G stash pop\|GG
-    cab Gclr silent G clean -d -f -x
-    cab Gtag silent G tag\|GG<Left><Left><Left>
-    cab Gdell silent G branch -d\|GG<Left><Left><Left>
-    cab Gdelr silent G push origin --delete\|GG<Left><Left><Left>
-    cab Gnew silent G checkout -b\|GG<Left><Left><Left>
 endfunction
 
 " autocmd! FileType c
