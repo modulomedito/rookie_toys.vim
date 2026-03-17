@@ -122,7 +122,8 @@ function! rookie_bufoutline#Update() abort
     " Check if loclist window is open for NERDTree window
     " getloclist(nerdtree_winnr, {'winid': 0}).winid
     let loc_info = getloclist(nerdtree_winnr, {'winid': 0})
-    if get(loc_info, 'winid', 0) == 0
+    let loc_winid = get(loc_info, 'winid', 0)
+    if loc_winid == 0
         " Location list window is not open, do nothing
         return
     endif
@@ -130,6 +131,29 @@ function! rookie_bufoutline#Update() abort
     " Update the list
     let qf_list = rookie_bufoutline#GetBufferList()
     call setloclist(nerdtree_winnr, qf_list)
+
+    " Find current buffer index to highlight it
+    let current_buf = bufnr('%')
+    let target_idx = 0
+    let i = 1
+    for item in qf_list
+        if item.user_data == current_buf
+            let target_idx = i
+            break
+        endif
+        let i += 1
+    endfor
+
+    if target_idx > 0
+        " Set the current entry in the location list
+        call setloclist(nerdtree_winnr, [], 'a', {'idx': target_idx})
+
+        " Move the cursor in the location list window to the current entry
+        if exists('*win_execute')
+            call win_execute(loc_winid, 'call cursor(' . target_idx . ', 1)')
+            call win_execute(loc_winid, 'normal! zz')
+        endif
+    endif
 endfunction
 
 function! rookie_bufoutline#Format(info) abort
@@ -303,7 +327,7 @@ endfunction
 function! rookie_bufoutline#EnableAutoUpdate() abort
     augroup RookieBufOutline
         autocmd!
-        autocmd BufAdd,BufDelete,BufWipeout * call rookie_bufoutline#Update()
+        autocmd BufAdd,BufDelete,BufWipeout,BufEnter * call rookie_bufoutline#Update()
     augroup END
 endfunction
 
