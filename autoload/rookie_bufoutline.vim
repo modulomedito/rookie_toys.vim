@@ -126,6 +126,11 @@ function! rookie_bufoutline#Update() abort
         return
     endif
 
+    " Check if loc_winid is valid and the buffer is loaded
+    if winbufnr(loc_winid) == -1 || !bufloaded(winbufnr(loc_winid))
+        return
+    endif
+
     " Update the list
     let qf_list = rookie_bufoutline#GetBufferList()
     call setloclist(nerdtree_winnr, qf_list)
@@ -148,8 +153,19 @@ function! rookie_bufoutline#Update() abort
 
         " Move the cursor in the location list window to the current entry
         if exists('*win_execute')
-            call win_execute(loc_winid, 'call cursor(' . target_idx . ', 1)')
-            call win_execute(loc_winid, 'normal! zz')
+            " Check if the location list window has content before trying to move cursor
+            let l:bufnr = winbufnr(loc_winid)
+            if l:bufnr != -1 && getbufline(l:bufnr, 1, '$') != []
+                try
+                    " Only execute if the buffer is actually loaded and valid
+                    if bufloaded(l:bufnr)
+                        call win_execute(loc_winid, 'call cursor(' . target_idx . ', 1)')
+                        call win_execute(loc_winid, 'normal! zz')
+                    endif
+                catch
+                    " Ignore errors if cursor movement fails
+                endtry
+            endif
         endif
     endif
 endfunction
