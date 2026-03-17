@@ -418,7 +418,7 @@ endfunction
 function! rookie_bufoutline#Setup() abort
     nnoremap <silent> <C-Home> :call rookie_bufoutline#Prev()<CR>
     nnoremap <silent> <C-End> :call rookie_bufoutline#Next()<CR>
-    nnoremap <silent> <C-q> :call rookie_bufoutline#SmartQuit()<CR>
+    nnoremap <silent> <C-q> :call rookie_bufoutline#SmartQuit(0)<CR>
 endfunction
 
 function! rookie_bufoutline#AutoOpen() abort
