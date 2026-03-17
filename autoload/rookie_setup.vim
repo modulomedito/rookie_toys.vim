@@ -264,6 +264,7 @@ function! rookie_setup#SetupAutocmd() abort
     autocmd! FileType c
         \ setlocal iskeyword-=-
         \|setlocal commentstring=//%s
+        \|setlocal textwidth=79
     autocmd! FileType lsl
         \ setlocal filetype=c syntax=c
     autocmd! FileType lua
