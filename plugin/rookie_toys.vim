@@ -23,8 +23,6 @@ augroup RookieBufOutlineAuto
     autocmd BufWinLeave * if &filetype ==# 'nerdtree' | call rookie_bufoutline#AutoClose() | endif
 augroup END
 cabbrev bd RookieSmartDelete
-cnoreabbrev <expr> q getcmdtype() == ':' && getcmdline() == 'q' ? 'RookieSmartQuit' : 'q'
-cnoreabbrev <expr> q! getcmdtype() == ':' && getcmdline() == 'q!' ? 'RookieSmartQuit!' : 'q!'
 " rookie_tabrename
 command! -nargs=? -bar RookieTabRename call rookie_tabrename#Rename(<f-args>)
 " rookie_tag
