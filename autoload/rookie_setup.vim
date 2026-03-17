@@ -156,10 +156,10 @@ function! rookie_setup#SetupKeymaps() abort
     nnoremap <F2> :%s/\C\<<C-r><C-w>\>/<C-r><C-w>/g<Left><Left>
     nnoremap <M-Down> :m .+1<CR>==
     nnoremap <M-Up> :m .-2<CR>==
-    nnoremap <M-i> :b<Space><Tab>
+    " nnoremap <M-i> :b<Space><Tab>
     nnoremap <M-j> :m .+1<CR>==
     nnoremap <M-k> :m .-2<CR>==
-    nnoremap <M-u> :b<Space><Tab><S-Tab><S-Tab>
+    " nnoremap <M-u> :b<Space><Tab><S-Tab><S-Tab>
     nnoremap <silent> + :vertical resize +2<CR>
     nnoremap <silent> <C-M-PageDown> :tabmove +1<CR>
     nnoremap <silent> <C-M-PageUp> :tabmove -1<CR>
@@ -338,6 +338,7 @@ function! rookie_setup#SetupRookieToys() abort
         \"-y:RookieFarReplace -c
         \ <C-r>- <C-r>- **/*.[ch]
         \<Left><Left><Left><Left><Left><Left><Left><Left><Left><Left>
+    call rookie_bufoutline#Setup()
 endfunction
 
 function! rookie_setup#SetupUserCommand() abort
