@@ -135,6 +135,55 @@ function! rookie_plugins#Setup_AsyncRun() abort
     nnoremap <C-F9> :AsyncStop<CR>:AsyncReset<CR>
 endfunction
 
+function! rookie_plugins#CocGetConfig() abort
+    let l:config = [
+    \ '{',
+    \ '    "coc.preferences.formatOnSaveFiletypes": [',
+    \ '        "json"',
+    \ '    ],',
+    \ '    "clangd.arguments": [',
+    \ '        "--clang-tidy",',
+    \ '        "--background-index",',
+    \ '        "--header-insertion=iwyu"',
+    \ '    ],',
+    \ '    "clangd.semanticHighlighting": true,',
+    \ '    "coc.preferences.semanticTokensHighlights": true,',
+    \ '    "[lua][c]": {',
+    \ '        "inlayHint.enable": false',
+    \ '    },',
+    \ '    "diagnostic.enable": false,',
+    \ '    "suggest.noselect": true,',
+    \ '    "markdownlint.config": {',
+    \ '        "MD007": {',
+    \ '            "indent": 4',
+    \ '        },',
+    \ '        "MD010": {',
+    \ '            "code_blocks": false,',
+    \ '            "spaces_per_tab": 4',
+    \ '        },',
+    \ '        "MD018": false,',
+    \ '        "MD022": true,',
+    \ '        "MD031": true,',
+    \ '        "MD058": true,',
+    \ '        "MD013": {',
+    \ '            "code_blocks": false,',
+    \ '            "headings": false,',
+    \ '            "line_length": 80,',
+    \ '            "strict": true,',
+    \ '            "tables": false',
+    \ '        }',
+    \ '    }',
+    \ '}'
+    \ ]
+    let l:config_str = join(l:config, "\n")
+    let @+ = l:config_str
+    let @" = l:config_str
+    if has('clipboard')
+        let @* = l:config_str
+    endif
+    echomsg "Coc config copied to clipboard"
+endfunction
+
 " Plug 'neoclide/coc.nvim'
 function! rookie_plugins#Setup_Coc() abort
     " Install COC extension
