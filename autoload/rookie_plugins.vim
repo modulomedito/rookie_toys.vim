@@ -138,16 +138,14 @@ endfunction
 function! rookie_plugins#CocGetConfig() abort
     let l:config = [
     \ '{',
-    \ '    "coc.preferences.formatOnSaveFiletypes": [',
-    \ '        "json"',
-    \ '    ],',
+    \ '    "[json]": {',
+    \ '        "coc.preferences.formatOnSave": true',
+    \ '    },',
     \ '    "clangd.arguments": [',
     \ '        "--clang-tidy",',
     \ '        "--background-index",',
     \ '        "--header-insertion=iwyu"',
     \ '    ],',
-    \ '    "clangd.semanticHighlighting": true,',
-    \ '    "coc.preferences.semanticTokensHighlights": true,',
     \ '    "[lua][c]": {',
     \ '        "inlayHint.enable": false',
     \ '    },',
@@ -192,16 +190,14 @@ function! rookie_plugins#Setup_Coc() abort
     "     - Json formatter        :CocInstall coc-json
     " Config, add below to :CocConfig
     " {
-    "     "coc.preferences.formatOnSaveFiletypes": [
-    "         "json"
-    "     ],
+    "     "[json]": {
+    "         "coc.preferences.formatOnSave": true
+    "     },
     "     "clangd.arguments": [
     "         "--clang-tidy",
     "         "--background-index",
     "         "--header-insertion=iwyu"
     "     ],
-    "     "clangd.semanticHighlighting": true,
-    "     "coc.preferences.semanticTokensHighlights": true,
     "     "[lua][c]": {
     "         "inlayHint.enable": false
     "     },
