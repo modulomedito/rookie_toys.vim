@@ -146,6 +146,11 @@ function! rookie_plugins#Setup_Coc() abort
     "     "coc.preferences.formatOnSaveFiletypes": [
     "         "json"
     "     ],
+    "     "clangd.arguments": [
+    "         "--clang-tidy",
+    "         "--background-index",
+    "         "--header-insertion=iwyu"
+    "     ],
     "     "clangd.semanticHighlighting": true,
     "     "coc.preferences.semanticTokensHighlights": true,
     "     "[lua][c]": {
