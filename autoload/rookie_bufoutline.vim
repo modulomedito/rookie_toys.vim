@@ -186,27 +186,38 @@ function! rookie_bufoutline#Format(info) abort
 endfunction
 
 function! rookie_bufoutline#DeleteBuffer() abort
-    let line = line('.')
-    let list = getloclist(0)
-    if empty(list) || line > len(list)
+    let l:cur_line = line('.')
+    let l:list = getloclist(0)
+    if empty(l:list) || l:cur_line > len(l:list)
         return
     endif
 
-    let item = list[line - 1]
+    let l:item = l:list[l:cur_line - 1]
     " Retrieve bufnr from user_data
-    let bufnr = get(item, 'user_data', 0)
+    let l:bufnr = get(l:item, 'user_data', 0)
 
-    if bufnr == 0
+    if l:bufnr == 0
         return
     endif
 
     " Delete the buffer
-    if buflisted(bufnr)
-        execute 'bdelete ' . bufnr
+    if buflisted(l:bufnr)
+        execute 'bdelete ' . l:bufnr
     endif
 
     " Refresh the list
     call rookie_bufoutline#Update()
+
+    " Restore cursor position
+    let l:new_list = getloclist(0)
+    let l:new_len = len(l:new_list)
+    if l:new_len > 0
+        let l:new_line = l:cur_line
+        if l:new_line > l:new_len
+            let l:new_line = l:new_len
+        endif
+        call cursor(l:new_line, 1)
+    endif
 endfunction
 
 function! rookie_bufoutline#OpenBuffer() abort
