@@ -3,11 +3,6 @@ scriptencoding utf-8
 function! rookie_tabrename#Rename(...) abort
     let name = a:0 >= 1 ? a:1 : input('New tab name: ')
     let t:rookie_tab_name = name
-    call rookie_tabrename#Enable()
-    redrawtabline
-endfunction
-
-function! rookie_tabrename#Enable() abort
     if !exists('g:rookie_tabrename_active')
         set tabline=%!rookie_tabrename#TabLine()
         if has('gui_running')
@@ -15,6 +10,7 @@ function! rookie_tabrename#Enable() abort
         endif
         let g:rookie_tabrename_active = 1
     endif
+    redrawtabline
 endfunction
 
 function! rookie_tabrename#TabLine() abort
