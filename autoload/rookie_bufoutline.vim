@@ -336,5 +336,23 @@ function! rookie_bufoutline#Setup() abort
     nnoremap <silent> <C-End> :call rookie_bufoutline#Next()<CR>
 endfunction
 
+function! rookie_bufoutline#AutoOpen() abort
+    " Add delay to ensure NERDTree content is loaded
+    call timer_start(200, {-> rookie_bufoutline#Open()})
+endfunction
+
+function! rookie_bufoutline#AutoClose() abort
+    " Get location list window ID for the current window (NERDTree)
+    let l:loc_info = getloclist(0, {'winid': 0})
+    let l:loc_winid = get(l:loc_info, 'winid', 0)
+
+    if l:loc_winid != 0
+        let l:win_nr = win_id2win(l:loc_winid)
+        if l:win_nr > 0
+            execute l:win_nr . 'wincmd q'
+        endif
+    endif
+endfunction
+
 " Enable it by default or call it from plugin file
 call rookie_bufoutline#EnableAutoUpdate()
