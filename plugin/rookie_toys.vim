@@ -15,11 +15,16 @@ command! -nargs=0 -bar RookieSlugifyLine call setline('.', rookie_markdown#Slugi
 command! -nargs=0 -bar RookieSlugifyYank let _slug = rookie_markdown#SlugifyString(getline('.')) | let @" = _slug | if has('clipboard') | let @+ = _slug | endif | echo _slug
 " rookie_bufoutline
 command! -nargs=0 -bar RookieBufOutline call rookie_bufoutline#Open()
+command! -nargs=0 -bang RookieSmartQuit call rookie_bufoutline#SmartQuit(<bang>0)
+command! -nargs=0 -bang RookieSmartDelete call rookie_bufoutline#SmartDeleteBuffer(<bang>0)
 augroup RookieBufOutlineAuto
     autocmd!
     autocmd FileType nerdtree call rookie_bufoutline#AutoOpen()
     autocmd BufWinLeave * if &filetype ==# 'nerdtree' | call rookie_bufoutline#AutoClose() | endif
 augroup END
+cabbrev bd RookieSmartDelete
+cnoreabbrev <expr> q getcmdtype() == ':' && getcmdline() == 'q' ? 'RookieSmartQuit' : 'q'
+cnoreabbrev <expr> q! getcmdtype() == ':' && getcmdline() == 'q!' ? 'RookieSmartQuit!' : 'q!'
 " rookie_tabrename
 command! -nargs=? -bar RookieTabRename call rookie_tabrename#Rename(<f-args>)
 " rookie_tag

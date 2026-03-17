@@ -322,7 +322,8 @@ function! rookie_bufoutline#Next() abort
     endif
 endfunction
 
-function! rookie_bufoutline#SmartDeleteBuffer() abort
+function! rookie_bufoutline#SmartDeleteBuffer(...) abort
+    let bang = get(a:, 1, 0)
     let cur_buf = bufnr('%')
     let qf_list = rookie_bufoutline#GetBufferList()
 
@@ -330,7 +331,7 @@ function! rookie_bufoutline#SmartDeleteBuffer() abort
         " If it's the only buffer or no buffers listed, create a new one instead of closing window
         enew
         if buflisted(cur_buf)
-            execute 'bdelete ' . cur_buf
+            execute 'bdelete' . (bang ? '!' : '') . ' ' . cur_buf
         endif
         call rookie_bufoutline#Update()
         return
@@ -366,10 +367,45 @@ function! rookie_bufoutline#SmartDeleteBuffer() abort
 
     " Delete the original buffer
     if buflisted(cur_buf)
-        execute 'bdelete ' . cur_buf
+        execute 'bdelete' . (bang ? '!' : '') . ' ' . cur_buf
     endif
 
     call rookie_bufoutline#Update()
+endfunction
+
+function! rookie_bufoutline#SmartQuit(bang) abort
+    " Check if this is the last normal window
+    let l:normal_wins = 0
+    for w in range(1, winnr('$'))
+        let l:buf = winbufnr(w)
+        let l:bt = getbufvar(l:buf, '&buftype')
+        let l:ft = getbufvar(l:buf, '&filetype')
+        if l:bt !=# 'quickfix' && l:ft !=# 'nerdtree' && l:ft !=# 'qf'
+            let l:normal_wins += 1
+        endif
+    endfor
+
+    if l:normal_wins > 1
+        " Normal quit behavior
+        try
+            execute 'quit' . (a:bang ? '!' : '')
+        catch
+            echohl ErrorMsg | echo v:exception | echohl None
+        endtry
+        return
+    endif
+
+    " Last normal window: preserve layout
+
+    " Check modification if not forced
+    if &modified && !a:bang
+        echohl ErrorMsg
+        echo "E37: No write since last change (add ! to override)"
+        echohl None
+        return
+    endif
+
+    call rookie_bufoutline#SmartDeleteBuffer(a:bang)
 endfunction
 
 function! rookie_bufoutline#EnableAutoUpdate() abort
@@ -382,7 +418,7 @@ endfunction
 function! rookie_bufoutline#Setup() abort
     nnoremap <silent> <C-Home> :call rookie_bufoutline#Prev()<CR>
     nnoremap <silent> <C-End> :call rookie_bufoutline#Next()<CR>
-    cabbrev bd call rookie_bufoutline#SmartDeleteBuffer()
+    nnoremap <silent> <C-q> :call rookie_bufoutline#SmartQuit()<CR>
 endfunction
 
 function! rookie_bufoutline#AutoOpen() abort
