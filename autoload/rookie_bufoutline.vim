@@ -322,6 +322,54 @@ function! rookie_bufoutline#Next() abort
     endif
 endfunction
 
+function! rookie_bufoutline#SmartDeleteBuffer() abort
+    let cur_buf = bufnr('%')
+    let qf_list = rookie_bufoutline#GetBufferList()
+
+    if len(qf_list) <= 1
+        " If it's the only buffer or no buffers listed, just delete it
+        if buflisted(cur_buf)
+            execute 'bdelete ' . cur_buf
+        endif
+        return
+    endif
+
+    " Find current buffer index
+    let idx = -1
+    let i = 0
+    for item in qf_list
+        if item.user_data == cur_buf
+            let idx = i
+            break
+        endif
+        let i += 1
+    endfor
+
+    " Determine which buffer to switch to
+    let target_buf = -1
+    if idx != -1
+        if idx < len(qf_list) - 1
+            " Switch to next buffer
+            let target_buf = qf_list[idx + 1].user_data
+        elseif idx > 0
+            " Switch to previous buffer
+            let target_buf = qf_list[idx - 1].user_data
+        endif
+    endif
+
+    " Switch to target buffer if found
+    if target_buf != -1
+        execute 'buffer ' . target_buf
+    endif
+
+    " Delete the original buffer
+    if buflisted(cur_buf)
+        execute 'bdelete ' . cur_buf
+    endif
+
+    call rookie_bufoutline#Update()
+endfunction
+
 function! rookie_bufoutline#EnableAutoUpdate() abort
     augroup RookieBufOutline
         autocmd!
@@ -332,6 +380,7 @@ endfunction
 function! rookie_bufoutline#Setup() abort
     nnoremap <silent> <C-Home> :call rookie_bufoutline#Prev()<CR>
     nnoremap <silent> <C-End> :call rookie_bufoutline#Next()<CR>
+    cabbrev bd call rookie_bufoutline#SmartDeleteBuffer()
 endfunction
 
 function! rookie_bufoutline#AutoOpen() abort
