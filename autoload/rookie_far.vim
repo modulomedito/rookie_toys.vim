@@ -352,6 +352,21 @@ function! rookie_far#QuickfixTextFunc(info) abort
     return l:res
 endfunction
 
+
+function! rookie_far#VisualFind() abort
+    let l:saved_reg = getreg('v')
+    let l:saved_regtype = getregtype('v')
+    normal! gv"vy
+    let l:text = substitute(@v, '[\r\n]\+$', '', '')
+    call setreg('v', l:saved_reg, l:saved_regtype)
+
+    " Clean up text (remove trailing newlines if any, though usually we want exact)
+    " We will pass it directly
+    call rookie_far#Find('-c', l:text)
+endfunction
+
 function! rookie_far#Setup()
+    nnoremap <leader>gg :RookieFarFind <c-r><c-w><cr>
+    vnoremap <leader>gg :<C-u>call rookie_far#VisualFind()<CR>
     nnoremap <leader>gf :RookieFarFind<Space>
 endfunction

@@ -335,6 +335,7 @@ function! rookie_setup#SetupRookieToys() abort
         \<Left><Left><Left><Left><Left><Left><Left><Left><Left><Left>
     call rookie_bufoutline#Setup()
     call rookie_far#Setup()
+    call rookie_rg#Setup()
 endfunction
 
 function! rookie_setup#SetupUserCommand() abort
