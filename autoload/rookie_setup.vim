@@ -23,9 +23,6 @@ function! rookie_setup#Setup() abort
     if !exists('g:rookie_toys_default_setup_user_command')
         let g:rookie_toys_default_setup_user_command = 0
     endif
-    if !exists('g:rookie_toys_default_setup_rg')
-        let g:rookie_toys_default_setup_rg = 0
-    endif
     if !exists('g:rookie_toys_default_setup_syntax')
         let g:rookie_toys_default_setup_syntax = 0
     endif
@@ -48,9 +45,6 @@ function! rookie_setup#Setup() abort
     endif
     if g:rookie_toys_default_setup_option || g:rookie_toys_default_setup_all
         call rookie_setup#SetupOptions()
-    endif
-    if g:rookie_toys_default_setup_rg || g:rookie_toys_default_setup_all
-        call rookie_rg#Setup()
     endif
     if g:rookie_toys_default_setup_abbr || g:rookie_toys_default_setup_all
         call rookie_setup#SetupAbbr()
@@ -340,6 +334,7 @@ function! rookie_setup#SetupRookieToys() abort
         \ <C-r>- <C-r>- **/*.[ch]
         \<Left><Left><Left><Left><Left><Left><Left><Left><Left><Left>
     call rookie_bufoutline#Setup()
+    call rookie_far#Setup()
 endfunction
 
 function! rookie_setup#SetupUserCommand() abort

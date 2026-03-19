@@ -112,13 +112,13 @@ function! rookie_rg#ClearHighlight() abort
 endfunction
 
 function! rookie_rg#Setup() abort
-    if executable('rg')
-        set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case\ --hidden
-        set grepformat=%f:%l:%c:%m
+    " if executable('rg')
+    "     set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case\ --hidden
+    "     set grepformat=%f:%l:%c:%m
 
-        let mapleader = ''
-        nnoremap <leader>gg :call rookie_rg#GlobalGrep()<CR>nN
-        vnoremap <leader>gg :<C-u>call rookie_rg#VisualGrep()<CR>nN
-        nnoremap <leader>gf :call rookie_rg#LiveGrep()<CR>
-    endif
+    "     let mapleader = ''
+    "     nnoremap <leader>gg :call rookie_rg#GlobalGrep()<CR>nN
+    "     vnoremap <leader>gg :<C-u>call rookie_rg#VisualGrep()<CR>nN
+    "     nnoremap <leader>gf :call rookie_rg#LiveGrep()<CR>
+    " endif
 endfunction

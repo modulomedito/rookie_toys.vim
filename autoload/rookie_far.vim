@@ -38,7 +38,7 @@ function! rookie_far#Find(...) abort
     let l:parsed = s:ParseArgs(a:000)
     let l:pattern = get(l:parsed.args, 0, '')
     let l:file_mask = get(l:parsed.args, 1, '')
-    call s:RunSearch(l:pattern, l:file_mask, l:parsed.flags, '')
+    call s:RunSearch(l:pattern, l:file_mask, l:parsed.flags, '', 1)
 endfunction
 
 " Find and prepare for Replace
@@ -52,7 +52,7 @@ function! rookie_far#Replace(...) abort
     let s:last_replace = l:replace_with
     let s:last_flags = l:parsed.flags
 
-    call s:RunSearch(l:pattern, l:file_mask, l:parsed.flags, l:replace_with)
+    call s:RunSearch(l:pattern, l:file_mask, l:parsed.flags, l:replace_with, 0)
 
     if len(getqflist()) > 0
         echo "RookieFar: Found matches. Run :RookieFarDo to execute replacement."
@@ -178,7 +178,7 @@ function! rookie_far#Undo() abort
     let s:last_changed_files = []
 endfunction
 
-function! s:RunSearch(pattern, file_mask, flags, replace_with)
+function! s:RunSearch(pattern, file_mask, flags, replace_with, is_find_only)
     let l:pattern = a:pattern
     let l:rg_opts = '--vimgrep --no-heading --hidden'
     let l:search_flag = ''
@@ -235,6 +235,7 @@ function! s:RunSearch(pattern, file_mask, flags, replace_with)
         let l:ctx = s:ComputeFileMapping(l:qf_list)
         let l:ctx.pattern = l:pattern
         let l:ctx.replace_with = a:replace_with
+        let l:ctx.is_find_only = a:is_find_only
         call setqflist([], 'r', {'context': l:ctx, 'quickfixtextfunc': 'rookie_far#QuickfixTextFunc'})
         copen
 
@@ -315,6 +316,7 @@ function! rookie_far#QuickfixTextFunc(info) abort
     let l:mapping = get(l:ctx, 'file_mapping', {})
     let l:pattern = get(l:ctx, 'pattern', '')
     let l:replace_with = get(l:ctx, 'replace_with', '')
+    let l:is_find_only = get(l:ctx, 'is_find_only', 0)
     let l:items = l:qflist.items
     let l:start_idx = a:info.start_idx - 1
     let l:end_idx = a:info.end_idx - 1
@@ -332,10 +334,12 @@ function! rookie_far#QuickfixTextFunc(info) abort
 
             " Format: fname|lnum col| text [NEW: replace]
             let l:suffix = ''
-            if !empty(l:replace_with)
-                let l:suffix = ' [NEW: ' . l:replace_with . ']'
-            else
-                let l:suffix = ' (old: ' . l:pattern . ')'
+            if !l:is_find_only
+                if !empty(l:replace_with)
+                    let l:suffix = ' [NEW: ' . l:replace_with . ']'
+                else
+                    let l:suffix = ' (old: ' . l:pattern . ')'
+                endif
             endif
             let l:text = printf('%s|%d col %d| %s%s', l:fname, l:item.lnum, l:item.col, l:item.text, l:suffix)
         else
@@ -346,4 +350,8 @@ function! rookie_far#QuickfixTextFunc(info) abort
     endfor
 
     return l:res
+endfunction
+
+function! rookie_far#Setup()
+    nnoremap <leader>gf :RookieFarFind<Space>
 endfunction
