@@ -42,6 +42,7 @@ command! -nargs=0 -range=% -bar RookieHexChecksum call rookie_hex#UpdateIntelHex
 command! -nargs=0 -bar RookieNERDTreeCopy call rookie_nerdtree#CopyNode()
 command! -nargs=0 -bar RookieNERDTreeCopyContent call rookie_nerdtree#CopyNodeContent()
 command! -nargs=0 -bar RookieNERDTreePaste call rookie_nerdtree#PasteNode()
+command! -nargs=0 -bar RookieNERDTreePasteSystemClipboardContent call rookie_nerdtree#PasteSystemClipboardContent()
 " rookie_gitgraph
 command! -nargs=0 -bar RookieGitGraph call rookie_gitgraph#OpenGitGraph(1)
 command! -nargs=0 -bar RookieGitGraphLocal call rookie_gitgraph#OpenGitGraph(0)

@@ -92,6 +92,42 @@ function! rookie_nerdtree#CopyNodeContent()
     endif
 endfunction
 
+function! rookie_nerdtree#PasteSystemClipboardContent()
+    let l:node = g:NERDTreeFileNode.GetSelected()
+    if empty(l:node)
+        echo "No node selected"
+        return
+    endif
+
+    let l:destDir = l:node.path.str()
+    if !l:node.path.isDirectory
+        let l:destDir = fnamemodify(l:destDir, ':h')
+    endif
+
+    let l:timestamp = strftime('%Y%m%d_%H%M%S')
+
+    if has('win32') || has('win64')
+        let l:destDir_ps = substitute(l:destDir, "'", "''", "g")
+        let l:script = "Add-Type -AssemblyName System.Windows.Forms; Add-Type -AssemblyName System.Drawing; $dest = '" . l:destDir_ps . "'; if ([System.Windows.Forms.Clipboard]::ContainsFileDropList()) { $files = [System.Windows.Forms.Clipboard]::GetFileDropList(); foreach ($f in $files) { Copy-Item -Path $f -Destination $dest -Recurse -Force }; Write-Host 'Copied files' } elseif ([System.Windows.Forms.Clipboard]::ContainsImage()) { $img = [System.Windows.Forms.Clipboard]::GetImage(); $path = Join-Path $dest ('clipboard_image_" . l:timestamp . ".png'); $img.Save($path, [System.Drawing.Imaging.ImageFormat]::Png); Write-Host ('Saved image to ' + $path) } elseif ([System.Windows.Forms.Clipboard]::ContainsText()) { $txt = [System.Windows.Forms.Clipboard]::GetText(); $path = Join-Path $dest ('clipboard_text_" . l:timestamp . ".txt'); [IO.File]::WriteAllText($path, $txt); Write-Host ('Saved text to ' + $path) } else { Write-Host 'Clipboard is empty or unsupported format' }"
+        let l:cmd = 'powershell -NoProfile -Command "' . l:script . '"'
+        let l:output = system(l:cmd)
+        echo l:output
+    elseif has('mac') || has('macunix')
+        let l:destDir_sh = escape(l:destDir, "'")
+        let l:cmd = "sh -c 'if pbpaste | grep -q \"^/\"; then for file in $(pbpaste); do cp -r \"$file\" ''" . l:destDir_sh . "''/ 2>/dev/null; done; echo \"Copied paths\"; else pbpaste > ''" . l:destDir_sh . "/clipboard_text_" . l:timestamp . ".txt''; echo \"Saved text\"; fi'"
+        let l:output = system(l:cmd)
+        echo l:output
+    else
+        let l:destDir_sh = escape(l:destDir, "'")
+        let l:cmd = "sh -c 'if xclip -selection clipboard -o | grep -q \"^/\"; then for file in $(xclip -selection clipboard -o); do cp -r \"$file\" ''" . l:destDir_sh . "''/ 2>/dev/null; done; echo \"Copied paths\"; else xclip -selection clipboard -o > ''" . l:destDir_sh . "/clipboard_text_" . l:timestamp . ".txt''; echo \"Saved text\"; fi'"
+        let l:output = system(l:cmd)
+        echo l:output
+    endif
+
+    call b:NERDTree.root.refresh()
+    call NERDTreeRender()
+endfunction
+
 function! rookie_nerdtree#RunExecutableDetached()
     let l:node = g:NERDTreeFileNode.GetSelected()
     if empty(l:node)
@@ -115,14 +151,19 @@ function! s:AddNERDTreeMenuItems()
         "     \ 'callback': 'rookie_nerdtree#CopyNode'
         "     \ })
         call NERDTreeAddMenuItem({
-            \ 'text': 'copy node (C)ontent to clipboard',
+            \ 'text': 'Paste nerdtree node like Ctrl+(v)',
+            \ 'shortcut': 'v',
+            \ 'callback': 'rookie_nerdtree#PasteNode'
+            \ })
+        call NERDTreeAddMenuItem({
+            \ 'text': '(C)opy node content to system clipboard',
             \ 'shortcut': 'C',
             \ 'callback': 'rookie_nerdtree#CopyNodeContent'
             \ })
         call NERDTreeAddMenuItem({
-            \ 'text': '(P)aste node from clipboard',
+            \ 'text': '(P)aste system clipboard content',
             \ 'shortcut': 'P',
-            \ 'callback': 'rookie_nerdtree#PasteNode'
+            \ 'callback': 'rookie_nerdtree#PasteSystemClipboardContent'
             \ })
     endif
 endfunction
