@@ -10,6 +10,31 @@ function! rookie_nerdtree#CopyNode()
     echo "Marked for copy to clipboard: " . l:path
 endfunction
 
+function! s:BuildCopyTargetPath(sourcePath, destDir) abort
+    let l:sourceName = fnamemodify(a:sourcePath, ':t')
+    let l:sourceRoot = fnamemodify(l:sourceName, ':r')
+    let l:sourceExt = fnamemodify(l:sourceName, ':e')
+    let l:suffix = '(copy)'
+    let l:index = 1
+
+    while 1
+        if isdirectory(a:sourcePath)
+            let l:targetName = l:sourceName . l:suffix . (l:index > 1 ? ' ' . l:index : '')
+        elseif empty(l:sourceExt)
+            let l:targetName = l:sourceName . l:suffix . (l:index > 1 ? ' ' . l:index : '')
+        else
+            let l:targetName = l:sourceRoot . l:suffix . (l:index > 1 ? ' ' . l:index : '') . '.' . l:sourceExt
+        endif
+
+        let l:targetPath = a:destDir . nerdtree#slash() . l:targetName
+        if glob(l:targetPath) ==# ""
+            return l:targetPath
+        endif
+
+        let l:index += 1
+    endwhile
+endfunction
+
 function! rookie_nerdtree#PasteNode()
     let l:sourcePath = @+
     if l:sourcePath ==# ""
@@ -41,8 +66,7 @@ function! rookie_nerdtree#PasteNode()
     let l:targetPath = l:destDir . nerdtree#slash() . l:sourceName
 
     if l:targetPath ==# l:sourcePath
-        echo "Source and destination are the same."
-        return
+        let l:targetPath = s:BuildCopyTargetPath(l:sourcePath, l:destDir)
     endif
 
     if glob(l:targetPath) !=# ""
