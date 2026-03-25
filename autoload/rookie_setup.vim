@@ -219,11 +219,11 @@ function! rookie_setup#SetupAbbr() abort
     cab Gdell silent G branch -d\|GG<Left><Left><Left>
     cab Gdelr silent G push origin --delete\|GG<Left><Left><Left>
     cab Gf silent G fetch\|GG
-    cab Gl call timer_start(1200, {-> execute('RookieGitGraph')})\|G
+    cab Gg call timer_start(1200, {-> execute('RookieGitGraph')})\|G
     cab Gm silent G merge --ff <C-r><C-w>\|GG
     cab Gnew silent G checkout -b\|GG<Left><Left><Left>
-    cab GP silent G pull\|GG
-    cab Gp silent G push\|GG
+    cab Gpl silent G pull\|GG
+    cab Gps silent G push\|GG
     cab Gr silent G rebase <C-r><C-w>\|GG
     cab Gstashpo silent G stash pop\|GG
     cab Gstashpu silent G stash push --include-untracked\|GG
