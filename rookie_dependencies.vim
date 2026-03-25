@@ -27,6 +27,7 @@ Plug 'tpope/vim-unimpaired'             " Efficient keymaps
 Plug 'vim-airline/vim-airline'          " Vim bottom status line
 Plug 'vim-airline/vim-airline-themes'   " Vim bottom status line
 Plug 'vim-scripts/DrawIt'               " Draw ASCII art
+Plug 'fedorenchik/VimCalc3'             " Calculator
 " Colorscheme
 Plug 'NLKNguyen/papercolor-theme'       " Colorscheme
 Plug 'catppuccin/nvim'                  " Colorscheme
