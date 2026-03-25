@@ -366,7 +366,7 @@ function! rookie_far#VisualFind() abort
 endfunction
 
 function! rookie_far#Setup()
-    nnoremap <leader>gg :RookieFarFind <c-r><c-w><cr>
+    nnoremap <leader>gg :RookieFarFind -cw <c-r><c-w><cr>
     vnoremap <leader>gg :<C-u>call rookie_far#VisualFind()<CR>
     nnoremap <leader>gf :RookieFarFind<Space>
 endfunction
