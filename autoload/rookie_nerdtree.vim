@@ -164,31 +164,31 @@ endfunction
 
 function! s:AddNERDTreeMenuItems()
     if exists('*NERDTreeAddMenuItem')
-        call NERDTreeAddMenuItem({
-            \ 'text': '(R)un system executable file detach',
-            \ 'shortcut': 'R',
-            \ 'callback': 'rookie_nerdtree#RunExecutableDetached'
-            \ })
+        " call NERDTreeAddMenuItem({
+        "     \ 'text': '(R)un system executable file detach',
+        "     \ 'shortcut': 'R',
+        "     \ 'callback': 'rookie_nerdtree#RunExecutableDetached'
+        "     \ })
         " call NERDTreeAddMenuItem({
         "     \ 'text': 'copy node path to (c)lipboard',
         "     \ 'shortcut': 'c',
         "     \ 'callback': 'rookie_nerdtree#CopyNode'
         "     \ })
-        call NERDTreeAddMenuItem({
-            \ 'text': 'Paste nerdtree node like Ctrl+(v)',
-            \ 'shortcut': 'v',
-            \ 'callback': 'rookie_nerdtree#PasteNode'
-            \ })
-        call NERDTreeAddMenuItem({
-            \ 'text': '(C)opy node content to system clipboard',
-            \ 'shortcut': 'C',
-            \ 'callback': 'rookie_nerdtree#CopyNodeContent'
-            \ })
-        call NERDTreeAddMenuItem({
-            \ 'text': '(P)aste system clipboard content',
-            \ 'shortcut': 'P',
-            \ 'callback': 'rookie_nerdtree#PasteSystemClipboardContent'
-            \ })
+        " call NERDTreeAddMenuItem({
+        "     \ 'text': 'Paste nerdtree node like Ctrl+(v)',
+        "     \ 'shortcut': 'v',
+        "     \ 'callback': 'rookie_nerdtree#PasteNode'
+        "     \ })
+        " call NERDTreeAddMenuItem({
+        "     \ 'text': '(C)opy node content to system clipboard',
+        "     \ 'shortcut': 'C',
+        "     \ 'callback': 'rookie_nerdtree#CopyNodeContent'
+        "     \ })
+        " call NERDTreeAddMenuItem({
+        "     \ 'text': '(P)aste system clipboard content',
+        "     \ 'shortcut': 'P',
+        "     \ 'callback': 'rookie_nerdtree#PasteSystemClipboardContent'
+        "     \ })
     endif
 endfunction
 
@@ -223,6 +223,10 @@ function! rookie_nerdtree#Setup() abort
         \|nnoremap <buffer> <leader>cd :NTChCwd<CR>:NERDTreeCWD<CR>
         \|nnoremap <buffer> <C-S-e> :NERDTreeToggle<CR>
         \|nnoremap <buffer> mc :RookieNERDTreeCopy<CR>
+        \|nnoremap <buffer> mR :call rookie_nerdtree#RunExecutableDetached()<CR>
+        \|nnoremap <buffer> mv :call rookie_nerdtree#PasteNode()<CR>
+        \|nnoremap <buffer> mC :call rookie_nerdtree#CopyNodeContent()<CR>
+        \|nnoremap <buffer> mP :call rookie_nerdtree#PasteSystemClipboardContent()<CR>
     nnoremap <C-S-e> :NERDTreeFocus<CR>
     nnoremap <C-y> :NERDTreeToggle<CR>
     nnoremap <leader>find :NERDTreeFind<CR>
