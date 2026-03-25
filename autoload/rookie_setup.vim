@@ -222,8 +222,8 @@ function! rookie_setup#SetupAbbr() abort
     cab Gg call timer_start(1200, {-> execute('RookieGitGraph')})\|G
     cab Gm silent G merge --ff <C-r><C-w>\|GG
     cab Gnew silent G checkout -b\|GG<Left><Left><Left>
-    cab Gpl silent G pull\|GG
-    cab Gps silent G push\|GG
+    cab Gpl silent G pull\|GG<Left><Left><Left>
+    cab Gps silent G push\|GG<Left><Left><Left>
     cab Gr silent G rebase <C-r><C-w>\|GG
     cab Gstashpo silent G stash pop\|GG
     cab Gstashpu silent G stash push --include-untracked\|GG
