@@ -9,7 +9,6 @@ Plug 'godlygeek/tabular'                " Markdown code syntax Highlighting
 Plug 'honza/vim-snippets'               " Snippets
 Plug 'hotoo/pangu.vim'                  " Chinese formatter
 Plug 'junegunn/vim-easy-align'          " Easy align
-Plug 'justinmk/vim-dirvish'             " File browser
 Plug 'kshenoy/vim-signature'            " Bookmarks
 Plug 'mbbill/undotree'                  " Undo history visualizer
 Plug 'modulomedito/far.vim'             " Find and replace
