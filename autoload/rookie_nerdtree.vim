@@ -164,7 +164,7 @@ endfunction
 
 function! rookie_nerdtree#BookmarkEnter(bm) abort
     call a:bm.activate(b:NERDTree)
-    call timer_start(250, {t -> feedkeys(":\<C-u>NTChCwd\<CR>:\<C-u>NERDTreeCWD\<CR>", 'n')})
+    call timer_start(200, {t -> feedkeys(":\<C-u>NTChCwd\<CR>:\<C-u>NERDTreeCWD\<CR>", 'n')})
 endfunction
 
 function! s:AddNERDTreeMenuItems()
