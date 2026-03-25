@@ -162,6 +162,11 @@ function! rookie_nerdtree#RunExecutableDetached()
     call feedkeys(l:cmd)
 endfunction
 
+function! rookie_nerdtree#BookmarkEnter(bm) abort
+    call a:bm.activate(b:NERDTree)
+    call timer_start(200, {t -> feedkeys(":\<C-u>NTChCwd\<CR>:\<C-u>NERDTreeCWD\<CR>", 'n')})
+endfunction
+
 function! s:AddNERDTreeMenuItems()
     if exists('*NERDTreeAddMenuItem')
         " call NERDTreeAddMenuItem({
@@ -190,6 +195,27 @@ function! s:AddNERDTreeMenuItems()
         "     \ 'callback': 'rookie_nerdtree#PasteSystemClipboardContent'
         "     \ })
     endif
+    if exists('*NERDTreeAddKeyMap')
+        call NERDTreeAddKeyMap({
+            \ 'key': '<CR>',
+            \ 'scope': 'Bookmark',
+            \ 'callback': 'rookie_nerdtree#BookmarkEnter',
+            \ 'override': 1
+            \ })
+    endif
+endfunction
+
+function! rookie_nerdtree#ChangeCwdToNode() abort
+    let l:node = g:NERDTreeFileNode.GetSelected()
+    if empty(l:node)
+        echo 'select a node first'
+        return
+    endif
+    try
+        call l:node.path.changeToDir()
+    catch /^NERDTree.PathChangeError/
+        echohl WarningMsg | echom 'could not change cwd' | echohl NONE
+    endtry
 endfunction
 
 function! rookie_nerdtree#Setup() abort
@@ -206,19 +232,7 @@ function! rookie_nerdtree#Setup() abort
     let g:NERDTreeGitStatusUseNerdFonts = 0
 
     let g:NERDTreeWinSize = 40
-    function! s:NTChCwd() abort
-        let l:node = g:NERDTreeFileNode.GetSelected()
-        if empty(l:node)
-            echo 'select a node first'
-            return
-        endif
-        try
-            call l:node.path.changeToDir()
-        catch /^NERDTree.PathChangeError/
-            echohl WarningMsg | echom 'could not change cwd' | echohl NONE
-        endtry
-    endfunction
-    command! -nargs=0 NTChCwd call <SID>NTChCwd()
+    command! -nargs=0 NTChCwd call rookie_nerdtree#ChangeCwdToNode()
     autocmd! FileType nerdtree nnoremap <buffer> a :call NERDTreeAddNode()<CR>
         \|nnoremap <buffer> <leader>cd :NTChCwd<CR>:NERDTreeCWD<CR>
         \|nnoremap <buffer> <C-S-e> :NERDTreeToggle<CR>
