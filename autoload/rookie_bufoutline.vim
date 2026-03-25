@@ -37,6 +37,64 @@ function! rookie_bufoutline#GetBufferList() abort
     return qf_list
 endfunction
 
+function! s:FindNerdTreeWinid() abort
+    for l:winnr in range(1, winnr('$'))
+        let l:bufnr = winbufnr(l:winnr)
+        if l:bufnr != -1 && getbufvar(l:bufnr, '&filetype') ==# 'nerdtree'
+            return win_getid(l:winnr)
+        endif
+    endfor
+    return 0
+endfunction
+
+function! s:FindOutlineFallbackWinid() abort
+    let l:previous_winnr = winnr('#')
+    if l:previous_winnr > 0
+        let l:previous_bufnr = winbufnr(l:previous_winnr)
+        let l:previous_buftype = getbufvar(l:previous_bufnr, '&buftype')
+        let l:previous_filetype = getbufvar(l:previous_bufnr, '&filetype')
+        if l:previous_buftype !=# 'quickfix' && l:previous_filetype !=# 'qf' && l:previous_filetype !=# 'nerdtree'
+            return win_getid(l:previous_winnr)
+        endif
+    endif
+
+    let l:current_winid = win_getid()
+    for l:winnr in range(1, winnr('$'))
+        let l:winid = win_getid(l:winnr)
+        let l:bufnr = winbufnr(l:winnr)
+        let l:buftype = getbufvar(l:bufnr, '&buftype')
+        let l:filetype = getbufvar(l:bufnr, '&filetype')
+        if l:winid != l:current_winid && l:buftype !=# 'quickfix' && l:filetype !=# 'qf' && l:filetype !=# 'nerdtree'
+            return l:winid
+        endif
+    endfor
+
+    return 0
+endfunction
+
+function! rookie_bufoutline#KeepFocusOnNerdTree() abort
+    if !exists('b:rookie_bufoutline') || !b:rookie_bufoutline
+        return
+    endif
+
+    if &buftype !=# 'quickfix' || &filetype !=# 'qf'
+        return
+    endif
+
+    let l:nerdtree_winid = s:FindNerdTreeWinid()
+    if l:nerdtree_winid == 0 || l:nerdtree_winid == win_getid()
+        return
+    endif
+
+    let l:fallback_winid = s:FindOutlineFallbackWinid()
+    call win_gotoid(l:nerdtree_winid)
+
+    if l:fallback_winid != 0 && win_id2win(l:fallback_winid) > 0
+        call win_gotoid(l:fallback_winid)
+        call win_gotoid(l:nerdtree_winid)
+    endif
+endfunction
+
 function! rookie_bufoutline#Open() abort
     " 1. Find the NERDTree window
     let nerdtree_winnr = -1
@@ -90,6 +148,11 @@ function! rookie_bufoutline#Open() abort
     nnoremap <buffer> <silent> x :call rookie_bufoutline#DeleteBuffer()<CR>
     nnoremap <buffer> <silent> o :call rookie_bufoutline#OpenBuffer()<CR>
     nnoremap <buffer> <silent> <CR> :call rookie_bufoutline#OpenBuffer()<CR>
+    let b:rookie_bufoutline = 1
+    augroup RookieBufOutlineWindow
+        autocmd! * <buffer>
+        autocmd WinEnter <buffer> call rookie_bufoutline#KeepFocusOnNerdTree()
+    augroup END
 
     " Set filetype for syntax highlighting (optional)
     " We explicitly set syntax to qf, but we add our match
