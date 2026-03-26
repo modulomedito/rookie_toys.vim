@@ -215,7 +215,7 @@ function! rookie_setup#SetupAbbr() abort
     " cab Gclr silent G clean -d -f -x
     cab Gc silent G checkout <C-r><C-w>\|GG
     cab Gcherry G cherry-pick <C-r><C-w>\|GG
-    cab Gclr silent G clean -d -f
+    cab Gclr G clean -d -f
     cab Gdell silent G branch -d\|GG<Left><Left><Left>
     cab Gdelr silent G push origin --delete\|GG<Left><Left><Left>
     cab Gf silent G fetch\|GG
