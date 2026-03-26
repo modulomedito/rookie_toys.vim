@@ -162,9 +162,46 @@ function! rookie_nerdtree#RunExecutableDetached()
     call feedkeys(l:cmd)
 endfunction
 
+function! rookie_nerdtree#RemoveBuffersNotUnderRoot() abort
+    if !exists('b:NERDTree')
+        return
+    endif
+    let l:root_path = b:NERDTree.root.path.str()
+    let l:root_path = fnamemodify(l:root_path, ':p')
+    " Normalize slashes for comparison
+    let l:root_path = substitute(l:root_path, '\\', '/', 'g')
+
+    let l:buffers_to_delete = []
+    for l:buf in getbufinfo({'buflisted': 1})
+        let l:buf_name = fnamemodify(l:buf.name, ':p')
+        let l:buf_name = substitute(l:buf_name, '\\', '/', 'g')
+        " If the buffer is a file and not under the new root, mark for deletion
+        if !empty(l:buf.name) && stridx(l:buf_name, l:root_path) != 0
+            call add(l:buffers_to_delete, l:buf.bufnr)
+        endif
+    endfor
+
+    let l:listed_buffers = len(getbufinfo({'buflisted': 1}))
+    let l:will_be_empty = (l:listed_buffers == len(l:buffers_to_delete))
+
+    if l:will_be_empty && len(l:buffers_to_delete) > 0
+        enew
+    endif
+
+    for l:bufnr in l:buffers_to_delete
+        " If the buffer is displayed in any window, switch that window to an empty buffer first
+        for l:win in getwininfo()
+            if l:win.bufnr == l:bufnr
+                call win_execute(l:win.winid, 'enew')
+            endif
+        endfor
+        execute 'silent! bdelete ' . l:bufnr
+    endfor
+endfunction
+
 function! rookie_nerdtree#BookmarkEnter(bm) abort
     call a:bm.activate(b:NERDTree)
-    call timer_start(200, {t -> feedkeys(":\<C-u>NTChCwd\<CR>:\<C-u>NERDTreeCWD\<CR>", 'n')})
+    call timer_start(200, {t -> feedkeys(":\<C-u>NTChCwd\<CR>:\<C-u>NERDTreeCWD\<CR>:\<C-u>call rookie_nerdtree#RemoveBuffersNotUnderRoot()\<CR>", 'n')})
 endfunction
 
 function! s:AddNERDTreeMenuItems()
