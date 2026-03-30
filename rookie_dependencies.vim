@@ -31,6 +31,7 @@ Plug 'fedorenchik/VimCalc3'             " Calculator
 Plug 'NLKNguyen/papercolor-theme'       " Colorscheme
 Plug 'catppuccin/nvim'                  " Colorscheme
 Plug 'joshdick/onedark.vim'             " Colorscheme
-Plug 'morhetz/gruvbox'                  " Colorscheme
-Plug 'sainnhe/everforest'               " Colorscheme
 Plug 'liuchengxu/space-vim-dark'        " Colorscheme
+Plug 'morhetz/gruvbox'                  " Colorscheme
+Plug 'rakr/vim-one'                     " Colorscheme
+Plug 'sainnhe/everforest'               " Colorscheme
