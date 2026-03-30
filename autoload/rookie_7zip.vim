@@ -23,7 +23,8 @@ function! rookie_7zip#Zip(...) abort
 
     let l:dir = fnamemodify(l:path, ':h')
     let l:name = fnamemodify(l:path, ':t')
-    let l:zip_file = l:dir . '/' . l:name . '.zip'
+    let l:sep = (has('win32') || has('win64')) ? '\' : '/'
+    let l:zip_file = l:dir . l:sep . l:name . '.zip'
 
     let l:cmd = '7z a "' . l:zip_file . '" "' . l:path . '"'
     if has('win32') || has('win64')
@@ -44,7 +45,8 @@ function! rookie_7zip#Unzip(...) abort
 
     let l:dir = fnamemodify(l:path, ':h')
     let l:name_no_ext = fnamemodify(l:path, ':t:r')
-    let l:out_dir = l:dir . '/' . l:name_no_ext
+    let l:sep = (has('win32') || has('win64')) ? '\' : '/'
+    let l:out_dir = l:dir . l:sep . l:name_no_ext
 
     let l:cmd = '7z x "' . l:path . '" -o"' . l:out_dir . '"'
     if has('win32') || has('win64')
