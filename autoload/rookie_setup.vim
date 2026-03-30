@@ -333,7 +333,7 @@ function! rookie_setup#SetupRookieToys() abort
         \"-y:RookieFarReplace -c
         \ <C-r>- <C-r>- **/*.[ch]
         \<Left><Left><Left><Left><Left><Left><Left><Left><Left><Left>
-    call rookie_bufoutline#Setup()
+    " call rookie_bufoutline#Setup()
     call rookie_far#Setup()
     call rookie_rg#Setup()
 endfunction
