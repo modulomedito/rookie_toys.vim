@@ -27,7 +27,7 @@ function! rookie_7zip#Zip(...) abort
 
     let l:cmd = '7z a "' . l:zip_file . '" "' . l:path . '"'
     if exists(':AsyncRun')
-        execute 'AsyncRun -cwd="' . l:dir . '" ' . escape(l:cmd, ' \')
+        execute 'AsyncRun -cwd="' . escape(l:dir, '%#') . '" ' . escape(l:cmd, '%#')
     else
         echo 'Zipping ' . l:path . ' to ' . l:zip_file . '...'
         call system(l:cmd)
@@ -53,7 +53,7 @@ function! rookie_7zip#Unzip(...) abort
 
     let l:cmd = '7z x "' . l:path . '" -o"' . l:out_dir . '"'
     if exists(':AsyncRun')
-        execute 'AsyncRun -cwd="' . l:dir . '" ' . escape(l:cmd, ' \')
+        execute 'AsyncRun -cwd="' . escape(l:dir, '%#') . '" ' . escape(l:cmd, '%#')
     else
         echo 'Unzipping ' . l:path . ' to ' . l:out_dir . '...'
         call system(l:cmd)
