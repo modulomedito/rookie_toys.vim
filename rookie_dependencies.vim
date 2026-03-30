@@ -33,3 +33,4 @@ Plug 'catppuccin/nvim'                  " Colorscheme
 Plug 'joshdick/onedark.vim'             " Colorscheme
 Plug 'morhetz/gruvbox'                  " Colorscheme
 Plug 'sainnhe/everforest'               " Colorscheme
+Plug 'liuchengxu/space-vim-dark'        " Colorscheme
