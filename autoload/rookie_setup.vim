@@ -106,7 +106,7 @@ function! rookie_setup#SetupOptions() abort
     set number
     set path+=**
     set pumheight=50
-    set relativenumber
+    " set relativenumber
     set sessionoptions+=tabpages,globals
     set shiftwidth=4
     set shortmess=flnxtocTOI
