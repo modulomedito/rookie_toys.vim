@@ -2,7 +2,7 @@ function! s:GetPath(...) abort
     if a:0 > 0 && !empty(a:1)
         return a:1
     endif
-    if &filetype ==# 'nerdtree' && exists('*g:NERDTreeFileNode.GetSelected')
+    if &filetype ==# 'nerdtree' && exists('g:NERDTreeFileNode')
         let l:node = g:NERDTreeFileNode.GetSelected()
         if !empty(l:node)
             return l:node.path.str()
