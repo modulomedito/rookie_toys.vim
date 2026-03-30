@@ -171,6 +171,7 @@ function! rookie_setup#SetupKeymaps() abort
     nnoremap <silent> <leader>clr :%bd<bar>e #<bar>normal `<CR>
     nnoremap <silent> <leader>lh :noh<CR>
     nnoremap <silent> <leader>vim :vs $MYVIMRC<CR>
+    nnoremap <silent> <leader>x :bd<CR>
     nnoremap <silent> _ :vertical resize -2<CR>
     nnoremap K i<CR><Esc>
     nnoremap O O<Space><BS><Esc>
