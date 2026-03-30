@@ -168,6 +168,10 @@ function! rookie_setup#SetupKeymaps() abort
     nnoremap <silent> <F11> :cclose<CR>
     nnoremap <silent> <F8> :copen<CR>
     nnoremap <silent> <F9> :cprevious<CR>
+    nnoremap <silent> <M-S-h> <C-w>h
+    nnoremap <silent> <M-S-j> <C-w>j
+    nnoremap <silent> <M-S-k> <C-w>k
+    nnoremap <silent> <M-S-l> <C-w>l
     nnoremap <silent> <leader>clr :%bd<bar>e #<bar>normal `<CR>
     nnoremap <silent> <leader>lh :noh<CR>
     nnoremap <silent> <leader>vim :vs $MYVIMRC<CR>
