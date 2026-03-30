@@ -26,17 +26,12 @@ function! rookie_7zip#Zip(...) abort
     let l:zip_file = l:dir . '/' . l:name . '.zip'
 
     let l:cmd = '7z a "' . l:zip_file . '" "' . l:path . '"'
-    if exists(':AsyncRun')
-        execute 'AsyncRun -cwd="' . escape(l:dir, '%#') . '" ' . escape(l:cmd, '%#')
+    if has('win32') || has('win64')
+        execute 'silent !start cmd /c "' . l:cmd . '"'
     else
-        echo 'Zipping ' . l:path . ' to ' . l:zip_file . '...'
-        call system(l:cmd)
-        if v:shell_error == 0
-            echo 'Zip completed successfully: ' . l:zip_file
-        else
-            echoerr 'Failed to zip: ' . l:path
-        endif
+        execute 'silent !' . l:cmd . ' &'
     endif
+    echo 'Zipping ' . l:path . ' to ' . l:zip_file . '...'
 endfunction
 
 function! rookie_7zip#Unzip(...) abort
@@ -52,15 +47,10 @@ function! rookie_7zip#Unzip(...) abort
     let l:out_dir = l:dir . '/' . l:name_no_ext
 
     let l:cmd = '7z x "' . l:path . '" -o"' . l:out_dir . '"'
-    if exists(':AsyncRun')
-        execute 'AsyncRun -cwd="' . escape(l:dir, '%#') . '" ' . escape(l:cmd, '%#')
+    if has('win32') || has('win64')
+        execute 'silent !start cmd /c "' . l:cmd . '"'
     else
-        echo 'Unzipping ' . l:path . ' to ' . l:out_dir . '...'
-        call system(l:cmd)
-        if v:shell_error == 0
-            echo 'Unzip completed successfully: ' . l:out_dir
-        else
-            echoerr 'Failed to unzip: ' . l:path
-        endif
+        execute 'silent !' . l:cmd . ' &'
     endif
+    echo 'Unzipping ' . l:path . ' to ' . l:out_dir . '...'
 endfunction
