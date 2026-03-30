@@ -94,5 +94,9 @@ command! -nargs=0 -range -bar RookieAsciiToHex call rookie_ascii#ToHex()
 " rookie_plugins
 command! -nargs=0 -bar RookiePlugCocGetConfig call rookie_plugins#CocGetConfig()
 
+" rookie_7zip
+command! -nargs=? -bar Rookie7zZip call rookie_7zip#Zip(<f-args>)
+command! -nargs=? -bar Rookie7zUnzip call rookie_7zip#Unzip(<f-args>)
+
 " Setup
 call rookie_setup#Setup()
