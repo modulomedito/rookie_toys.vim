@@ -158,8 +158,9 @@ function! rookie_nerdtree#RunExecutableDetached()
         return
     endif
     let l:path = l:node.path.str()
-    let l:cmd = ':silent !start "' . l:path . '"'
-    call feedkeys(l:cmd)
+    " let l:cmd = ':silent !start "' . l:path . '"'
+    " call feedkeys(l:cmd)
+    execute 'silent !start "" ' . shellescape(l:path)
 endfunction
 
 function! rookie_nerdtree#RemoveBuffersNotUnderRoot() abort
