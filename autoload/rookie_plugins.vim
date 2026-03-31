@@ -46,6 +46,9 @@ function! rookie_plugins#SetupPlugins() abort
     if !exists('g:rookie_toys_default_setup_cppenhancedhighlight')
         let g:rookie_toys_default_setup_cppenhancedhighlight = 0
     endif
+    " if !exists('g:rookie_toys_default_setup_gitgutter')
+    "     let g:rookie_toys_default_setup_gitgutter = 0
+    " endif
     " if exists('g:cpp_member_variable_highlight')
     "     call rookie_plugins#Setup_CppEnhancedHighlight()
     " endif
@@ -92,6 +95,9 @@ function! rookie_plugins#SetupPlugins() abort
     if g:rookie_toys_default_setup_cppenhancedhighlight
         call rookie_plugins#Setup_CppEnhancedHighlight()
     endif
+    " if g:rookie_toys_default_setup_gitgutter
+    "     call enhance#gitgutter#Setup()
+    " endif
 endfunction
 
 " Plug 't9md/vim-textmanip'

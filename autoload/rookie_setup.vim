@@ -342,6 +342,7 @@ function! rookie_setup#SetupRookieToys() abort
     call rookie_far#Setup()
     call rookie_rg#Setup()
     call rookie_buffer#Setup()
+    call enhance#gitgutter#Setup()
 endfunction
 
 function! rookie_setup#SetupUserCommand() abort
