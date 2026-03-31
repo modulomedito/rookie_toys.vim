@@ -233,8 +233,14 @@ function! s:RunSearch(pattern, file_mask, flags, replace_with, is_find_only)
         " Set search register for highlighting (referencing rookie_rg pattern)
         if !empty(l:pattern)
             let @/ = s:ConstructVimPattern(l:pattern, a:flags)
+            " Add to history and set direction to trigger highlighting reliably
+            call histadd("search", @/)
+            let v:searchforward = 1
             set hlsearch
             execute 'redraw!'
+            " Force highligthing update by simulating a no-op search key sequence
+            " This is the most reliable way to force hlsearch to show up immediately
+            call feedkeys("nN", 'n')
         endif
     else
         cclose
