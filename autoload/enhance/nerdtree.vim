@@ -270,6 +270,7 @@ function! enhance#nerdtree#Setup() abort
     let g:NERDTreeGitStatusUseNerdFonts = 0
 
     let g:NERDTreeWinSize = 40
+    let g:NERDTreeShowHidden = 1
     command! -nargs=0 NTChCwd call enhance#nerdtree#ChangeCwdToNode()
     autocmd! FileType nerdtree nnoremap <buffer> a :call NERDTreeAddNode()<CR>
         \|nnoremap <buffer> <leader>cd :NTChCwd<CR>:NERDTreeCWD<CR>
