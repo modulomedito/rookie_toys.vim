@@ -174,6 +174,11 @@ function! enhance#nerdtree#RemoveBuffersNotUnderRoot() abort
 
     let l:buffers_to_delete = []
     for l:buf in getbufinfo({'buflisted': 1})
+        " Skip NERDTree buffers
+        if getbufvar(l:buf.bufnr, '&filetype') ==# 'nerdtree'
+            continue
+        endif
+
         let l:buf_name = fnamemodify(l:buf.name, ':p')
         let l:buf_name = substitute(l:buf_name, '\\', '/', 'g')
         " If the buffer is a file and not under the new root, mark for deletion
