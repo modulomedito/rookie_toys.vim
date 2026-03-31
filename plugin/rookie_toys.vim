@@ -41,10 +41,10 @@ command! -nargs=0 -bar RookieToggleHeaderSource call rookie_tag#ToggleHeaderSour
 command! -nargs=0 -range=-1 -bar RookieHexToAscii call rookie_hex#HexToAscii(<count> != -1)
 command! -nargs=0 -range=% -bar RookieHexChecksum call rookie_hex#UpdateIntelHexChecksum()
 " rookie_nerdtree
-command! -nargs=0 -bar RookieNERDTreeCopy call rookie_nerdtree#CopyNode()
-command! -nargs=0 -bar RookieNERDTreeCopyContent call rookie_nerdtree#CopyNodeContent()
-command! -nargs=0 -bar RookieNERDTreePaste call rookie_nerdtree#PasteNode()
-command! -nargs=0 -bar RookieNERDTreePasteSystemClipboardContent call rookie_nerdtree#PasteSystemClipboardContent()
+command! -nargs=0 -bar RookieNERDTreeCopy call enhance#nerdtree#CopyNode()
+command! -nargs=0 -bar RookieNERDTreeCopyContent call enhance#nerdtree#CopyNodeContent()
+command! -nargs=0 -bar RookieNERDTreePaste call enhance#nerdtree#PasteNode()
+command! -nargs=0 -bar RookieNERDTreePasteSystemClipboardContent call enhance#nerdtree#PasteSystemClipboardContent()
 " rookie_gitgraph
 command! -nargs=0 -bar RookieGitGraph call rookie_gitgraph#OpenGitGraph(1)
 command! -nargs=0 -bar RookieGitGraphLocal call rookie_gitgraph#OpenGitGraph(0)

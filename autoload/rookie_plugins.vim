@@ -66,7 +66,7 @@ function! rookie_plugins#SetupPlugins() abort
     endif
 
     if g:rookie_toys_default_setup_nerdtree
-        call rookie_nerdtree#Setup()
+        call enhance#nerdtree#Setup()
     endif
     if g:rookie_toys_default_setup_coc
         call rookie_plugins#Setup_Coc()

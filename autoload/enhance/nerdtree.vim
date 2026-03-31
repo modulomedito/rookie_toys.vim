@@ -1,4 +1,4 @@
-function! rookie_nerdtree#CopyNode()
+function! enhance#nerdtree#CopyNode()
     let l:node = g:NERDTreeFileNode.GetSelected()
     if empty(l:node)
         echo "No node selected"
@@ -35,7 +35,7 @@ function! s:BuildCopyTargetPath(sourcePath, destDir) abort
     endwhile
 endfunction
 
-function! rookie_nerdtree#PasteNode()
+function! enhance#nerdtree#PasteNode()
     let l:sourcePath = @+
     if l:sourcePath ==# ""
         let l:sourcePath = @*
@@ -85,7 +85,7 @@ function! rookie_nerdtree#PasteNode()
     endtry
 endfunction
 
-function! rookie_nerdtree#CopyNodeContent()
+function! enhance#nerdtree#CopyNodeContent()
     let l:node = g:NERDTreeFileNode.GetSelected()
     if empty(l:node)
         echo "No node selected"
@@ -116,7 +116,7 @@ function! rookie_nerdtree#CopyNodeContent()
     endif
 endfunction
 
-function! rookie_nerdtree#PasteSystemClipboardContent()
+function! enhance#nerdtree#PasteSystemClipboardContent()
     let l:node = g:NERDTreeFileNode.GetSelected()
     if empty(l:node)
         echo "No node selected"
@@ -152,7 +152,7 @@ function! rookie_nerdtree#PasteSystemClipboardContent()
     call NERDTreeRender()
 endfunction
 
-function! rookie_nerdtree#RunExecutableDetached()
+function! enhance#nerdtree#RunExecutableDetached()
     let l:node = g:NERDTreeFileNode.GetSelected()
     if empty(l:node)
         return
@@ -163,7 +163,7 @@ function! rookie_nerdtree#RunExecutableDetached()
     execute 'silent !start "' . shellescape(l:path) . '"'
 endfunction
 
-function! rookie_nerdtree#RemoveBuffersNotUnderRoot() abort
+function! enhance#nerdtree#RemoveBuffersNotUnderRoot() abort
     if !exists('b:NERDTree')
         return
     endif
@@ -200,9 +200,9 @@ function! rookie_nerdtree#RemoveBuffersNotUnderRoot() abort
     endfor
 endfunction
 
-function! rookie_nerdtree#BookmarkEnter(bm) abort
+function! enhance#nerdtree#BookmarkEnter(bm) abort
     call a:bm.activate(b:NERDTree)
-    call timer_start(200, {t -> feedkeys(":\<C-u>NTChCwd\<CR>:\<C-u>NERDTreeCWD\<CR>:\<C-u>call rookie_nerdtree#RemoveBuffersNotUnderRoot()\<CR>", 'n')})
+    call timer_start(200, {t -> feedkeys(":\<C-u>NTChCwd\<CR>:\<C-u>NERDTreeCWD\<CR>:\<C-u>call enhance#nerdtree#RemoveBuffersNotUnderRoot()\<CR>", 'n')})
 endfunction
 
 function! s:AddNERDTreeMenuItems()
@@ -210,40 +210,40 @@ function! s:AddNERDTreeMenuItems()
         " call NERDTreeAddMenuItem({
         "     \ 'text': '(R)un system executable file detach',
         "     \ 'shortcut': 'R',
-        "     \ 'callback': 'rookie_nerdtree#RunExecutableDetached'
+        "     \ 'callback': 'enhance#nerdtree#RunExecutableDetached'
         "     \ })
         " call NERDTreeAddMenuItem({
         "     \ 'text': 'copy node path to (c)lipboard',
         "     \ 'shortcut': 'c',
-        "     \ 'callback': 'rookie_nerdtree#CopyNode'
+        "     \ 'callback': 'enhance#nerdtree#CopyNode'
         "     \ })
         " call NERDTreeAddMenuItem({
         "     \ 'text': 'Paste nerdtree node like Ctrl+(v)',
         "     \ 'shortcut': 'v',
-        "     \ 'callback': 'rookie_nerdtree#PasteNode'
+        "     \ 'callback': 'enhance#nerdtree#PasteNode'
         "     \ })
         " call NERDTreeAddMenuItem({
         "     \ 'text': '(C)opy node content to system clipboard',
         "     \ 'shortcut': 'C',
-        "     \ 'callback': 'rookie_nerdtree#CopyNodeContent'
+        "     \ 'callback': 'enhance#nerdtree#CopyNodeContent'
         "     \ })
         " call NERDTreeAddMenuItem({
         "     \ 'text': '(P)aste system clipboard content',
         "     \ 'shortcut': 'P',
-        "     \ 'callback': 'rookie_nerdtree#PasteSystemClipboardContent'
+        "     \ 'callback': 'enhance#nerdtree#PasteSystemClipboardContent'
         "     \ })
     endif
     if exists('*NERDTreeAddKeyMap')
         call NERDTreeAddKeyMap({
             \ 'key': '<CR>',
             \ 'scope': 'Bookmark',
-            \ 'callback': 'rookie_nerdtree#BookmarkEnter',
+            \ 'callback': 'enhance#nerdtree#BookmarkEnter',
             \ 'override': 1
             \ })
     endif
 endfunction
 
-function! rookie_nerdtree#ChangeCwdToNode() abort
+function! enhance#nerdtree#ChangeCwdToNode() abort
     let l:node = g:NERDTreeFileNode.GetSelected()
     if empty(l:node)
         echo 'select a node first'
@@ -256,7 +256,7 @@ function! rookie_nerdtree#ChangeCwdToNode() abort
     endtry
 endfunction
 
-function! rookie_nerdtree#Setup() abort
+function! enhance#nerdtree#Setup() abort
     if exists('g:loaded_nerd_tree')
         call s:AddNERDTreeMenuItems()
     else
@@ -270,15 +270,15 @@ function! rookie_nerdtree#Setup() abort
     let g:NERDTreeGitStatusUseNerdFonts = 0
 
     let g:NERDTreeWinSize = 40
-    command! -nargs=0 NTChCwd call rookie_nerdtree#ChangeCwdToNode()
+    command! -nargs=0 NTChCwd call enhance#nerdtree#ChangeCwdToNode()
     autocmd! FileType nerdtree nnoremap <buffer> a :call NERDTreeAddNode()<CR>
         \|nnoremap <buffer> <leader>cd :NTChCwd<CR>:NERDTreeCWD<CR>
         \|nnoremap <buffer> <C-S-e> :NERDTreeToggle<CR>
         \|nnoremap <buffer> mc :RookieNERDTreeCopy<CR>
-        \|nnoremap <buffer> mR :call rookie_nerdtree#RunExecutableDetached()<CR>
-        \|nnoremap <buffer> mv :call rookie_nerdtree#PasteNode()<CR>
-        \|nnoremap <buffer> mC :call rookie_nerdtree#CopyNodeContent()<CR>
-        \|nnoremap <buffer> mP :call rookie_nerdtree#PasteSystemClipboardContent()<CR>
+        \|nnoremap <buffer> mR :call enhance#nerdtree#RunExecutableDetached()<CR>
+        \|nnoremap <buffer> mv :call enhance#nerdtree#PasteNode()<CR>
+        \|nnoremap <buffer> mC :call enhance#nerdtree#CopyNodeContent()<CR>
+        \|nnoremap <buffer> mP :call enhance#nerdtree#PasteSystemClipboardContent()<CR>
     nnoremap <C-S-e> :NERDTreeFocus<CR>
     nnoremap <C-y> :NERDTreeToggle<CR>
     nnoremap <leader>find :NERDTreeFind<CR>
