@@ -5,6 +5,38 @@ let s:last_replace = ''
 let s:last_flags = {}
 let s:last_changed_files = []
 
+function! s:ConstructVimPattern(pattern, flags) abort
+    let l:vim_pattern = ''
+
+    " Regex vs Literal
+    if a:flags.r
+        let l:vim_pattern .= '\v'
+    else
+        let l:vim_pattern .= '\V'
+    endif
+
+    " Whole Word
+    if a:flags.w
+        let l:vim_pattern .= '\<' . a:pattern . '\>'
+    else
+        let l:vim_pattern .= a:pattern
+    endif
+
+    " Case Sensitivity
+    if a:flags.c
+        let l:vim_pattern .= '\C'
+    else
+        " Smart case behavior mimic
+        if a:pattern =~# '[A-Z]'
+            let l:vim_pattern .= '\C'
+        else
+            let l:vim_pattern .= '\c'
+        endif
+    endif
+
+    return l:vim_pattern
+endfunction
+
 " Parse arguments: handles -c, -w, -r flags
 function! s:ParseArgs(args)
     let l:flags = {'c': 0, 'w': 0, 'r': 0}
@@ -38,6 +70,12 @@ function! rookie_far#Find(...) abort
     let l:parsed = s:ParseArgs(a:000)
     let l:pattern = get(l:parsed.args, 0, '')
     let l:file_mask = get(l:parsed.args, 1, '')
+
+    if !empty(l:pattern)
+        let @/ = s:ConstructVimPattern(l:pattern, l:parsed.flags)
+        set hlsearch
+    endif
+
     call s:RunSearch(l:pattern, l:file_mask, l:parsed.flags, '', 1)
 endfunction
 
@@ -71,39 +109,7 @@ function! rookie_far#Do() abort
     let l:flags = s:last_flags
 
     " Construct Vim pattern based on flags
-    let l:vim_pattern = ''
-
-    " Regex vs Literal
-    if l:flags.r
-        let l:vim_pattern .= '\v'
-    else
-        let l:vim_pattern .= '\V'
-    endif
-
-    " Whole Word
-    if l:flags.w
-        let l:vim_pattern .= '\<' . l:pattern . '\>'
-    else
-        let l:vim_pattern .= l:pattern
-    endif
-
-    " Case Sensitivity
-    if l:flags.c
-        let l:vim_pattern .= '\C'
-    else
-        " Use \c only if pattern doesn't contain uppercase (smart case behavior mimic)
-        " Or just rely on user setting?
-        " User requirement: if -c then sensitive. Implicitly if not -c, then ignore/smart.
-        " Safest to force \c if not sensitive to ensure matches are found if rg found them case-insensitively.
-        " But if rg used smart case and found "Foo" because pattern was "Foo",
-        " we should probably respect that.
-        " Let's check for uppercase if not strict.
-        if l:pattern =~# '[A-Z]'
-             let l:vim_pattern .= '\C'
-        else
-             let l:vim_pattern .= '\c'
-        endif
-    endif
+    let l:vim_pattern = s:ConstructVimPattern(l:pattern, l:flags)
 
     " Escape delimiter / for substitute command
     let l:safe_pattern = substitute(l:vim_pattern, '/', '\\/', 'g')
