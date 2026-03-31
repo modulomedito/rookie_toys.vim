@@ -1,5 +1,5 @@
-*rookie_toys.txt*   Rookie Toys beginner help                     Version: 1.0
-                                               Last change: 2025-11-29
+*rookie_toys.txt*   Rookie Toys beginner help                     Version: 1.1
+                                              Last change: 2026-03-31
 
 ROOKIE_TOYS HELP                                           *rookie_toys*
 
@@ -11,6 +11,10 @@ Installation: place this file in your help directory and generate helptags.
 - Windows:      $HOME/vimfiles/doc/
 Then run:  :helptags ALL   or   :helptags {path-to-doc}
 See also: |:helptags| |helphelp|
+
+Vim9script Support:
+Starting from version 1.1, some components (like rookie_dependencies.vim)
+are written in Vim9script. This requires Vim 9.0 or later.
 
 ==============================================================================
 TABLE OF CONTENTS                                     *rookie_toys-toc*
@@ -24,9 +28,12 @@ TABLE OF CONTENTS                                     *rookie_toys-toc*
 7. Files and Projects          |rookie_toys-projects|
 8. Git Utilities               |rookie_toys-git|
 9. Markdown Tools              |rookie_toys-markdown|
-10. Rust Tools                 |rookie_toys-rust|
-11. Troubleshooting            |rookie_toys-troubleshoot|
-12. See Also                   |rookie_toys-seealso|
+10. Rust & C/C++ Tools         |rookie_toys-dev-tools|
+11. Search & Replace (RG/Far)  |rookie_toys-search-replace|
+12. Utilities (7z/Guid/Hex)    |rookie_toys-utils|
+13. UI & Navigation Enhancements |rookie_toys-ui|
+14. Troubleshooting            |rookie_toys-troubleshoot|
+15. See Also                   |rookie_toys-seealso|
 
 ==============================================================================
 INTRODUCTION                                             *rookie_toys-intro*
@@ -231,6 +238,16 @@ Interactive diff (requires vim-fugitive)
         :RookieGitDiff        " open split diff view
     Related: |fugitive|
 
+Commit Diff
+    Tag: *RookieGitOpenCommitDiff*
+    Syntax: *:RookieGitOpenCommitDiff* [SHA]
+    Description: Open the diff for a specific commit.
+
+Auto Fetch
+    Tag: *RookieGitAutoFetch*
+    Syntax: *:RookieGitAutoFetch*
+    Description: Periodically fetch from remote.
+
 ==============================================================================
 MARKDOWN TOOLS                                       *rookie_toys-markdown*
 
@@ -252,11 +269,11 @@ Slugify helpers
     Description: Produce URL-friendly slugs for text/line and optionally yank.
 
 ==============================================================================
-RUST TOOLS                                             *rookie_toys-rust*
+RUST & C/C++ TOOLS                                   *rookie_toys-dev-tools*
 
 Rust Test Under Cursor
-    Tag: *RookieRustTest*
-    Syntax: *:RookieRustTest*
+    Tag: *RookieRustTestFunctionUnderCursor*
+    Syntax: *:RookieRustTestFunctionUnderCursor*
     Description: Detects the Rust test function under the cursor and prepares
                  a command to run it. It parses Cargo.toml for the crate name,
                  determines the full module path from the file structure and
@@ -266,9 +283,81 @@ Rust Test Under Cursor
         Move cursor to a test function:
             #[test]
             fn my_test() { ... }
-        Run: :RookieRustTest
-        Result: :copen | AsyncRun cargo test -p Crate --test path::to::my_test ...
-    Use cases: Quickly running the unit test you are currently editing.
+        Run: :RookieRustTestFunctionUnderCursor
+
+Clangd Generate
+    Tag: *RookieClangdGenerate*
+    Syntax: *:RookieClangdGenerate*
+    Description: Generate compile_commands.json for C/C++ projects.
+
+Toggle Header/Source
+    Tag: *RookieToggleHeaderSource*
+    Syntax: *:RookieToggleHeaderSource*
+    Description: Quickly switch between header (.h) and source (.c/.cpp) files.
+
+C Comment Conversion
+    Tag: *RookieCCommentToSlash*
+    Syntax: *:RookieCCommentToSlash*
+    Description: Convert C-style comments (/**/) to C++ style (//) in range.
+
+==============================================================================
+SEARCH & REPLACE (RG/FAR)                         *rookie_toys-search-replace*
+
+RipGrep (RG) Integration
+    Tag: *RookieRgLiveGrep*  *RookieRgGlobalGrep*  *RookieRgVisualGrep*
+    Syntax: *:RookieRgLiveGrep*  |  *:RookieRgGlobalGrep*  |  *:RookieRgVisualGrep*
+    Description: Interactive or global search using RipGrep. VisualGrep searches
+                 for selected text.
+
+Far.vim Integration
+    Tag: *RookieFarReplace*  *RookieFarFind*  *RookieFarDo*  *RookieFarUndo*
+    Syntax: *:RookieFarReplace* pattern replacement  |  *:RookieFarFind* pattern
+    Description: Powerful project-wide find and replace. Use :RookieFarDo to
+                 apply changes and :RookieFarUndo to revert.
+
+==============================================================================
+UTILITIES (7Z/GUID/HEX)                                  *rookie_toys-utils*
+
+7-Zip Utilities
+    Tag: *Rookie7zZip*  *Rookie7zUnzip*
+    Syntax: *:Rookie7zZip* [path]  |  *:Rookie7zUnzip* [path]
+    Description: Compress or extract files using 7-Zip. If no path is provided,
+                 uses the current file or selected NERDTree node.
+
+GUID Generation
+    Tag: *RookieGuidGenerate*  *RookieGuidSearch*  *RookieGuidList*
+    Syntax: *:RookieGuidGenerate*  |  *:RookieGuidSearch*  |  *:RookieGuidList*
+    Description: Generate and insert a new GUID, or search for existing ones.
+
+Hex/ASCII conversion
+    Tag: *RookieHexToAscii*  *RookieAsciiToHex*  *RookieHexChecksum*
+    Syntax: *:RookieHexToAscii*  |  *:RookieAsciiToHex*  |  *:RookieHexChecksum*
+    Description: Convert between hex and ASCII. HexChecksum updates Intel Hex
+                 format checksums.
+
+==============================================================================
+UI & NAVIGATION ENHANCEMENTS                              *rookie_toys-ui*
+
+NERDTree Enhancements
+    Tag: *RookieNERDTreeCopy*  *RookieNERDTreePaste*
+    Syntax: *:RookieNERDTreeCopy*  |  *:RookieNERDTreePaste*
+    Description: Copy and paste files/directories within NERDTree.
+
+Rooter Utilities
+    Tag: *RookieRooterToggle*  *RookieRooterHere*
+    Syntax: *:RookieRooterToggle*  |  *:RookieRooterHere*
+    Description: Automatically change CWD to project root. RookieRooterHere
+                 forces root to current directory.
+
+Smooth Scrolling
+    Tag: *RookieSmoothScrollPageDown*  *RookieSmoothScrollPageUp*
+    Syntax: *:RookieSmoothScrollPageDown*  |  *:RookieSmoothScrollPageUp*
+    Description: Smoothly scroll pages to maintain visual context.
+
+Tab Renaming
+    Tag: *RookieTabRename*
+    Syntax: *:RookieTabRename* [name]
+    Description: Rename the current tab.
 
 ==============================================================================
 TROUBLESHOOTING                                   *rookie_toys-troubleshoot*
@@ -285,6 +374,9 @@ Quickfix window didn’t open
 Clangd compile_commands.json missing entries
     - Adjust g:rookie_toys_clangd_* patterns to match your file extensions.
 
+7-Zip command not found
+    - Ensure `7z` is in your system PATH.
+
 ==============================================================================
 SEE ALSO                                               *rookie_toys-seealso*
 
@@ -292,5 +384,4 @@ SEE ALSO                                               *rookie_toys-seealso*
 |search-commands| |quickfix| |windows.txt| |buffers| |:helptags|
 
 ==============================================================================
-Copyright (c) 2025 modulomedito.  MIT License.
-
+Copyright (c) 2026 modulomedito.  MIT License.
