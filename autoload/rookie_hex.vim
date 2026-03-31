@@ -1,26 +1,24 @@
-scriptencoding utf-8
+vim9script
+# scriptencoding utf-8
 
-function! rookie_hex#HexToAscii(...) abort
-    let l:is_visual = get(a:, 1, 0)
-    let l:hex_data = ''
+# Convert hex data to ASCII string and copy to clipboard
+export def HexToAscii(is_visual: any = 0)
+    var hex_data = ''
 
-    if l:is_visual
-        let l:text = s:GetVisualSelection()
-        " Check if it looks like Intel Hex (contains lines starting with :)
-        if l:text =~# '^\s*:' || l:text =~# '\n\s*:'
-             let l:hex_data = s:ParseIntelHexBlock(l:text)
+    if is_visual
+        var text = GetVisualSelection()
+        # Check if it looks like Intel Hex (contains lines starting with :)
+        if text =~# '^\s*:' || text =~# '\n\s*:'
+             hex_data = ParseIntelHexBlock(text)
         else
-             let l:hex_data = s:CleanHex(l:text)
+             hex_data = CleanHex(text)
         endif
     else
-        " Normal mode: Current line
-        let l:line = getline('.')
-        " Strip leading whitespace for check? Original code didn't.
-        " Original code: l:line[0] !=# ':'
-        " I will allow leading whitespace to be friendly, but original code was strict.
-        " Requirement says "current intel hex line".
-        if l:line =~# '^\s*:'
-            let l:hex_data = s:ParseIntelHexLine(substitute(l:line, '^\s*', '', ''), 0)
+        # Normal mode: Current line
+        var line = getline('.')
+        # Requirement says "current intel hex line".
+        if line =~# '^\s*:'
+            hex_data = ParseIntelHexLine(substitute(line, '^\s*', '', ''), false)
         else
             echohl ErrorMsg
             echomsg "Current line is not a valid Intel HEX record (must start with ':')"
@@ -29,66 +27,66 @@ function! rookie_hex#HexToAscii(...) abort
         endif
     endif
 
-    if l:hex_data ==# ''
+    if hex_data ==# ''
         echomsg "No valid hex data found."
         return
     endif
 
-    " Convert hex_data (raw hex string) to ASCII
-    let l:result = s:HexToAsciiString(l:hex_data)
+    # Convert hex_data (raw hex string) to ASCII
+    var result = HexToAsciiString(hex_data)
 
-    " Echo result
-    echo "Decoded: " . l:result
+    # Echo result
+    echo "Decoded: " .. result
 
-    " Copy to clipboard
-    let @" = l:result
+    # Copy to clipboard
+    @\" = result
     if has('clipboard')
-        let @+ = l:result
+        @+ = result
         echon " (Copied to clipboard)"
     else
         echon " (Copied to register \")"
     endif
-endfunction
+enddef
 
-function! s:GetVisualSelection() abort
-    let [line_start, column_start] = getpos("'<")[1:2]
-    let [line_end, column_end] = getpos("'>")[1:2]
-    let lines = getline(line_start, line_end)
+def GetVisualSelection(): string
+    var [line_start, column_start] = getpos("'<")[1 : 2]
+    var [line_end, column_end] = getpos("'>")[1 : 2]
+    var lines = getline(line_start, line_end)
     if len(lines) == 0
         return ''
     endif
 
-    let selection_mode = visualmode()
+    var selection_mode = visualmode()
     if selection_mode ==# 'v'
-        " Character-wise
-        let lines[-1] = lines[-1][: column_end - (&selection == 'inclusive' ? 1 : 2)]
-        let lines[0] = lines[0][column_start - 1:]
+        # Character-wise
+        lines[-1] = lines[-1][: column_end - (&selection == 'inclusive' ? 1 : 2)]
+        lines[0] = lines[0][column_start - 1 :]
     elseif selection_mode ==# 'V'
-        " Line-wise: lines are already correct
+        # Line-wise: lines are already correct
     elseif selection_mode ==# "\<C-V>"
-        " Block-wise
+        # Block-wise
         for i in range(len(lines))
-            let lines[i] = lines[i][column_start - 1 : column_end - (&selection == 'inclusive' ? 1 : 2)]
+            lines[i] = lines[i][column_start - 1 : column_end - (&selection == 'inclusive' ? 1 : 2)]
         endfor
     endif
     return join(lines, "\n")
-endfunction
+enddef
 
-function! s:ParseIntelHexBlock(text) abort
-    let l:lines = split(a:text, "\n")
-    let l:raw_hex = ''
-    for l:line in l:lines
-        let l:line = substitute(l:line, '^\s*', '', '')
-        if l:line =~# '^:'
-            let l:raw_hex .= s:ParseIntelHexLine(l:line, 1)
+def ParseIntelHexBlock(text: string): string
+    var lines = split(text, "\n")
+    var raw_hex = ''
+    for line in lines
+        var clean_line = substitute(line, '^\s*', '', '')
+        if clean_line =~# '^:'
+            raw_hex ..= ParseIntelHexLine(clean_line, true)
         endif
     endfor
-    return l:raw_hex
-endfunction
+    return raw_hex
+enddef
 
-function! s:ParseIntelHexLine(line, silent) abort
-    if len(a:line) < 1 || a:line[0] !=# ':'
-        if !a:silent
+def ParseIntelHexLine(line: string, silent: bool): string
+    if len(line) < 1 || line[0] !=# ':'
+        if !silent
             echohl ErrorMsg
             echomsg "Current line is not a valid Intel HEX record (must start with ':')"
             echohl None
@@ -96,102 +94,104 @@ function! s:ParseIntelHexLine(line, silent) abort
         return ''
     endif
 
-    " Parse Byte Count (chars 1-2)
-    let l:byte_count_hex = strpart(a:line, 1, 2)
-    let l:byte_count = str2nr(l:byte_count_hex, 16)
+    # Parse Byte Count (chars 1-2)
+    var byte_count_hex = strpart(line, 1, 2)
+    var byte_count = str2nr(byte_count_hex, 16)
 
-    " Parse Record Type (chars 7-8)
-    let l:record_type = strpart(a:line, 7, 2)
+    # Parse Record Type (chars 7-8)
+    var record_type = strpart(line, 7, 2)
 
-    " Check if it is a Data Record (00)
-    if l:record_type !=# '00'
-        if !a:silent
-            echomsg "Record type is " . l:record_type . " (not Data), skipping ASCII conversion."
+    # Check if it is a Data Record (00)
+    if record_type !=# '00'
+        if !silent
+            echomsg "Record type is " .. record_type .. " (not Data), skipping ASCII conversion."
         endif
         return ''
     endif
 
-    " Extract Data (starts at index 9, length is byte_count * 2)
-    return strpart(a:line, 9, l:byte_count * 2)
-endfunction
+    # Extract Data (starts at index 9, length is byte_count * 2)
+    return strpart(line, 9, byte_count * 2)
+enddef
 
-function! s:CleanHex(text) abort
-    return substitute(a:text, '[^0-9A-Fa-f]', '', 'g')
-endfunction
+def CleanHex(text: string): string
+    return substitute(text, '[^0-9A-Fa-f]', '', 'g')
+enddef
 
-function! s:HexToAsciiString(hex) abort
-    let l:res = ''
-    let l:i = 0
-    while l:i < len(a:hex)
-        let l:byte_hex = strpart(a:hex, l:i, 2)
-        if len(l:byte_hex) < 2
+def HexToAsciiString(hex: string): string
+    var res = ''
+    var i = 0
+    while i < len(hex)
+        var byte_hex = strpart(hex, i, 2)
+        if len(byte_hex) < 2
             break
         endif
-        let l:char_code = str2nr(l:byte_hex, 16)
-        let l:res .= nr2char(l:char_code)
-        let l:i += 2
+        var char_code = str2nr(byte_hex, 16)
+        res ..= nr2char(char_code)
+        i += 2
     endwhile
-    return l:res
-endfunction
+    return res
+enddef
 
-function! s:UpdateLineChecksum(lnum) abort
-    let l:line = getline(a:lnum)
-    " Remove whitespace
-    let l:clean_line = substitute(l:line, '^\s*', '', '')
-    let l:clean_line = substitute(l:clean_line, '\s*$', '', '')
+def UpdateLineChecksum(lnum: number): bool
+    var line = getline(lnum)
+    # Remove whitespace
+    var clean_line = substitute(line, '^\s*', '', '')
+    clean_line = substitute(clean_line, '\s*$', '', '')
 
-    if l:clean_line !~# '^:'
-        return 0
+    if clean_line !~# '^:'
+        return false
     endif
 
-    let l:content = l:clean_line[1:]
-    " Min length: LL (2) + AAAA (4) + TT (2) + CC (2) = 10 chars
-    if len(l:content) < 10
-        return 0
+    var content = clean_line[1 :]
+    # Min length: LL (2) + AAAA (4) + TT (2) + CC (2) = 10 chars
+    if len(content) < 10
+        return false
     endif
 
-    " Check if the length is even (hex pairs)
-    if len(l:content) % 2 != 0
-        return 0
+    # Check if the length is even (hex pairs)
+    if len(content) % 2 != 0
+        return false
     endif
 
-    " The data to sum is everything excluding the last byte (2 chars) which is the old checksum
-    let l:data_hex = l:content[:-3]
+    # The data to sum is everything excluding the last byte (2 chars) which is the old checksum
+    var data_hex = content[:-3]
 
-    let l:sum = 0
-    let l:i = 0
-    while l:i < len(l:data_hex)
-        let l:byte_hex = strpart(l:data_hex, l:i, 2)
-        let l:sum += str2nr(l:byte_hex, 16)
-        let l:i += 2
+    var sum = 0
+    var i = 0
+    while i < len(data_hex)
+        var byte_hex = strpart(data_hex, i, 2)
+        sum += str2nr(byte_hex, 16)
+        i += 2
     endwhile
 
-    let l:checksum = (0x100 - (l:sum % 0x100)) % 0x100
-    let l:new_checksum_hex = printf('%02X', l:checksum)
+    var checksum = (0x100 - (sum % 0x100)) % 0x100
+    var new_checksum_hex = printf('%02X', checksum)
 
-    " Reconstruct the line: Original indentation + : + data + new checksum
-    let l:indent = matchstr(l:line, '^\s*')
-    let l:new_line = l:indent . ':' . l:data_hex . l:new_checksum_hex
+    # Reconstruct the line: Original indentation + : + data + new checksum
+    var indent = matchstr(line, '^\s*')
+    var new_line = indent .. ':' .. data_hex .. new_checksum_hex
 
-    if l:new_line !=# l:line
-        call setline(a:lnum, l:new_line)
-        return 1
+    if new_line !=# line
+        setline(lnum, new_line)
+        return true
     endif
-    return 0
-endfunction
+    return false
+enddef
 
-function! rookie_hex#UpdateIntelHexChecksum(...) abort
-    let l:start_line = 1
-    let l:end_line = line('$')
+export def UpdateIntelHexChecksum()
+    var start_line = 1
+    var end_line = line('$')
 
-    let l:count = 0
-    for l:lnum in range(l:start_line, l:end_line)
-        let l:count += s:UpdateLineChecksum(l:lnum)
+    var count = 0
+    for lnum in range(start_line, end_line)
+        if UpdateLineChecksum(lnum)
+            count += 1
+        endif
     endfor
 
-    if l:count > 0
-        echo "Updated checksum for " . l:count . " line(s)."
+    if count > 0
+        echo "Updated checksum for " .. count .. " line(s)."
     else
         echo "No checksums updated."
     endif
-endfunction
+enddef
