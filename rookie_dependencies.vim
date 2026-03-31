@@ -31,10 +31,10 @@ Plug 'vim-airline/vim-airline-themes' # Vim bottom status line
 Plug 'vim-scripts/DrawIt' # Draw ASCII art
 
 # Colorscheme
-Plug 'NLKNguyen/papercolor-theme'
+Plug 'NLKNguyen/papercolor-theme' # PaperColor
 Plug 'catppuccin/nvim'
-Plug 'joshdick/onedark.vim'
-Plug 'liuchengxu/space-vim-dark'
-Plug 'morhetz/gruvbox'
-Plug 'rakr/vim-one'
-Plug 'sainnhe/everforest'
+Plug 'joshdick/onedark.vim' # onedark
+Plug 'liuchengxu/space-vim-dark' # space-vim-dark
+Plug 'morhetz/gruvbox' # gruvbox
+Plug 'rakr/vim-one' # one
+Plug 'sainnhe/everforest' # everforest
