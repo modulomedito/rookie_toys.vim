@@ -202,7 +202,7 @@ endfunction
 
 function! enhance#nerdtree#BookmarkEnter(bm) abort
     call a:bm.activate(b:NERDTree)
-    call timer_start(200, {t -> feedkeys(":\<C-u>NTChCwd\<CR>:\<C-u>NERDTreeCWD\<CR>:\<C-u>call enhance#nerdtree#RemoveBuffersNotUnderRoot()\<CR>", 'n')})
+    call timer_start(250, {t -> feedkeys(":\<C-u>NTChCwd\<CR>:\<C-u>NERDTreeCWD\<CR>:\<C-u>call enhance#nerdtree#RemoveBuffersNotUnderRoot()\<CR>", 'n')})
 endfunction
 
 function! s:AddNERDTreeMenuItems()
