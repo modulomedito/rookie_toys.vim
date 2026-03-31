@@ -71,11 +71,6 @@ function! rookie_far#Find(...) abort
     let l:pattern = get(l:parsed.args, 0, '')
     let l:file_mask = get(l:parsed.args, 1, '')
 
-    if !empty(l:pattern)
-        let @/ = s:ConstructVimPattern(l:pattern, l:parsed.flags)
-        set hlsearch
-    endif
-
     call s:RunSearch(l:pattern, l:file_mask, l:parsed.flags, '', 1)
 endfunction
 
@@ -187,20 +182,12 @@ endfunction
 function! s:RunSearch(pattern, file_mask, flags, replace_with, is_find_only)
     let l:pattern = a:pattern
     let l:rg_opts = '--vimgrep --no-heading --hidden'
-    let l:search_flag = ''
 
     " Case Sensitive
     if a:flags.c
         let l:rg_opts .= ' -s'
-        let l:search_flag .= '\C'
     else
         let l:rg_opts .= ' --smart-case'
-        " For highlighting:
-        if l:pattern =~# '[A-Z]'
-            let l:search_flag .= '\C'
-        else
-            let l:search_flag .= '\c'
-        endif
     endif
 
     " Whole Word
@@ -211,9 +198,6 @@ function! s:RunSearch(pattern, file_mask, flags, replace_with, is_find_only)
     " Regex vs Fixed String
     if !a:flags.r
         let l:rg_opts .= ' -F'
-        let l:search_flag = '\V' . l:search_flag
-    else
-        let l:search_flag = '\v' . l:search_flag
     endif
 
     let l:cmd = 'rg ' . l:rg_opts . ' -e ' . shellescape(l:pattern)
@@ -244,23 +228,17 @@ function! s:RunSearch(pattern, file_mask, flags, replace_with, is_find_only)
         let l:ctx.is_find_only = a:is_find_only
         call setqflist([], 'r', {'context': l:ctx, 'quickfixtextfunc': 'rookie_far#QuickfixTextFunc'})
         copen
+        wincmd p
 
-        " Set search register for highlighting
-        " Combine regex mode prefix, case flag, and pattern
-        if a:flags.w
-             " Vim highlighting for whole word
-             if a:flags.r
-                 let @/ = l:search_flag . '\<' . l:pattern . '\>'
-             else
-                 " Literal whole word search in vim is tricky with \V
-                 " \V\<pattern\> works
-                 let @/ = l:search_flag . '\<' . l:pattern . '\>'
-             endif
-        else
-             let @/ = l:search_flag . l:pattern
+        " Set search register for highlighting (referencing rookie_rg pattern)
+        if !empty(l:pattern)
+            let @/ = s:ConstructVimPattern(l:pattern, a:flags)
+            set hlsearch
+            execute 'redraw!'
         endif
     else
         cclose
+        redraw
         echo "RookieFar: No matches found."
     endif
 endfunction
@@ -365,7 +343,6 @@ function! rookie_far#VisualFind() abort
     normal! gv"vy
     let l:text = substitute(@v, '[\r\n]\+$', '', '')
     call setreg('v', l:saved_reg, l:saved_regtype)
-
     " Clean up text (remove trailing newlines if any, though usually we want exact)
     " We will pass it directly
     call rookie_far#Find('-c', l:text)
