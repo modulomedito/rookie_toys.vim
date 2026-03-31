@@ -1,112 +1,127 @@
-scriptencoding utf-8
+vim9script
 
-let g:rookie_toys_clangd_source_patterns = ['c', 'cpp']
-let g:rookie_toys_clangd_header_patterns = ['h', 'hpp']
-let g:rookie_toys_clangd_compiler = 'gcc'
-let g:rookie_toys_clangd_args = ['-ferror-limit=3000']
+# Default configuration
+if !exists('g:rookie_toys_clangd_source_patterns')
+    g:rookie_toys_clangd_source_patterns = ['c', 'cpp']
+endif
+if !exists('g:rookie_toys_clangd_header_patterns')
+    g:rookie_toys_clangd_header_patterns = ['h', 'hpp']
+endif
+if !exists('g:rookie_toys_clangd_compiler')
+    g:rookie_toys_clangd_compiler = 'gcc'
+endif
+if !exists('g:rookie_toys_clangd_args')
+    g:rookie_toys_clangd_args = ['-ferror-limit=3000']
+endif
 
-function! s:SearchAndCollect(dir, patterns) abort
-    let result = []
+# Search and collect files matching patterns recursively
+def SearchAndCollect(dir: string, patterns: list<string>): list<string>
+    var result: list<string> = []
 
-    " Ensure the directory path ends with a slash
-    let dir_with_slash = substitute(a:dir, '\\', '/', 'g')
+    # Ensure the directory path ends with a slash
+    var dir_with_slash = substitute(dir, '\\', '/', 'g')
     if dir_with_slash !~ '/$'
-        let dir_with_slash = dir_with_slash . '/'
+        dir_with_slash ..= '/'
     endif
 
-    " Get all files recursively using globpath with the '**' wildcard
-    let files = globpath(a:dir, '**', 0, 1)
+    # Get all files recursively using globpath with the '**' wildcard
+    var files = globpath(dir, '**', 0, 1)
     for file in files
-        " Skip directories – process only files
+        # Skip directories – process only files
         if !isdirectory(file)
-            for pattern in a:patterns
+            for pattern in patterns
                 if file =~ pattern
-                    let file_with_slash = substitute(file, '\\', '/', 'g')
-                    let result += [file_with_slash]
+                    var file_with_slash = substitute(file, '\\', '/', 'g')
+                    add(result, file_with_slash)
                 endif
             endfor
         endif
     endfor
 
     return result
-endfunction
+enddef
 
-function! s:RemoveDuplicates(items) abort
-    let seen = {}
-    let result = []
-    for item in a:items
+# Remove duplicates from a list
+def RemoveDuplicates(items: list<string>): list<string>
+    var seen = {}
+    var result: list<string> = []
+    for item in items
         if !has_key(seen, item)
-            let seen[item] = v:true
-            let result += [item]
+            seen[item] = true
+            add(result, item)
         endif
     endfor
     return result
-endfunction
+enddef
 
-function! s:SearchAndCollectParent(dir, patterns) abort
-    let raw_result = []
-    let match_files = s:SearchAndCollect(a:dir, a:patterns)
+# Search and collect parent folders of matching files
+def SearchAndCollectParent(dir: string, patterns: list<string>): list<string>
+    var raw_result: list<string> = []
+    var match_files = SearchAndCollect(dir, patterns)
 
     for match_file in match_files
-        let parent = fnamemodify(match_file, ':h')
-        let parent = substitute(parent, '\\', '/', 'g')
-        let raw_result += [parent]
+        var parent = fnamemodify(match_file, ':h')
+        parent = substitute(parent, '\\', '/', 'g')
+        add(raw_result, parent)
     endfor
 
-    return s:RemoveDuplicates(raw_result)
-endfunction
+    return RemoveDuplicates(raw_result)
+enddef
 
-function! rookie_clangd#CreateCompileCommandsJson() abort
-    let current_dir = substitute(getcwd(), '\\', '/', 'g')
+# Main function to create compile_commands.json
+export def CreateCompileCommandsJson()
+    var current_dir = substitute(getcwd(), '\\', '/', 'g')
 
-    " Search header parent folders
-    let header_patterns = []
+    # Search header parent folders
+    var header_patterns: list<string> = []
     for pattern in g:rookie_toys_clangd_header_patterns
-        let header_patterns += ['^.*\.' . pattern . '$']
+        add(header_patterns, '^.*\.' .. pattern .. '$')
     endfor
-    let header_dirs = s:SearchAndCollectParent(current_dir, header_patterns)
+    var header_dirs = SearchAndCollectParent(current_dir, header_patterns)
 
-    " Search source files
-    let source_patterns = []
+    # Search source files
+    var source_patterns: list<string> = []
     for pattern in g:rookie_toys_clangd_source_patterns
-        let source_patterns += ['^.*\.' . pattern . '$']
+        add(source_patterns, '^.*\.' .. pattern .. '$')
     endfor
-    let sources = s:SearchAndCollect(current_dir, source_patterns)
+    var sources = SearchAndCollect(current_dir, source_patterns)
 
-    " First line output content
-    let output_content = []
-    call add(output_content, '[')
+    # First line output content
+    var output_content: list<string> = []
+    add(output_content, '[')
 
-    " Setup compile command
-    let compile_cmd = '    "command": "\"' . g:rookie_toys_clangd_compiler . '\" '
+    # Setup compile command
+    var compile_cmd = '    "command": "\"' .. g:rookie_toys_clangd_compiler .. '\" '
 
-    " Append arguments
+    # Append arguments
     for arg in g:rookie_toys_clangd_args
-        let compile_cmd = compile_cmd . '\"' . arg . '\" '
+        compile_cmd ..= '\"' .. arg .. '\" '
     endfor
 
-    " Append includes
+    # Append includes
     for header_dir in header_dirs
-        let compile_cmd = compile_cmd . '\"-I' . header_dir . '\" '
+        compile_cmd ..= '\"-I' .. header_dir .. '\" '
     endfor
 
-    " Body of the output content
-    for src_file in sources
-        call add(output_content, '  {')
-        call add(output_content, '    "directory": "' . current_dir . '",')
-        call add(output_content, compile_cmd . src_file . '",')
-        call add(output_content, '    "file": "' . src_file . '",')
-        call add(output_content, '    "output": "' . src_file . '.o"')
-        if src_file == sources[len(sources)-1]
-            call add(output_content, '  }')
+    # Body of the output content
+    var num_sources = len(sources)
+    for i in range(num_sources)
+        var src_file = sources[i]
+        add(output_content, '  {')
+        add(output_content, '    "directory": "' .. current_dir .. '",')
+        add(output_content, compile_cmd .. src_file .. '",')
+        add(output_content, '    "file": "' .. src_file .. '",')
+        add(output_content, '    "output": "' .. src_file .. '.o"')
+        if i == num_sources - 1
+            add(output_content, '  }')
         else
-            call add(output_content, '  },')
+            add(output_content, '  },')
         endif
     endfor
 
-    " Last line output content
-    call add(output_content, ']')
+    # Last line output content
+    add(output_content, ']')
 
-    call writefile(output_content, 'compile_commands.json')
+    writefile(output_content, 'compile_commands.json')
     echo 'Created compile_commands.json'
-endfunction
+enddef
