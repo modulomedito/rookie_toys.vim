@@ -123,6 +123,7 @@ function! rookie_setup#SetupOptions() abort
     set termguicolors
     set textwidth=100
     set undofile
+    set updatetime=300
     set wildcharm=<Tab>
     set wildignorecase
     set wildoptions=pum
