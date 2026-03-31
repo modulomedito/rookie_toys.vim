@@ -173,11 +173,13 @@ function! enhance#nerdtree#RemoveBuffersNotUnderRoot() abort
     let l:root_path = substitute(l:root_path, '\\', '/', 'g')
 
     let l:buffers_to_delete = []
+    let l:listed_buffers = 0
     for l:buf in getbufinfo({'buflisted': 1})
         " Skip NERDTree buffers
         if getbufvar(l:buf.bufnr, '&filetype') ==# 'nerdtree'
             continue
         endif
+        let l:listed_buffers += 1
 
         let l:buf_name = fnamemodify(l:buf.name, ':p')
         let l:buf_name = substitute(l:buf_name, '\\', '/', 'g')
@@ -187,18 +189,38 @@ function! enhance#nerdtree#RemoveBuffersNotUnderRoot() abort
         endif
     endfor
 
-    let l:listed_buffers = len(getbufinfo({'buflisted': 1}))
     let l:will_be_empty = (l:listed_buffers == len(l:buffers_to_delete))
 
     if l:will_be_empty && len(l:buffers_to_delete) > 0
-        enew
+        " We don't want to run enew if we're currently in a NERDTree window
+        if &filetype !=# 'nerdtree'
+            enew
+        else
+            " Find a normal window to run enew in, or create a split if only nerdtree is open
+            let l:found_normal_win = 0
+            for l:win in getwininfo()
+                if getbufvar(l:win.bufnr, '&filetype') !=# 'nerdtree'
+                    call win_execute(l:win.winid, 'enew')
+                    let l:found_normal_win = 1
+                    break
+                endif
+            endfor
+            if !l:found_normal_win
+                wincmd p
+                enew
+                wincmd p
+            endif
+        endif
     endif
 
     for l:bufnr in l:buffers_to_delete
         " If the buffer is displayed in any window, switch that window to an empty buffer first
         for l:win in getwininfo()
             if l:win.bufnr == l:bufnr
-                call win_execute(l:win.winid, 'enew')
+                " Make sure we don't accidentally execute enew in a nerdtree window
+                if getbufvar(winbufnr(l:win.winid), '&filetype') !=# 'nerdtree'
+                    call win_execute(l:win.winid, 'enew')
+                endif
             endif
         endfor
         execute 'silent! bdelete ' . l:bufnr
