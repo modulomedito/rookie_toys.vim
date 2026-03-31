@@ -185,22 +185,22 @@ function! rookie_setup#SetupKeymaps() abort
     nnoremap j gj
     nnoremap k gk
     nnoremap o o<Space><BS><Esc>
-    noremap <leader>P "0P
     noremap <leader>p "0p
+    noremap <leader>P "0P
     noremap H g^
     noremap L g_
     vnoremap / "-y/<C-r>-<CR>N
     vnoremap <C-j> :m '><+1<CR>gv=gv
     vnoremap <C-k> :m '<-2<CR>gv=gv
     vnoremap <F2> "-y:%s/<C-r>-\C/<C-r>-/g<Left><Left>
+    vnoremap <leader>ss :sort<CR>
     vnoremap <M-Down> :m '><+1<CR>gv=gv
-    vnoremap <M-Up> :m '<-2<CR>gv=gv
     vnoremap <M-j> :m '><+1<CR>gv=gv
     vnoremap <M-k> :m '<-2<CR>gv=gv
-    vnoremap <leader>ss :sort<CR>
+    vnoremap <M-Up> :m '<-2<CR>gv=gv
     vnoremap <silent> <C-b> "-di**<C-r>-**<Esc>
-    vnoremap p pgv<Esc>
     vnoremap y ygv<Esc>
+    xnoremap p "_dP
     nnoremap <silent> <leader>obs
         \ :wa<CR>
         \:silent !git pull<CR>
