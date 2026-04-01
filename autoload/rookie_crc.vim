@@ -122,35 +122,60 @@ export def ShowCrc32(data: blob)
 enddef
 
 export def Crc32Hex()
-    var line_start = line("'<")
-    var line_end = line("'>")
-    var lines = getline(line_start, line_end)
-    if empty(lines) | return | endif
+    var line_start: number
+    var line_end: number
 
-    # Process line by line to avoid huge string manipulation
-    var data = 0z
-    for line in lines
-        var clean_line = substitute(line, '[^0-9a-fA-F]', '', 'g')
-        if !empty(clean_line)
-            if len(clean_line) % 2 != 0 | clean_line ..= '0' | endif
-            data += eval('0z' .. clean_line)
-        endif
-    endfor
+    if mode() == 'v' || mode() == 'V' || mode() == "\<C-V>"
+        line_start = line("'<")
+        line_end = line("'>")
+    else
+        line_start = 1
+        line_end = line('$')
+    endif
 
-    ShowCrc32(data)
+    try
+        var lines = getline(line_start, line_end)
+        if empty(lines) | return | endif
+
+        # Process line by line to avoid huge string manipulation
+        var data = 0z
+        for line in lines
+            var clean_line = substitute(line, '[^0-9a-fA-F]', '', 'g')
+            if !empty(clean_line)
+                if len(clean_line) % 2 != 0 | clean_line ..= '0' | endif
+                data += eval('0z' .. clean_line)
+            endif
+        endfor
+
+        ShowCrc32(data)
+    catch
+        echoerr "RookieCrc32Hex Error: " .. v:exception
+    endtry
 enddef
 
 export def Crc32Ascii()
-    var line_start = line("'<")
-    var line_end = line("'>")
+    var line_start: number
+    var line_end: number
 
-    # Use temporary file to read as blob for speed
-    var temp = tempname()
-    var lines = getline(line_start, line_end)
-    writefile(lines, temp, 'b') # Write with newlines
+    if mode() == 'v' || mode() == 'V' || mode() == "\<C-V>"
+        line_start = line("'<")
+        line_end = line("'>")
+    else
+        line_start = 1
+        line_end = line('$')
+    endif
 
-    var data = readfile(temp, 'B')
-    delete(temp)
+    try
+        # Use temporary file to read as blob for speed
+        var temp = tempname()
+        var lines = getline(line_start, line_end)
+        writefile(lines, temp, 'b') # Write with newlines
 
-    ShowCrc32(data)
+        var data = readfile(temp, 'B')
+        delete(temp)
+
+        ShowCrc32(data)
+    catch
+        echoerr "RookieCrc32Ascii Error: " .. v:exception
+    endtry
 enddef
