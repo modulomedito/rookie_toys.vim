@@ -19,8 +19,8 @@ def GetTableNormal(poly: number, bits: number): list<number>
         return tables_normal[key]
     endif
     var table = []
-    var mask = bits == 32 ? 0x80000000 : 0x8000
-    var full_mask = bits == 32 ? 0xFFFFFFFF : 0xFFFF
+    var mask = bits == 32 ? 0x80000000 : (bits == 16 ? 0x8000 : 0x80)
+    var full_mask = bits == 32 ? 0xFFFFFFFF : (bits == 16 ? 0xFFFF : 0xFF)
     for i in range(256)
         var crc = i << (bits - 8)
         for _ in range(8)
@@ -44,7 +44,7 @@ def GetTableReflected(poly: number, bits: number): list<number>
     endif
     var ref_poly = Reflect(poly, bits)
     var table = []
-    var full_mask = bits == 32 ? 0xFFFFFFFF : 0xFFFF
+    var full_mask = bits == 32 ? 0xFFFFFFFF : (bits == 16 ? 0xFFFF : 0xFF)
     for i in range(256)
         var crc = i
         for _ in range(8)
@@ -63,12 +63,17 @@ enddef
 
 export def ComputeCrc(data: blob, bits: number, poly: number, init: number, ref_in: bool, ref_out: bool, xor_out: number): number
     var crc = init
-    var full_mask = bits == 32 ? 0xFFFFFFFF : 0xFFFF
+    var full_mask = bits == 32 ? 0xFFFFFFFF : (bits == 16 ? 0xFFFF : 0xFF)
     if !ref_in
         var table = GetTableNormal(poly, bits)
         for i in range(len(data))
             var byte = data[i]
-            crc = xor(crc << 8, table[and(xor(crc >> (bits - 8), byte), 0xFF)])
+            if bits >= 8
+                crc = xor(crc << 8, table[and(xor(crc >> (bits - 8), byte), 0xFF)])
+            else
+                # This part is theoretically for bits < 8, not needed for now but let's be safe
+                crc = xor(crc << 8, table[and(xor(crc, byte), 0xFF)])
+            endif
             crc = and(crc, full_mask)
         endfor
     else
@@ -91,6 +96,10 @@ enddef
 
 export def ComputeCrc16(data: blob, poly: number, init: number, ref_in: bool, ref_out: bool, xor_out: number): number
     return ComputeCrc(data, 16, poly, init, ref_in, ref_out, xor_out)
+enddef
+
+export def ComputeCrc8(data: blob, poly: number, init: number, ref_in: bool, ref_out: bool, xor_out: number): number
+    return ComputeCrc(data, 8, poly, init, ref_in, ref_out, xor_out)
 enddef
 
 const crc16_algorithms = [
@@ -142,6 +151,29 @@ const crc32_algorithms = [
     { name: 'CRC-32/XFER',       check: '0xBD0BE338', poly: 0x000000AF, init: 0x00000000, refin: false, refout: false, xorout: 0x00000000 },
 ]
 
+const crc8_algorithms = [
+    { name: 'CRC-8/AUTOSAR',    check: '0xDF', poly: 0x2F, init: 0xFF, refin: false, refout: false, xorout: 0xFF },
+    { name: 'CRC-8/BLUETOOTH',  check: '0x26', poly: 0xA7, init: 0x00, refin: true,  refout: true,  xorout: 0x00 },
+    { name: 'CRC-8/CDMA2000',   check: '0xDA', poly: 0x9B, init: 0xFF, refin: false, refout: false, xorout: 0x00 },
+    { name: 'CRC-8/DARC',       check: '0x15', poly: 0x39, init: 0x00, refin: true,  refout: true,  xorout: 0x00 },
+    { name: 'CRC-8/DVB-S2',     check: '0xBC', poly: 0xD5, init: 0x00, refin: false, refout: false, xorout: 0x00 },
+    { name: 'CRC-8/GSM-A',      check: '0x37', poly: 0x1D, init: 0x00, refin: false, refout: false, xorout: 0x00 },
+    { name: 'CRC-8/GSM-B',      check: '0x94', poly: 0x49, init: 0x00, refin: false, refout: false, xorout: 0xFF },
+    { name: 'CRC-8/HITAG',      check: '0xB4', poly: 0x1D, init: 0xFF, refin: false, refout: false, xorout: 0x00 },
+    { name: 'CRC-8/I-432-1',    check: '0xA1', poly: 0x07, init: 0x00, refin: false, refout: false, xorout: 0x55 },
+    { name: 'CRC-8/I-CODE',     check: '0x7E', poly: 0x1D, init: 0xFD, refin: false, refout: false, xorout: 0x00 },
+    { name: 'CRC-8/LTE',        check: '0xEA', poly: 0x9B, init: 0x00, refin: false, refout: false, xorout: 0x00 },
+    { name: 'CRC-8/MAXIM-DOW',  check: '0xA1', poly: 0x31, init: 0x00, refin: true,  refout: true,  xorout: 0x00 },
+    { name: 'CRC-8/MIFARE-MAD', check: '0x99', poly: 0x1D, init: 0xC7, refin: false, refout: false, xorout: 0x00 },
+    { name: 'CRC-8/NRSC-5',     check: '0xF7', poly: 0x31, init: 0xFF, refin: false, refout: false, xorout: 0x00 },
+    { name: 'CRC-8/OPENSAFETY', check: '0x3E', poly: 0x2F, init: 0x00, refin: false, refout: false, xorout: 0x00 },
+    { name: 'CRC-8/ROHC',       check: '0xD0', poly: 0x07, init: 0xFF, refin: true,  refout: true,  xorout: 0x00 },
+    { name: 'CRC-8/SAE-J1850',  check: '0x4B', poly: 0x1D, init: 0xFF, refin: false, refout: false, xorout: 0xFF },
+    { name: 'CRC-8/SMBUS',      check: '0xF4', poly: 0x07, init: 0x00, refin: false, refout: false, xorout: 0x00 },
+    { name: 'CRC-8/TECH-3250',  check: '0x97', poly: 0x1D, init: 0xFF, refin: true,  refout: true,  xorout: 0x00 },
+    { name: 'CRC-8/WCDMA',      check: '0x25', poly: 0x9B, init: 0x00, refin: true,  refout: true,  xorout: 0x00 },
+]
+
 def UpdateOutputBuffer(lines: list<string>)
     var bufname = '__Rookie_CRC__'
     var winid = bufwinid(bufname)
@@ -183,6 +215,19 @@ export def ShowCrc16(data: blob)
         var res = ComputeCrc16(data, alg.poly, alg.init, alg.refin, alg.refout, alg.xorout)
         var result_str = printf("0x%04X", res)
         add(lines, printf("%-25s, %-10s, %-10s, %-10s, %-10s, %-5s, %-6s, %s,", alg.name, result_str, alg.check, printf("0x%04X", alg.poly), printf("0x%04X", alg.init), alg.refin ? "true" : "false", alg.refout ? "true" : "false", printf("0x%04X", alg.xorout)))
+    endfor
+
+    UpdateOutputBuffer(lines)
+enddef
+
+export def ShowCrc8(data: blob)
+    var lines = []
+    add(lines, printf("%-17s, %-10s, %-10s, %-10s, %-10s, %-5s, %-6s, %s,", "CRC-8", "Result", "Check", "Poly", "Init", "RefIn", "RefOut", "XorOut"))
+
+    for alg in crc8_algorithms
+        var res = ComputeCrc8(data, alg.poly, alg.init, alg.refin, alg.refout, alg.xorout)
+        var result_str = printf("0x%02X", res)
+        add(lines, printf("%-17s, %-10s, %-10s, %-10s, %-10s, %-5s, %-6s, %s,", alg.name, result_str, alg.check, printf("0x%02X", alg.poly), printf("0x%02X", alg.init), alg.refin ? "true" : "false", alg.refout ? "true" : "false", printf("0x%02X", alg.xorout)))
     endfor
 
     UpdateOutputBuffer(lines)
@@ -301,5 +346,62 @@ export def Crc32Ascii()
         ShowCrc32(data)
     catch
         echoerr "RookieCrc32Ascii Error: " .. v:exception
+    endtry
+enddef
+
+export def Crc8Hex()
+    var line_start: number
+    var line_end: number
+
+    if mode() == 'v' || mode() == 'V' || mode() == "\<C-V>"
+        line_start = line("'<")
+        line_end = line("'>")
+    else
+        line_start = 1
+        line_end = line('$')
+    endif
+
+    try
+        var lines = getline(line_start, line_end)
+        if empty(lines) | return | endif
+
+        var data = 0z
+        for line in lines
+            var clean_line = substitute(line, '[^0-9a-fA-F]', '', 'g')
+            if !empty(clean_line)
+                if len(clean_line) % 2 != 0 | clean_line ..= '0' | endif
+                data += eval('0z' .. clean_line)
+            endif
+        endfor
+
+        ShowCrc8(data)
+    catch
+        echoerr "RookieCrc8Hex Error: " .. v:exception
+    endtry
+enddef
+
+export def Crc8Ascii()
+    var line_start: number
+    var line_end: number
+
+    if mode() == 'v' || mode() == 'V' || mode() == "\<C-V>"
+        line_start = line("'<")
+        line_end = line("'>")
+    else
+        line_start = 1
+        line_end = line('$')
+    endif
+
+    try
+        var temp = tempname()
+        var lines = getline(line_start, line_end)
+        writefile(lines, temp, 'b')
+
+        var data = readfile(temp, 'B')
+        delete(temp)
+
+        ShowCrc8(data)
+    catch
+        echoerr "RookieCrc8Ascii Error: " .. v:exception
     endtry
 enddef

@@ -122,6 +122,8 @@ command -nargs=0 -range -bar RookieCrc32Hex rookie_crc#Crc32Hex()
 command -nargs=0 -range -bar RookieCrc32Ascii rookie_crc#Crc32Ascii()
 command -nargs=0 -range -bar RookieCrc16Hex rookie_crc#Crc16Hex()
 command -nargs=0 -range -bar RookieCrc16Ascii rookie_crc#Crc16Ascii()
+command -nargs=0 -range -bar RookieCrc8Hex rookie_crc#Crc8Hex()
+command -nargs=0 -range -bar RookieCrc8Ascii rookie_crc#Crc8Ascii()
 
 # Setup
 rookie_setup#Setup()
