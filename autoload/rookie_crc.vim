@@ -142,6 +142,24 @@ const crc32_algorithms = [
     { name: 'CRC-32/XFER',       check: '0xBD0BE338', poly: 0x000000AF, init: 0x00000000, refin: false, refout: false, xorout: 0x00000000 },
 ]
 
+def UpdateOutputBuffer(lines: list<string>)
+    var bufname = '__Rookie_CRC__'
+    var winid = bufwinid(bufname)
+    if winid != -1
+        win_gotoid(winid)
+        setlocal modifiable
+        silent :%delete _
+    else
+        execute 'belowright :20split ' .. bufname
+    endif
+    setline(1, lines)
+    setlocal buftype=nofile
+    setlocal bufhidden=hide
+    setlocal noswapfile
+    setlocal filetype=csv
+    setlocal nomodifiable
+enddef
+
 export def ShowCrc32(data: blob)
     var lines = []
     add(lines, printf("%-17s, %-10s, %-10s, %-10s, %-10s, %-5s, %-6s, %s,", "CRC-32", "Result", "Check", "Poly", "Init", "RefIn", "RefOut", "XorOut"))
@@ -152,13 +170,7 @@ export def ShowCrc32(data: blob)
         add(lines, printf("%-17s, %-10s, %-10s, %-10s, %-10s, %-5s, %-6s, %s,", alg.name, result_str, alg.check, printf("0x%08X", alg.poly), printf("0x%08X", alg.init), alg.refin ? "true" : "false", alg.refout ? "true" : "false", printf("0x%08X", alg.xorout)))
     endfor
 
-    execute 'belowright split'
-    execute 'enew'
-    setline(1, lines)
-    setlocal buftype=nofile
-    setlocal bufhidden=hide
-    setlocal noswapfile
-    setlocal filetype=csv
+    UpdateOutputBuffer(lines)
 enddef
 
 export def ShowCrc16(data: blob)
@@ -171,13 +183,7 @@ export def ShowCrc16(data: blob)
         add(lines, printf("%-25s, %-10s, %-10s, %-10s, %-10s, %-5s, %-6s, %s,", alg.name, result_str, alg.check, printf("0x%04X", alg.poly), printf("0x%04X", alg.init), alg.refin ? "true" : "false", alg.refout ? "true" : "false", printf("0x%04X", alg.xorout)))
     endfor
 
-    execute 'belowright split'
-    execute 'enew'
-    setline(1, lines)
-    setlocal buftype=nofile
-    setlocal bufhidden=hide
-    setlocal noswapfile
-    setlocal filetype=csv
+    UpdateOutputBuffer(lines)
 enddef
 
 export def Crc16Hex()
