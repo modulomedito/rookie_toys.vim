@@ -120,6 +120,8 @@ command -nargs=? -bar Rookie7zUnzip rookie_7zip#Unzip(<f-args>)
 # rookie_crc
 command -nargs=0 -range -bar RookieCrc32Hex rookie_crc#Crc32Hex()
 command -nargs=0 -range -bar RookieCrc32Ascii rookie_crc#Crc32Ascii()
+command -nargs=0 -range -bar RookieCrc16Hex rookie_crc#Crc16Hex()
+command -nargs=0 -range -bar RookieCrc16Ascii rookie_crc#Crc16Ascii()
 
 # Setup
 rookie_setup#Setup()
