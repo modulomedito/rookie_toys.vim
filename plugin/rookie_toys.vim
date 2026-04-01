@@ -117,5 +117,9 @@ command -nargs=0 -bar RookiePlugCocGetConfig rookie_plugins#CocGetConfig()
 command -nargs=? -bar Rookie7zZip rookie_7zip#Zip(<f-args>)
 command -nargs=? -bar Rookie7zUnzip rookie_7zip#Unzip(<f-args>)
 
+# rookie_crc
+command -nargs=0 -range -bar RookieCrc32Hex rookie_crc#Crc32Hex()
+command -nargs=0 -range -bar RookieCrc32Ascii rookie_crc#Crc32Ascii()
+
 # Setup
 rookie_setup#Setup()
