@@ -147,12 +147,14 @@ def UpdateOutputBuffer(lines: list<string>)
     var winid = bufwinid(bufname)
     if winid != -1
         win_gotoid(winid)
-        setlocal modifiable
-        silent :%delete _
     else
-        execute 'belowright :35split ' .. bufname
+        execute 'belowright :32split ' .. bufname
     endif
+
+    setlocal modifiable
+    silent :%delete _
     setline(1, lines)
+
     setlocal buftype=nofile
     setlocal bufhidden=hide
     setlocal noswapfile
