@@ -154,7 +154,7 @@ def UpdateLineChecksum(lnum: number): bool
     endif
 
     # The data to sum is everything excluding the last byte (2 chars) which is the old checksum
-    var data_hex = content[:-3]
+    var data_hex = content[: -3]
 
     var sum = 0
     var i = 0
