@@ -39,7 +39,7 @@ export def HexToAscii(is_visual: any = 0)
     echo "Decoded: " .. result
 
     # Copy to clipboard
-    @\" = result
+    @" = result
     if has('clipboard')
         @+ = result
         echon " (Copied to clipboard)"
