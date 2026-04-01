@@ -150,7 +150,7 @@ def UpdateOutputBuffer(lines: list<string>)
         setlocal modifiable
         silent :%delete _
     else
-        execute 'belowright :20split ' .. bufname
+        execute 'belowright :35split ' .. bufname
     endif
     setline(1, lines)
     setlocal buftype=nofile
