@@ -218,6 +218,11 @@ function! rookie_setup#SetupAbbr() abort
     iab xcho 🐳 chore():[#]<Left><Left><Left><Left>
     iab xdoc 📃 docs():[#]<Left><Left><Left><Left>
     iab xfea ✨ feat():[#]<Left><Left><Left><Left>
+    iab xfix 🐞 fix():[#]<Left><Left><Left><Left>
+    iab xini 🎉 init():[#]<Left><Left><Left><Left>
+    iab xref 🦄 refactor():[#]<Left><Left><Left><Left>
+    iab xrev ↩ revert():[#]<Left><Left><Left><Left>
+    iab xsty 🌈 style():[#]<Left><Left><Left><Left>
     " cab Gclr silent G clean -d -f -x
     cab Gc silent G checkout <C-r><C-w>\|GG
     cab Gcherry G cherry-pick <C-r><C-w>\|GG
@@ -234,11 +239,6 @@ function! rookie_setup#SetupAbbr() abort
     cab Gstashpo silent G stash pop\|GG
     cab Gstashpu silent G stash push --include-untracked\|GG
     cab Gtag silent G tag\|GG<Left><Left><Left>
-    iab xfix 🐞 fix():[#]<Left><Left><Left><Left>
-    iab xini 🎉 init():[#]<Left><Left><Left><Left>
-    iab xref 🦄 refactor():[#]<Left><Left><Left><Left>
-    iab xrev ↩ revert():[#]<Left><Left><Left><Left>
-    iab xsty 🌈 style():[#]<Left><Left><Left><Left>
 endfunction
 
 " autocmd! FileType c
